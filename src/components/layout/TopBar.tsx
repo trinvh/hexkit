@@ -1,14 +1,31 @@
-import { Search, Wand2 } from "lucide-react";
+import { useState, type MouseEvent } from "react";
+import { Search, Wand2, MoreVertical } from "lucide-react";
 import { useApp } from "../../store/app";
 import { getTool } from "../../tools/registry";
 import { detectFromClipboard } from "../../lib/detect";
 import { ThemeToggle } from "../ui/ThemeToggle";
+import { Menu, type MenuItem } from "../ui/Menu";
+import { pinMenuItems } from "../../lib/toolMenu";
 import { cn } from "../../lib/cn";
+
+type MenuState = { x: number; y: number; items: MenuItem[] };
 
 export function TopBar() {
   const activeToolId = useApp((s) => s.activeToolId);
   const togglePalette = useApp((s) => s.togglePalette);
+  const pinned = useApp((s) => s.pinned);
+  const togglePinned = useApp((s) => s.togglePinned);
   const tool = getTool(activeToolId);
+  const [menu, setMenu] = useState<MenuState | null>(null);
+
+  function openToolMenu(event: MouseEvent) {
+    const rect = event.currentTarget.getBoundingClientRect();
+    setMenu({
+      x: rect.right,
+      y: rect.bottom + 4,
+      items: pinMenuItems(activeToolId, pinned, togglePinned),
+    });
+  }
 
   return (
     <header className="flex h-14 shrink-0 items-center gap-3 border-b border-border px-5">
@@ -16,6 +33,18 @@ export function TopBar() {
         <h1 className="truncate text-sm font-semibold text-fg">{tool?.name}</h1>
         <p className="truncate text-xs text-fg-muted">{tool?.description}</p>
       </div>
+      <button
+        type="button"
+        onClick={openToolMenu}
+        aria-label="Tool actions"
+        title="Tool actions"
+        className={cn(
+          "inline-flex size-8 items-center justify-center rounded-lg border border-border",
+          "text-fg-muted transition-colors hover:border-border-strong hover:text-fg",
+        )}
+      >
+        <MoreVertical className="size-4" />
+      </button>
       <button
         type="button"
         onClick={detectFromClipboard}
@@ -43,6 +72,14 @@ export function TopBar() {
         </kbd>
       </button>
       <ThemeToggle />
+      {menu && (
+        <Menu
+          x={menu.x}
+          y={menu.y}
+          items={menu.items}
+          onClose={() => setMenu(null)}
+        />
+      )}
     </header>
   );
 }

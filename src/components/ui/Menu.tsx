@@ -83,7 +83,7 @@ export function Menu({ x, y, items, onClose }: MenuProps) {
             className={cn(
               "flex w-full items-center gap-2.5 rounded-md px-2.5 py-1.5 text-left text-sm transition-colors",
               item.danger
-                ? "text-danger hover:bg-danger/10"
+                ? "text-red-600 hover:bg-red-500/10 dark:text-red-400"
                 : "text-fg-muted hover:bg-surface-2 hover:text-fg",
             )}
           >
