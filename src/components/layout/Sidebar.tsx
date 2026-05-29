@@ -1,5 +1,5 @@
 import { useMemo, useState, type MouseEvent, type ReactNode } from "react";
-import { Search, ChevronDown, ChevronRight, MoreHorizontal } from "lucide-react";
+import { Search, ChevronDown, ChevronRight, MoreHorizontal, X } from "lucide-react";
 import { useApp } from "../../store/app";
 import { TOOLS, getTool } from "../../tools/registry";
 import { CATEGORY_ORDER, type ToolDefinition } from "../../tools/types";
@@ -223,6 +223,17 @@ export function Sidebar() {
             placeholder="Filter tools…"
             className="h-8 w-full bg-transparent text-sm text-fg outline-none placeholder:text-fg-subtle"
           />
+          {query !== "" && (
+            <button
+              type="button"
+              onClick={() => setQuery("")}
+              aria-label="Clear filter"
+              title="Clear filter"
+              className="shrink-0 rounded p-0.5 text-fg-subtle transition-colors hover:text-fg"
+            >
+              <X className="size-3.5" />
+            </button>
+          )}
         </div>
       </div>
 

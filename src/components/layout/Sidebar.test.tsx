@@ -49,6 +49,19 @@ describe("Sidebar", () => {
     expect(screen.getByText(/No tools match/)).toBeInTheDocument();
   });
 
+  it("clears the filter via the clear button", async () => {
+    const user = userEvent.setup();
+    render(<Sidebar />);
+    const input = screen.getByPlaceholderText("Filter tools…");
+    await user.type(input, "uuid");
+    expect(input).toHaveValue("uuid");
+    await user.click(screen.getByRole("button", { name: "Clear filter" }));
+    expect(input).toHaveValue("");
+    expect(
+      screen.getByRole("button", { name: /JSON Format/ }),
+    ).toBeInTheDocument();
+  });
+
   it("shows a Pinned section only when tools are pinned", () => {
     const { rerender } = render(<Sidebar />);
     expect(screen.queryByText("Pinned")).not.toBeInTheDocument();
