@@ -27,5 +27,8 @@ rand = "0.10"
 saffron = "0.1"
 chrono = "0.4"
 csscolorparser = "0.8"
+serde_yaml_ng = "0.10"
+csv = "1.4"
+sqlformat = "0.5"
 rstest = "0.26"
 devtools-core = { path = "crates/devtools-core" }

@@ -26,6 +26,9 @@ rand = { workspace = true }
 saffron = { workspace = true }
 chrono = { workspace = true }
 csscolorparser = { workspace = true }
+serde_yaml_ng = { workspace = true }
+csv = { workspace = true }
+sqlformat = { workspace = true }
 
 [dev-dependencies]
 rstest = { workspace = true }

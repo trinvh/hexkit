@@ -38,6 +38,12 @@ pub fn run(action: &str, params: Value) -> ToolResult<Value> {
         "lorem" => crate::lorem::dispatch(action, params),
         "color" => crate::color::dispatch(action, params),
         "cron" => crate::cron::dispatch(action, params),
+        "yaml" => crate::yaml::dispatch(action, params),
+        "csv" => crate::csvjson::dispatch(action, params),
+        "sql" => crate::sql::dispatch(action, params),
+        "php" => crate::php::dispatch(action, params),
+        "svg" => crate::svg::dispatch(action, params),
+        "jsx" => crate::jsx::dispatch(action, params),
         _ => Err(ToolError::invalid_input(format!("unknown action: {action}"))),
     }
 }

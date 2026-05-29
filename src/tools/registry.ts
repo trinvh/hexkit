@@ -19,6 +19,12 @@ import {
   Pilcrow,
   Palette,
   CalendarClock,
+  FileJson,
+  Table,
+  FileCode,
+  Database,
+  Image,
+  Atom,
 } from "lucide-react";
 import type { ToolDefinition } from "./types";
 import { JsonTool } from "./json/JsonTool";
@@ -41,6 +47,12 @@ import { RandomTool } from "./random/RandomTool";
 import { LoremTool } from "./lorem/LoremTool";
 import { ColorTool } from "./color/ColorTool";
 import { CronTool } from "./cron/CronTool";
+import { YamlTool } from "./yaml/YamlTool";
+import { CsvTool } from "./csv/CsvTool";
+import { SqlTool } from "./sql/SqlTool";
+import { PhpTool } from "./php/PhpTool";
+import { SvgTool } from "./svg/SvgTool";
+import { JsxTool } from "./jsx/JsxTool";
 
 /**
  * The MVP tool set. Components are wired in Phase 3; until then each entry
@@ -226,6 +238,60 @@ export const TOOLS: ToolDefinition[] = [
     keywords: ["cron", "schedule", "crontab", "job", "next", "runs"],
     icon: CalendarClock,
     component: CronTool,
+  },
+  {
+    id: "yaml-json",
+    name: "YAML ↔ JSON",
+    category: "Converters",
+    description: "Convert between YAML and JSON.",
+    keywords: ["yaml", "json", "convert", "yml"],
+    icon: FileJson,
+    component: YamlTool,
+  },
+  {
+    id: "csv-json",
+    name: "CSV ↔ JSON",
+    category: "Converters",
+    description: "Convert between CSV and JSON.",
+    keywords: ["csv", "json", "convert", "spreadsheet", "table"],
+    icon: Table,
+    component: CsvTool,
+  },
+  {
+    id: "php-json",
+    name: "PHP Serialize ↔ JSON",
+    category: "Converters",
+    description: "Serialize and unserialize PHP <-> JSON.",
+    keywords: ["php", "serialize", "unserialize", "json"],
+    icon: FileCode,
+    component: PhpTool,
+  },
+  {
+    id: "sql-formatter",
+    name: "SQL Formatter",
+    category: "Formatters",
+    description: "Reformat SQL queries for readability.",
+    keywords: ["sql", "format", "beautify", "query", "database"],
+    icon: Database,
+    component: SqlTool,
+  },
+  {
+    id: "svg-css",
+    name: "SVG to CSS",
+    category: "Converters",
+    description: "Wrap an SVG as a CSS background-image data URI.",
+    keywords: ["svg", "css", "background", "data uri", "image"],
+    icon: Image,
+    component: SvgTool,
+  },
+  {
+    id: "html-jsx",
+    name: "HTML to JSX",
+    category: "Web",
+    description: "Convert HTML attributes to their JSX equivalents.",
+    keywords: ["html", "jsx", "react", "className", "convert"],
+    icon: Atom,
+    component: JsxTool,
   },
 ];
 
