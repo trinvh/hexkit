@@ -1,5 +1,5 @@
 {
-  "name": "hexkit-devutils",
+  "name": "hexkit",
   "private": true,
   "version": "0.1.0",
   "description": "Hexkit — a fast, offline developer toolbox (Tauri + React).",

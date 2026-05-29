@@ -2,5 +2,5 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
 fn main() {
-    hexkit_devutils_lib::run()
+    hexkit_lib::run()
 }

@@ -117,5 +117,5 @@ contributing you agree your contributions are licensed under the project license
 
 ## Acknowledgements
 
-Inspired by [DevUtils](https://devutils.com). Built on the work of the Tauri,
-React, CodeMirror, and broader Rust and TypeScript communities.
+Built on the work of the Tauri, React, CodeMirror, and the broader Rust and
+TypeScript communities.

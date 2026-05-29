@@ -1,5 +1,5 @@
 //! Smart detection: guess the right tool for an arbitrary string (e.g. the
-//! clipboard contents), DevUtils-style.
+//! clipboard contents).
 
 use crate::error::{ToolError, ToolResult};
 use serde::{Deserialize, Serialize};
