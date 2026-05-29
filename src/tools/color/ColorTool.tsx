@@ -14,28 +14,48 @@ export function ColorTool() {
   const rows = data
     ? [
         { label: "HEX", value: data.hex },
+        { label: "HEX8", value: data.hex8 },
         { label: "RGB", value: data.rgb },
+        { label: "RGBA", value: data.rgba },
         { label: "HSL", value: data.hsl },
+        { label: "HSLA", value: data.hsla },
+        { label: "HSB", value: data.hsb },
+        { label: "HWB", value: data.hwb },
+        { label: "CMYK", value: data.cmyk },
       ]
     : null;
+
+  // The native picker only understands #rrggbb; reflect the parsed colour when
+  // it is valid, otherwise fall back to black.
+  const pickerValue =
+    data && /^#[0-9a-fA-F]{6}$/.test(data.hex) ? data.hex : "#000000";
 
   return (
     <ResultLayout
       errorTitle="Invalid color"
-      emptyHint="Enter a color (hex, rgb(), hsl(), or a name)."
+      emptyHint="Enter a color (hex, rgb(), hsl(), hwb(), cmyk(), or a name)."
       header={
         <div className="flex items-center gap-3">
-          <div
-            className="size-10 shrink-0 rounded-lg border border-border"
-            style={{ backgroundColor: data?.hex ?? "transparent" }}
-            aria-hidden
-          />
+          <label className="relative size-10 shrink-0" title="Pick a color">
+            <span
+              className="block size-10 rounded-lg border border-border"
+              style={{ backgroundColor: data?.hex ?? "transparent" }}
+              aria-hidden
+            />
+            <input
+              type="color"
+              aria-label="Color picker"
+              value={pickerValue}
+              onChange={(e) => setInput(e.currentTarget.value)}
+              className="absolute inset-0 cursor-pointer opacity-0"
+            />
+          </label>
           <div className="flex-1">
             <TextField
               ariaLabel="Color value"
               value={input}
               onChange={setInput}
-              placeholder="#3b82f6, rgb(59 130 246), or teal"
+              placeholder="#3b82f6, rgb(59 130 246), hsl(217 91% 60%), or teal"
               mono
             />
           </div>
