@@ -44,6 +44,10 @@ pub fn run(action: &str, params: Value) -> ToolResult<Value> {
         "php" => crate::php::dispatch(action, params),
         "svg" => crate::svg::dispatch(action, params),
         "jsx" => crate::jsx::dispatch(action, params),
+        "css" => crate::css::dispatch(action, params),
+        "xml" => crate::xml::dispatch(action, params),
+        "js" => crate::js::dispatch(action, params),
+        "htmlfmt" => crate::htmlfmt::dispatch(action, params),
         _ => Err(ToolError::invalid_input(format!("unknown action: {action}"))),
     }
 }

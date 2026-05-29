@@ -25,6 +25,10 @@ import {
   Database,
   Image,
   Atom,
+  Paintbrush,
+  CodeXml,
+  FileCode2,
+  Code2,
 } from "lucide-react";
 import type { ToolDefinition } from "./types";
 import { JsonTool } from "./json/JsonTool";
@@ -53,6 +57,10 @@ import { SqlTool } from "./sql/SqlTool";
 import { PhpTool } from "./php/PhpTool";
 import { SvgTool } from "./svg/SvgTool";
 import { JsxTool } from "./jsx/JsxTool";
+import { CssTool } from "./css/CssTool";
+import { HtmlFmtTool } from "./htmlfmt/HtmlFmtTool";
+import { XmlTool } from "./xml/XmlTool";
+import { JsTool } from "./js/JsTool";
 
 /**
  * The MVP tool set. Components are wired in Phase 3; until then each entry
@@ -292,6 +300,42 @@ export const TOOLS: ToolDefinition[] = [
     keywords: ["html", "jsx", "react", "className", "convert"],
     icon: Atom,
     component: JsxTool,
+  },
+  {
+    id: "css-beautify",
+    name: "CSS / SCSS / Less",
+    category: "Formatters",
+    description: "Beautify CSS, SCSS, and Less; minify CSS.",
+    keywords: ["css", "scss", "less", "beautify", "minify", "format"],
+    icon: Paintbrush,
+    component: CssTool,
+  },
+  {
+    id: "html-beautify",
+    name: "HTML Beautify / Minify",
+    category: "Formatters",
+    description: "Pretty-print or minify HTML.",
+    keywords: ["html", "beautify", "minify", "format", "pretty"],
+    icon: CodeXml,
+    component: HtmlFmtTool,
+  },
+  {
+    id: "xml-beautify",
+    name: "XML Beautify / Minify",
+    category: "Formatters",
+    description: "Re-indent or minify XML.",
+    keywords: ["xml", "beautify", "minify", "format", "indent"],
+    icon: FileCode2,
+    component: XmlTool,
+  },
+  {
+    id: "js-minify",
+    name: "JS Minify",
+    category: "Formatters",
+    description: "Minify JavaScript.",
+    keywords: ["javascript", "js", "minify", "uglify", "compress"],
+    icon: Code2,
+    component: JsTool,
   },
 ];
 

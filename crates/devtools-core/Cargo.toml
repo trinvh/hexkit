@@ -29,6 +29,13 @@ csscolorparser = { workspace = true }
 serde_yaml_ng = { workspace = true }
 csv = { workspace = true }
 sqlformat = { workspace = true }
+malva = { workspace = true }
+markup_fmt = { workspace = true }
+minify-html = { workspace = true }
+lightningcss = { workspace = true }
+minify-js = { workspace = true }
+quick-xml = { workspace = true }
+anyhow = { workspace = true }
 
 [dev-dependencies]
 rstest = { workspace = true }
