@@ -36,6 +36,14 @@ lightningcss = { workspace = true }
 minify-js = { workspace = true }
 quick-xml = { workspace = true }
 anyhow = { workspace = true }
+fancy-regex = { workspace = true }
+pulldown-cmark = { workspace = true }
+x509-parser = { workspace = true }
+pem = { workspace = true }
+qrcode = { workspace = true }
+rqrr = { workspace = true }
+image = { workspace = true }
 
 [dev-dependencies]
 rstest = { workspace = true }
+rcgen = { workspace = true }

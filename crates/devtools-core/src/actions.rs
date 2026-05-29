@@ -48,6 +48,10 @@ pub fn run(action: &str, params: Value) -> ToolResult<Value> {
         "xml" => crate::xml::dispatch(action, params),
         "js" => crate::js::dispatch(action, params),
         "htmlfmt" => crate::htmlfmt::dispatch(action, params),
+        "regexp" => crate::regexp::dispatch(action, params),
+        "markdown" => crate::markdown::dispatch(action, params),
+        "x509" => crate::x509::dispatch(action, params),
+        "qr" => crate::qr::dispatch(action, params),
         _ => Err(ToolError::invalid_input(format!("unknown action: {action}"))),
     }
 }

@@ -29,6 +29,12 @@ import {
   CodeXml,
   FileCode2,
   Code2,
+  Regex,
+  FileText,
+  Eye,
+  ShieldCheck,
+  QrCode,
+  FileImage,
 } from "lucide-react";
 import type { ToolDefinition } from "./types";
 import { JsonTool } from "./json/JsonTool";
@@ -61,6 +67,12 @@ import { CssTool } from "./css/CssTool";
 import { HtmlFmtTool } from "./htmlfmt/HtmlFmtTool";
 import { XmlTool } from "./xml/XmlTool";
 import { JsTool } from "./js/JsTool";
+import { RegexpTool } from "./regexp/RegexpTool";
+import { MarkdownTool } from "./markdown/MarkdownTool";
+import { HtmlPreviewTool } from "./htmlpreview/HtmlPreviewTool";
+import { X509Tool } from "./x509/X509Tool";
+import { QrTool } from "./qr/QrTool";
+import { Base64ImageTool } from "./base64image/Base64ImageTool";
 
 /**
  * The MVP tool set. Components are wired in Phase 3; until then each entry
@@ -336,6 +348,60 @@ export const TOOLS: ToolDefinition[] = [
     keywords: ["javascript", "js", "minify", "uglify", "compress"],
     icon: Code2,
     component: JsTool,
+  },
+  {
+    id: "regexp-tester",
+    name: "RegExp Tester",
+    category: "Text",
+    description: "Test regular expressions and inspect matches.",
+    keywords: ["regex", "regexp", "regular expression", "match", "pattern"],
+    icon: Regex,
+    component: RegexpTool,
+  },
+  {
+    id: "markdown-preview",
+    name: "Markdown Preview",
+    category: "Text",
+    description: "Render Markdown to HTML.",
+    keywords: ["markdown", "md", "preview", "render", "commonmark"],
+    icon: FileText,
+    component: MarkdownTool,
+  },
+  {
+    id: "html-preview",
+    name: "HTML Preview",
+    category: "Web",
+    description: "Render an HTML snippet in a sandboxed frame.",
+    keywords: ["html", "preview", "render", "iframe"],
+    icon: Eye,
+    component: HtmlPreviewTool,
+  },
+  {
+    id: "x509-decoder",
+    name: "Certificate Decoder",
+    category: "Encoders",
+    description: "Decode an X.509 (PEM) certificate.",
+    keywords: ["x509", "certificate", "pem", "tls", "ssl", "decode"],
+    icon: ShieldCheck,
+    component: X509Tool,
+  },
+  {
+    id: "qr-code",
+    name: "QR Code",
+    category: "Generators",
+    description: "Generate and read QR codes.",
+    keywords: ["qr", "qrcode", "barcode", "generate", "scan", "read"],
+    icon: QrCode,
+    component: QrTool,
+  },
+  {
+    id: "base64-image",
+    name: "Base64 Image",
+    category: "Encoders",
+    description: "Encode images to base64 and preview data URIs.",
+    keywords: ["base64", "image", "data uri", "encode", "decode"],
+    icon: FileImage,
+    component: Base64ImageTool,
   },
 ];
 
