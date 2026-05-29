@@ -4,8 +4,8 @@ resolver = "2"
 
 [workspace.package]
 edition = "2021"
-authors = ["Hexkit"]
-license = "MIT"
+authors = ["Tri Nguyen"]
+license-file = "LICENSE"
 
 [workspace.dependencies]
 serde = { version = "1", features = ["derive"] }

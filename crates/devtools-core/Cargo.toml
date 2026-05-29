@@ -3,7 +3,7 @@ name = "devtools-core"
 version = "0.1.0"
 edition.workspace = true
 authors.workspace = true
-license.workspace = true
+license-file.workspace = true
 description = "Pure, Tauri-independent logic for all Hexkit developer tools."
 
 [dependencies]

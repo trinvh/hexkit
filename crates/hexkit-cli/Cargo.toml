@@ -3,7 +3,7 @@ name = "hexkit-cli"
 version = "0.1.0"
 edition.workspace = true
 authors.workspace = true
-license.workspace = true
+license-file.workspace = true
 description = "Headless CLI for Hexkit dev tools — ideal for scripting and Raycast."
 
 [[bin]]

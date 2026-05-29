@@ -4,7 +4,7 @@ version = "0.1.0"
 description = "Hexkit — a modern offline developer toolbox"
 authors.workspace = true
 edition.workspace = true
-license.workspace = true
+license-file.workspace = true
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
