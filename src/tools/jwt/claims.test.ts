@@ -1,5 +1,16 @@
 import { describe, it, expect } from "vitest";
-import { humanizeClaims, isExpired } from "./claims";
+import { humanizeClaims, isExpired, algorithmOf } from "./claims";
+
+describe("algorithmOf", () => {
+  it("reads the alg from a decoded header", () => {
+    expect(algorithmOf('{"alg":"HS256","typ":"JWT"}')).toBe("HS256");
+  });
+
+  it("returns null when alg is missing or invalid", () => {
+    expect(algorithmOf('{"typ":"JWT"}')).toBeNull();
+    expect(algorithmOf("not json")).toBeNull();
+  });
+});
 
 describe("humanizeClaims", () => {
   it("renders iat / nbf / exp as ISO timestamps", () => {

@@ -30,7 +30,13 @@ pub struct TimeInfo {
 /// RFC 3339 / ISO date string, or a simple arithmetic expression of epoch
 /// seconds like `1700000000 + 3600`) into human-readable representations.
 pub fn convert(input: &str) -> ToolResult<TimeInfo> {
-    let timestamp = parse(input)?;
+    convert_with_unit(input, "auto")
+}
+
+/// Like [`convert`], but a numeric input is interpreted using `unit`
+/// (`"auto"`, `"s"`, `"ms"`, `"us"`, or `"ns"`). Date strings ignore the unit.
+pub fn convert_with_unit(input: &str, unit: &str) -> ToolResult<TimeInfo> {
+    let timestamp = parse_with_unit(input, unit)?;
     let utc = timestamp.to_zoned(TimeZone::UTC);
     let local = timestamp.to_zoned(TimeZone::system());
     let year = utc.year();
@@ -134,24 +140,17 @@ fn eval_arithmetic(input: &str) -> Option<i64> {
     Some(acc)
 }
 
-fn parse(input: &str) -> ToolResult<Timestamp> {
+fn parse_with_unit(input: &str, unit: &str) -> ToolResult<Timestamp> {
     let trimmed = input.trim();
     if trimmed.is_empty() {
         return Err(ToolError::invalid_input("input is empty"));
     }
 
-    if let Some(seconds) = eval_arithmetic(trimmed) {
-        return Timestamp::from_second(seconds)
-            .map_err(|e| ToolError::invalid_input(e.to_string()));
-    }
-
-    if let Ok(number) = trimmed.parse::<i64>() {
-        let result = if number.abs() >= 1_000_000_000_000 {
-            Timestamp::from_millisecond(number)
-        } else {
-            Timestamp::from_second(number)
-        };
-        return result.map_err(|e| ToolError::invalid_input(e.to_string()));
+    // A numeric value (possibly an arithmetic expression) is interpreted in
+    // the requested unit; everything else is parsed as a date string.
+    let number = eval_arithmetic(trimmed).or_else(|| trimmed.parse::<i64>().ok());
+    if let Some(value) = number {
+        return timestamp_from_unit(value, unit);
     }
 
     if let Ok(timestamp) = trimmed.parse::<Timestamp>() {
@@ -165,19 +164,41 @@ fn parse(input: &str) -> ToolResult<Timestamp> {
     ))
 }
 
+fn timestamp_from_unit(value: i64, unit: &str) -> ToolResult<Timestamp> {
+    let result = match unit {
+        "s" => Timestamp::from_second(value),
+        "ms" => Timestamp::from_millisecond(value),
+        "us" => Timestamp::from_nanosecond(value as i128 * 1_000),
+        "ns" => Timestamp::from_nanosecond(value as i128),
+        // "auto": treat large magnitudes as milliseconds, otherwise seconds.
+        _ => {
+            if value.abs() >= 1_000_000_000_000 {
+                Timestamp::from_millisecond(value)
+            } else {
+                Timestamp::from_second(value)
+            }
+        }
+    };
+    result.map_err(|e| ToolError::invalid_input(e.to_string()))
+}
+
 #[derive(Deserialize)]
-struct OneInput {
+struct ConvertParams {
     input: String,
+    #[serde(default = "default_unit")]
+    unit: String,
+}
+
+fn default_unit() -> String {
+    "auto".to_string()
 }
 
 pub fn dispatch(action: &str, params: Value) -> ToolResult<Value> {
-    let parsed: OneInput =
+    let parsed: ConvertParams =
         serde_json::from_value(params).map_err(|e| ToolError::invalid_input(e.to_string()))?;
     match action {
-        "time.convert" => {
-            serde_json::to_value(convert(&parsed.input)?)
-                .map_err(|e| ToolError::other(e.to_string()))
-        }
+        "time.convert" => serde_json::to_value(convert_with_unit(&parsed.input, &parsed.unit)?)
+            .map_err(|e| ToolError::other(e.to_string())),
         _ => Err(ToolError::invalid_input(format!("unknown action: {action}"))),
     }
 }
@@ -284,5 +305,38 @@ mod tests {
     fn plain_numbers_are_not_treated_as_arithmetic() {
         // A lone timestamp must still parse as a timestamp, not an expression.
         assert_eq!(convert("1700000000").unwrap().epoch_seconds, "1700000000");
+    }
+
+    #[test]
+    fn interprets_numbers_in_the_requested_unit() {
+        assert_eq!(
+            convert_with_unit("1700000000", "s").unwrap().epoch_seconds,
+            "1700000000"
+        );
+        // 1.7e9 milliseconds is 1.7e6 seconds.
+        assert_eq!(
+            convert_with_unit("1700000000", "ms").unwrap().epoch_seconds,
+            "1700000"
+        );
+        assert_eq!(
+            convert_with_unit("1700000000000", "ms")
+                .unwrap()
+                .epoch_seconds,
+            "1700000000"
+        );
+        assert_eq!(
+            convert_with_unit("1700000000000000", "us")
+                .unwrap()
+                .epoch_seconds,
+            "1700000000"
+        );
+    }
+
+    #[test]
+    fn auto_unit_matches_plain_convert() {
+        assert_eq!(
+            convert_with_unit("1700000000", "auto").unwrap().epoch_seconds,
+            convert("1700000000").unwrap().epoch_seconds
+        );
     }
 }

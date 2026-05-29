@@ -34,6 +34,11 @@ export function PhpTool() {
       inputLabel="PHP input"
       outputLabel="PHP output"
       inputPlaceholder={mode === "to_json" ? 'a:1:{s:1:"a";i:1;}' : '{"a":1}'}
+      sample={
+        mode === "to_json"
+          ? 'a:2:{s:4:"name";s:6:"hexkit";s:7:"version";i:1;}'
+          : '{"name":"hexkit","version":1}'
+      }
       outputPlaceholder="Result appears here"
       errorTitle="Conversion error"
     />

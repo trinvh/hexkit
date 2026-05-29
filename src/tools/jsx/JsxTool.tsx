@@ -26,6 +26,7 @@ export function JsxTool() {
       inputLabel="HTML input"
       outputLabel="JSX output"
       inputPlaceholder='<label class="x" for="y">'
+      sample='<div class="card"><label for="email">Email</label><input id="email" tabindex="0" /></div>'
       outputPlaceholder="JSX appears here"
       errorTitle="Error"
     />

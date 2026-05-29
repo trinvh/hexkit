@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { TextField } from "../../components/ui/TextField";
+import { InputActions } from "../../components/ui/InputActions";
 import { ResultLayout } from "../../components/ui/ResultLayout";
 import { useLiveAction } from "../../lib/useLiveAction";
 import { runDigests } from "./run";
@@ -44,6 +45,11 @@ export function HashTool() {
               mono
             />
           </div>
+          <InputActions
+            onInput={setInput}
+            sample="The quick brown fox jumps over the lazy dog"
+            hasInput={input !== ""}
+          />
         </div>
       }
       rows={rows}

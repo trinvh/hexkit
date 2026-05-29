@@ -33,6 +33,9 @@ export function CurlTool() {
       inputLabel="cURL command"
       outputLabel="Generated code"
       inputPlaceholder="curl -X POST https://api.example.com -d '{}'"
+      sample={
+        'curl -X POST https://api.example.com/users -H "Content-Type: application/json" -H "Authorization: Bearer TOKEN" -d \'{"name":"Alice","role":"admin"}\''
+      }
       outputPlaceholder="Generated request code appears here"
       errorTitle="Error"
     />

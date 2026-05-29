@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Segmented } from "../../components/ui/Segmented";
 import { TextField } from "../../components/ui/TextField";
+import { InputActions } from "../../components/ui/InputActions";
 import { ResultLayout } from "../../components/ui/ResultLayout";
 import { useLiveAction } from "../../lib/useLiveAction";
 import { NUMBER_BASES, runNumber, runCustomBase } from "./run";
@@ -49,6 +50,11 @@ export function NumberTool() {
               mono
             />
           </div>
+          <InputActions
+            onInput={setInput}
+            sample="255"
+            hasInput={input !== ""}
+          />
           <div className="flex items-center gap-2">
             <span className="text-xs text-fg-subtle">Custom base</span>
             <div className="w-20">

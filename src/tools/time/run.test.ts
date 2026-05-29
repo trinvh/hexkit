@@ -15,9 +15,15 @@ describe("runTime", () => {
     expect(timeConvert).not.toHaveBeenCalled();
   });
 
-  it("calls the backend with the input", () => {
+  it("calls the backend with the input and default unit", () => {
     timeConvert.mockReturnValue(Promise.resolve({}));
     runTime("1700000000");
-    expect(timeConvert).toHaveBeenCalledWith("1700000000");
+    expect(timeConvert).toHaveBeenCalledWith("1700000000", "auto");
+  });
+
+  it("passes the chosen unit through", () => {
+    timeConvert.mockReturnValue(Promise.resolve({}));
+    runTime("1700000000", "ms");
+    expect(timeConvert).toHaveBeenCalledWith("1700000000", "ms");
   });
 });

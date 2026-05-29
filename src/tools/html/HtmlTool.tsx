@@ -34,6 +34,11 @@ export function HtmlTool() {
           ? "Text to escape…"
           : "Text with &entities; to decode…"
       }
+      sample={
+        mode === "encode"
+          ? '<a href="?x=1&y=2">Tom & Jerry "quote"</a>'
+          : "&lt;a href=&quot;?x=1&amp;y=2&quot;&gt;Tom &amp; Jerry&lt;/a&gt;"
+      }
       outputPlaceholder="Result appears here"
       errorTitle="Error"
     />

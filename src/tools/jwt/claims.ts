@@ -35,6 +35,13 @@ export function humanizeClaims(payloadJson: string): ClaimRow[] {
   return rows;
 }
 
+/** Extract the `alg` from a decoded JWT header (e.g. "HS256"), or null. */
+export function algorithmOf(headerJson: string): string | null {
+  const obj = parseObject(headerJson);
+  const alg = obj?.alg;
+  return typeof alg === "string" && alg !== "" ? alg : null;
+}
+
 /**
  * Whether the token is past its `exp` at `nowSeconds`. Returns `null` when
  * there is no usable `exp` claim.

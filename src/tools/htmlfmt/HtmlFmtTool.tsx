@@ -33,6 +33,7 @@ export function HtmlFmtTool() {
       inputLabel="HTML input"
       outputLabel="HTML output"
       inputPlaceholder="<div><p>hi</p></div>"
+      sample='<section class="hero"><h1>Hexkit</h1><p>Offline developer tools.</p><a href="#" class="cta">Get started</a></section>'
       outputPlaceholder="Result appears here"
       errorTitle="HTML error"
     />

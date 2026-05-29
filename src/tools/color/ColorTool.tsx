@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { TextField } from "../../components/ui/TextField";
+import { InputActions } from "../../components/ui/InputActions";
 import { ResultLayout } from "../../components/ui/ResultLayout";
 import { useLiveAction } from "../../lib/useLiveAction";
 import { useSeed } from "../../lib/seed";
@@ -38,6 +39,11 @@ export function ColorTool() {
               mono
             />
           </div>
+          <InputActions
+            onInput={setInput}
+            sample="#3b82f6"
+            hasInput={input !== ""}
+          />
         </div>
       }
       rows={rows}

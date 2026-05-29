@@ -34,6 +34,11 @@ export function CsvTool() {
       inputLabel="CSV input"
       outputLabel="CSV output"
       inputPlaceholder={mode === "to_json" ? "a,b\n1,2" : '[{"a":1,"b":2}]'}
+      sample={
+        mode === "to_json"
+          ? "name,role,active\nAlice,admin,true\nBob,member,false"
+          : '[{"name":"Alice","role":"admin"},{"name":"Bob","role":"member"}]'
+      }
       outputPlaceholder="Result appears here"
       errorTitle="Conversion error"
     />

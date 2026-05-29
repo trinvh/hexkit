@@ -7,7 +7,7 @@ import { useLiveAction } from "../../lib/useLiveAction";
 import { useSeed } from "../../lib/seed";
 import { cn } from "../../lib/cn";
 import { runJwt, runVerify } from "./run";
-import { humanizeClaims } from "./claims";
+import { humanizeClaims, algorithmOf } from "./claims";
 
 function Section({ title, body }: { title: string; body: string }) {
   return (
@@ -36,12 +36,20 @@ export function JwtTool() {
   );
 
   const claims = data ? humanizeClaims(data.payload) : [];
+  const algorithm = data ? algorithmOf(data.header) : null;
 
   return (
     <div className="grid h-full grid-cols-2 divide-x divide-border">
       <div className="flex min-h-0 flex-col">
-        <div className="border-b border-border px-4 py-2 text-xs font-medium uppercase tracking-wider text-fg-subtle">
-          Encoded
+        <div className="flex items-center justify-between border-b border-border px-4 py-2">
+          <span className="text-xs font-medium uppercase tracking-wider text-fg-subtle">
+            Encoded
+          </span>
+          {algorithm && (
+            <span className="rounded-full border border-border px-2 py-0.5 font-mono text-[11px] text-fg-muted">
+              {algorithm}
+            </span>
+          )}
         </div>
         <div className="min-h-0 flex-1 overflow-hidden">
           <CodeEditor

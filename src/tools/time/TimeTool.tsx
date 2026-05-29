@@ -1,14 +1,20 @@
 import { useState } from "react";
+import { Segmented } from "../../components/ui/Segmented";
 import { TextField } from "../../components/ui/TextField";
+import { InputActions } from "../../components/ui/InputActions";
 import { ResultLayout } from "../../components/ui/ResultLayout";
 import { useLiveAction } from "../../lib/useLiveAction";
 import { useSeed } from "../../lib/seed";
-import { runTime } from "./run";
+import { runTime, TIME_UNITS } from "./run";
 
 export function TimeTool() {
   const seed = useSeed();
   const [input, setInput] = useState(seed.value);
-  const { data, error } = useLiveAction(() => runTime(input), [input]);
+  const [unit, setUnit] = useState("auto");
+  const { data, error } = useLiveAction(
+    () => runTime(input, unit),
+    [input, unit],
+  );
 
   const rows = data
     ? [
@@ -31,8 +37,14 @@ export function TimeTool() {
       errorTitle="Invalid timestamp"
       emptyHint="Enter a Unix timestamp or date, or use Now."
       header={
-        <div className="flex items-center gap-3">
-          <div className="flex-1">
+        <div className="flex flex-wrap items-center gap-3">
+          <Segmented
+            ariaLabel="Input unit"
+            options={TIME_UNITS}
+            value={unit}
+            onChange={setUnit}
+          />
+          <div className="min-w-48 flex-1">
             <TextField
               ariaLabel="Timestamp or date"
               value={input}
@@ -48,6 +60,11 @@ export function TimeTool() {
           >
             Now
           </button>
+          <InputActions
+            onInput={setInput}
+            sample="1700000000"
+            hasInput={input !== ""}
+          />
         </div>
       }
       rows={rows}

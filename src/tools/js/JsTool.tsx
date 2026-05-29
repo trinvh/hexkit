@@ -25,6 +25,7 @@ export function JsTool() {
       inputLabel="JavaScript input"
       outputLabel="Minified output"
       inputPlaceholder="const x = 1 + 2;"
+      sample={"function greet(name) {\n  const msg = `Hello, ${name}!`;\n  console.log(msg);\n  return msg;\n}\n\ngreet('Hexkit');"}
       outputPlaceholder="Minified JS appears here"
       errorTitle="JavaScript error"
     />

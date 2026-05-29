@@ -14,6 +14,6 @@ export interface TimeInfo {
   rfc2822: string;
 }
 
-export function timeConvert(input: string): Promise<TimeInfo> {
-  return runAction<TimeInfo>("time.convert", { input });
+export function timeConvert(input: string, unit = "auto"): Promise<TimeInfo> {
+  return runAction<TimeInfo>("time.convert", { input, unit });
 }

@@ -34,6 +34,7 @@ export function JsonCodeTool() {
       inputLabel="JSON input"
       outputLabel="Generated types"
       inputPlaceholder='{"name":"hexkit","version":1}'
+      sample='{"id":1,"name":"hexkit","tags":["json","yaml"],"meta":{"active":true,"score":4.5}}'
       outputPlaceholder="Generated type definitions appear here"
       errorTitle="Error"
     />
