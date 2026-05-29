@@ -52,6 +52,8 @@ pub fn run(action: &str, params: Value) -> ToolResult<Value> {
         "markdown" => crate::markdown::dispatch(action, params),
         "x509" => crate::x509::dispatch(action, params),
         "qr" => crate::qr::dispatch(action, params),
+        "curl" => crate::curlcode::dispatch(action, params),
+        "jsoncode" => crate::jsoncode::dispatch(action, params),
         _ => Err(ToolError::invalid_input(format!("unknown action: {action}"))),
     }
 }

@@ -35,6 +35,8 @@ import {
   ShieldCheck,
   QrCode,
   FileImage,
+  Terminal,
+  Brackets,
 } from "lucide-react";
 import type { ToolDefinition } from "./types";
 import { JsonTool } from "./json/JsonTool";
@@ -73,6 +75,8 @@ import { HtmlPreviewTool } from "./htmlpreview/HtmlPreviewTool";
 import { X509Tool } from "./x509/X509Tool";
 import { QrTool } from "./qr/QrTool";
 import { Base64ImageTool } from "./base64image/Base64ImageTool";
+import { CurlTool } from "./curlcode/CurlTool";
+import { JsonCodeTool } from "./jsoncode/JsonCodeTool";
 
 /**
  * The MVP tool set. Components are wired in Phase 3; until then each entry
@@ -402,6 +406,24 @@ export const TOOLS: ToolDefinition[] = [
     keywords: ["base64", "image", "data uri", "encode", "decode"],
     icon: FileImage,
     component: Base64ImageTool,
+  },
+  {
+    id: "curl-to-code",
+    name: "cURL to Code",
+    category: "Converters",
+    description: "Convert a curl command into request code.",
+    keywords: ["curl", "code", "fetch", "requests", "http", "client"],
+    icon: Terminal,
+    component: CurlTool,
+  },
+  {
+    id: "json-to-code",
+    name: "JSON to Code",
+    category: "Converters",
+    description: "Generate type definitions from a JSON sample.",
+    keywords: ["json", "code", "types", "interface", "struct", "model"],
+    icon: Brackets,
+    component: JsonCodeTool,
   },
 ];
 

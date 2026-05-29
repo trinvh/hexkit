@@ -43,6 +43,7 @@ pem = { workspace = true }
 qrcode = { workspace = true }
 rqrr = { workspace = true }
 image = { workspace = true }
+shell-words = { workspace = true }
 
 [dev-dependencies]
 rstest = { workspace = true }

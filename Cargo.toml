@@ -45,5 +45,6 @@ qrcode = { version = "0.14", default-features = false, features = ["image", "svg
 rqrr = "0.10"
 image = "0.25"
 rcgen = "0.14"
+shell-words = "1.1"
 rstest = "0.26"
 devtools-core = { path = "crates/devtools-core" }
