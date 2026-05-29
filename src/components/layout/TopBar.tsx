@@ -15,6 +15,7 @@ export function TopBar() {
   const togglePalette = useApp((s) => s.togglePalette);
   const pinned = useApp((s) => s.pinned);
   const togglePinned = useApp((s) => s.togglePinned);
+  const openInNewTab = useApp((s) => s.openInNewTab);
   const tool = getTool(activeToolId);
   const [menu, setMenu] = useState<MenuState | null>(null);
 
@@ -23,7 +24,7 @@ export function TopBar() {
     setMenu({
       x: rect.right,
       y: rect.bottom + 4,
-      items: pinMenuItems(activeToolId, pinned, togglePinned),
+      items: pinMenuItems(activeToolId, pinned, togglePinned, openInNewTab),
     });
   }
 

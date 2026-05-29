@@ -2,9 +2,11 @@ import { Suspense } from "react";
 import { Hammer } from "lucide-react";
 import { useApp } from "../../store/app";
 import { getTool } from "../../tools/registry";
+import { TabContext } from "../../lib/tabContext";
 import type { ToolDefinition } from "../../tools/types";
 
 export function ToolPane() {
+  const activeTabId = useApp((s) => s.activeTabId);
   const activeToolId = useApp((s) => s.activeToolId);
   const seedNonce = useApp((s) => s.seedNonce);
   const tool = getTool(activeToolId);
@@ -15,9 +17,12 @@ export function ToolPane() {
     <div className="h-full min-h-0 overflow-auto">
       {Component ? (
         <Suspense fallback={null}>
-          {/* Remount on seed so a freshly detected value is picked up even when
-              the same tool is already active. */}
-          <Component key={`${activeToolId}:${seedNonce}`} />
+          {/* Key by tab so each tab is its own instance, and by seed so a
+              freshly detected value is picked up. Per-tab state is restored
+              from the store on mount. */}
+          <TabContext.Provider value={activeTabId}>
+            <Component key={`${activeTabId}:${seedNonce}`} />
+          </TabContext.Provider>
         </Suspense>
       ) : (
         <Scaffolded tool={tool} />

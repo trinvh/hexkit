@@ -7,12 +7,15 @@ import { DEFAULT_TOOL_ID } from "../../tools/registry";
 
 function reset() {
   useApp.setState({
+    tabs: [{ id: "main", toolId: DEFAULT_TOOL_ID }],
+    activeTabId: "main",
     activeToolId: DEFAULT_TOOL_ID,
     paletteOpen: false,
     pinned: [],
     recents: [],
     pinnedCollapsed: false,
     recentCollapsed: false,
+    tabState: {},
   });
 }
 
@@ -80,6 +83,20 @@ describe("Sidebar", () => {
     expect(
       screen.getByRole("button", { name: "Show all recent tools" }),
     ).toBeInTheDocument();
+  });
+
+  it("opens a tool in a new tab from the context menu", async () => {
+    const user = userEvent.setup();
+    render(<Sidebar />);
+    await user.pointer({
+      keys: "[MouseRight]",
+      target: screen.getByRole("button", { name: /JSON Format/ }),
+    });
+    await user.click(screen.getByRole("menuitem", { name: "Open in new tab" }));
+    const s = useApp.getState();
+    expect(s.tabs).toHaveLength(2);
+    expect(s.tabs[1].toolId).toBe("json-format");
+    expect(s.activeTabId).toBe(s.tabs[1].id);
   });
 
   it("right-click on a tool opens a pin menu and pins it", async () => {

@@ -1,6 +1,7 @@
 import { Toaster } from "sonner";
 import { Sidebar } from "./Sidebar";
 import { TopBar } from "./TopBar";
+import { TabBar } from "./TabBar";
 import { ToolPane } from "./ToolPane";
 import { CommandPalette } from "../command-palette/CommandPalette";
 import { useTheme } from "../../lib/theme";
@@ -13,6 +14,7 @@ export function AppShell() {
       <Sidebar />
       <div className="flex min-w-0 flex-1 flex-col">
         <TopBar />
+        <TabBar />
         <main className="min-h-0 flex-1">
           <ToolPane />
         </main>

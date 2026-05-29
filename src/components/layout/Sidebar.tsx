@@ -97,6 +97,7 @@ export function Sidebar() {
 
   const activeToolId = useApp((s) => s.activeToolId);
   const setActiveTool = useApp((s) => s.setActiveTool);
+  const openInNewTab = useApp((s) => s.openInNewTab);
   const pinned = useApp((s) => s.pinned);
   const recents = useApp((s) => s.recents);
   const togglePinned = useApp((s) => s.togglePinned);
@@ -139,7 +140,7 @@ export function Sidebar() {
     setMenu({
       x: event.clientX,
       y: event.clientY,
-      items: pinMenuItems(id, pinned, togglePinned),
+      items: pinMenuItems(id, pinned, togglePinned, openInNewTab),
     });
   }
 
