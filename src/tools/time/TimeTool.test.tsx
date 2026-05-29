@@ -21,6 +21,11 @@ const SAMPLE = {
   utc: "2023-11-14 22:13:20 UTC",
   local: "2023-11-14 14:13:20 PST",
   day_of_week: "Tuesday",
+  relative: "2 years ago",
+  day_of_year: "318",
+  week_of_year: "46",
+  is_leap_year: false,
+  rfc2822: "Tue, 14 Nov 2023 22:13:20 +0000",
 };
 
 beforeEach(() => {
@@ -36,6 +41,8 @@ describe("TimeTool", () => {
     });
     expect(await screen.findByText("2023-11-14T22:13:20Z")).toBeInTheDocument();
     expect(screen.getByText("Tuesday")).toBeInTheDocument();
+    expect(screen.getByText("2 years ago")).toBeInTheDocument();
+    expect(screen.getByText("318")).toBeInTheDocument();
   });
 
   it("fills the current epoch when Now is clicked", async () => {

@@ -17,8 +17,8 @@ pub struct RegexResult {
     pub matches: Vec<RegexMatch>,
 }
 
-/// Find all matches of `pattern` in `text`. `flags` accepts `i`, `m`, `s`, `x`.
-pub fn test(pattern: &str, text: &str, flags: &str) -> ToolResult<RegexResult> {
+/// Build a compiled regex, applying `flags` (`i`, `m`, `s`, `x`) as inline flags.
+fn compile(pattern: &str, flags: &str) -> ToolResult<Regex> {
     let inline: String = flags
         .chars()
         .filter(|c| matches!(c, 'i' | 'm' | 's' | 'x'))
@@ -28,7 +28,12 @@ pub fn test(pattern: &str, text: &str, flags: &str) -> ToolResult<RegexResult> {
     } else {
         format!("(?{inline}){pattern}")
     };
-    let re = Regex::new(&full).map_err(|e| ToolError::invalid_input(e.to_string()))?;
+    Regex::new(&full).map_err(|e| ToolError::invalid_input(e.to_string()))
+}
+
+/// Find all matches of `pattern` in `text`. `flags` accepts `i`, `m`, `s`, `x`.
+pub fn test(pattern: &str, text: &str, flags: &str) -> ToolResult<RegexResult> {
+    let re = compile(pattern, flags)?;
 
     let mut matches = Vec::new();
     for caps in re.captures_iter(text) {
@@ -46,6 +51,19 @@ pub fn test(pattern: &str, text: &str, flags: &str) -> ToolResult<RegexResult> {
     Ok(RegexResult { matches })
 }
 
+/// Replace every match of `pattern` in `text` with `replacement`. The
+/// replacement supports `$1` / `${name}` group references and `$0` for the
+/// whole match.
+pub fn replace(
+    pattern: &str,
+    text: &str,
+    flags: &str,
+    replacement: &str,
+) -> ToolResult<String> {
+    let re = compile(pattern, flags)?;
+    Ok(re.replace_all(text, replacement).into_owned())
+}
+
 #[derive(Deserialize)]
 struct RegexParams {
     pattern: String,
@@ -54,13 +72,32 @@ struct RegexParams {
     flags: String,
 }
 
+#[derive(Deserialize)]
+struct ReplaceParams {
+    pattern: String,
+    text: String,
+    #[serde(default)]
+    flags: String,
+    replacement: String,
+}
+
 pub fn dispatch(action: &str, params: Value) -> ToolResult<Value> {
-    let p: RegexParams =
-        serde_json::from_value(params).map_err(|e| ToolError::invalid_input(e.to_string()))?;
     match action {
         "regexp.test" => {
+            let p: RegexParams = serde_json::from_value(params)
+                .map_err(|e| ToolError::invalid_input(e.to_string()))?;
             serde_json::to_value(test(&p.pattern, &p.text, &p.flags)?)
                 .map_err(|e| ToolError::other(e.to_string()))
+        }
+        "regexp.replace" => {
+            let p: ReplaceParams = serde_json::from_value(params)
+                .map_err(|e| ToolError::invalid_input(e.to_string()))?;
+            Ok(Value::String(replace(
+                &p.pattern,
+                &p.text,
+                &p.flags,
+                &p.replacement,
+            )?))
         }
         _ => Err(ToolError::invalid_input(format!("unknown action: {action}"))),
     }
@@ -98,5 +135,31 @@ mod tests {
     #[test]
     fn rejects_invalid_pattern() {
         assert!(matches!(test("(", "x", ""), Err(ToolError::InvalidInput(_))));
+    }
+
+    #[test]
+    fn replaces_all_matches_with_group_references() {
+        let out = replace(r"(\w+)@(\w+)", "alice@example", "", "$2.$1").unwrap();
+        assert_eq!(out, "example.alice");
+    }
+
+    #[test]
+    fn replace_honours_flags() {
+        let out = replace("a", "AbA", "i", "X").unwrap();
+        assert_eq!(out, "XbX");
+    }
+
+    #[test]
+    fn replace_leaves_non_matches_intact() {
+        let out = replace(r"\d", "abc", "", "X").unwrap();
+        assert_eq!(out, "abc");
+    }
+
+    #[test]
+    fn replace_rejects_invalid_pattern() {
+        assert!(matches!(
+            replace("(", "x", "", "y"),
+            Err(ToolError::InvalidInput(_))
+        ));
     }
 }

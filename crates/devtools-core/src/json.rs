@@ -5,12 +5,59 @@ use serde::de::DeserializeOwned;
 use serde::{Deserialize, Serialize};
 use serde_json::ser::{PrettyFormatter, Serializer};
 use serde_json::Value;
+use serde_json_path::JsonPath;
 
 /// Pretty-print JSON using `indent` as the indentation unit (e.g. `"  "`,
 /// `"    "`, or `"\t"`). Object key order is preserved. Returns
 /// [`ToolError::InvalidInput`] when the input is empty or not valid JSON.
 pub fn format(input: &str, indent: &str) -> ToolResult<String> {
+    format_opts(input, indent, false)
+}
+
+/// Pretty-print JSON, optionally sorting every object's keys alphabetically.
+/// When `sort` is false this behaves exactly like [`format`].
+pub fn format_opts(input: &str, indent: &str, sort: bool) -> ToolResult<String> {
+    let mut value = parse(input)?;
+    if sort {
+        sort_value(&mut value);
+    }
+    serialize_pretty(&value, indent)
+}
+
+/// Filter JSON with a JSONPath expression (RFC 9535). A single match is
+/// returned as that value; multiple matches are returned as a JSON array.
+pub fn query(input: &str, path: &str, indent: &str) -> ToolResult<String> {
     let value = parse(input)?;
+    let json_path = JsonPath::parse(path)
+        .map_err(|e| ToolError::invalid_input(format!("invalid JSONPath: {e}")))?;
+    let nodes = json_path.query(&value).all();
+    let result = if nodes.len() == 1 {
+        nodes[0].clone()
+    } else {
+        Value::Array(nodes.into_iter().cloned().collect())
+    };
+    serialize_pretty(&result, indent)
+}
+
+/// Recursively sort the keys of every object in `value`.
+fn sort_value(value: &mut Value) {
+    match value {
+        Value::Object(map) => {
+            map.sort_keys();
+            for (_, child) in map.iter_mut() {
+                sort_value(child);
+            }
+        }
+        Value::Array(items) => {
+            for item in items.iter_mut() {
+                sort_value(item);
+            }
+        }
+        _ => {}
+    }
+}
+
+fn serialize_pretty(value: &Value, indent: &str) -> ToolResult<String> {
     let mut buf = Vec::new();
     let formatter = PrettyFormatter::with_indent(indent.as_bytes());
     let mut serializer = Serializer::with_formatter(&mut buf, formatter);
@@ -39,6 +86,8 @@ fn parse(input: &str) -> ToolResult<Value> {
 struct FormatParams {
     input: String,
     indent: String,
+    #[serde(default)]
+    sort: bool,
 }
 
 #[derive(Deserialize)]
@@ -46,16 +95,27 @@ struct MinifyParams {
     input: String,
 }
 
+#[derive(Deserialize)]
+struct QueryParams {
+    input: String,
+    path: String,
+    indent: String,
+}
+
 /// Route a `json.*` action to its pure function. Used by [`crate::actions::run`].
 pub fn dispatch(action: &str, params: Value) -> ToolResult<Value> {
     match action {
         "json.format" => {
             let p: FormatParams = from_params(params)?;
-            Ok(Value::String(format(&p.input, &p.indent)?))
+            Ok(Value::String(format_opts(&p.input, &p.indent, p.sort)?))
         }
         "json.minify" => {
             let p: MinifyParams = from_params(params)?;
             Ok(Value::String(minify(&p.input)?))
+        }
+        "json.query" => {
+            let p: QueryParams = from_params(params)?;
+            Ok(Value::String(query(&p.input, &p.path, &p.indent)?))
         }
         _ => Err(ToolError::invalid_input(format!("unknown action: {action}"))),
     }
@@ -159,5 +219,64 @@ mod tests {
             message.contains("line") && message.contains("column"),
             "message lacks position info: {message}"
         );
+    }
+
+    #[test]
+    fn sorts_object_keys_alphabetically_when_requested() {
+        let out = format_opts(r#"{"b":1,"a":2,"c":3}"#, "  ", true).unwrap();
+        let a = out.find("\"a\"").unwrap();
+        let b = out.find("\"b\"").unwrap();
+        let c = out.find("\"c\"").unwrap();
+        assert!(a < b && b < c, "keys were not sorted: {out}");
+    }
+
+    #[test]
+    fn sort_recurses_into_nested_objects() {
+        let out = format_opts(r#"{"z":{"y":1,"x":2}}"#, "  ", true).unwrap();
+        let x = out.find("\"x\"").unwrap();
+        let y = out.find("\"y\"").unwrap();
+        assert!(x < y, "nested keys were not sorted: {out}");
+    }
+
+    #[test]
+    fn format_opts_without_sort_preserves_order() {
+        let out = format_opts(r#"{"b":1,"a":2}"#, "  ", false).unwrap();
+        assert!(out.find("\"b\"").unwrap() < out.find("\"a\"").unwrap());
+    }
+
+    #[test]
+    fn query_returns_single_matched_value() {
+        let input = r#"{"store":{"bicycle":{"color":"red","price":19.95}}}"#;
+        let out = query(input, "$.store.bicycle.color", "  ").unwrap();
+        assert_eq!(out, "\"red\"");
+    }
+
+    #[test]
+    fn query_returns_array_for_multiple_matches() {
+        let input = r#"{"store":{"book":[{"author":"A"},{"author":"B"}]}}"#;
+        let out = query(input, "$.store.book[*].author", "  ").unwrap();
+        assert_eq!(out, "[\n  \"A\",\n  \"B\"\n]");
+    }
+
+    #[test]
+    fn query_returns_empty_array_when_nothing_matches() {
+        let out = query(r#"{"a":1}"#, "$.nope", "  ").unwrap();
+        assert_eq!(out, "[]");
+    }
+
+    #[test]
+    fn query_rejects_invalid_path() {
+        assert!(matches!(
+            query(r#"{"a":1}"#, "$$bad", "  "),
+            Err(ToolError::InvalidInput(_))
+        ));
+    }
+
+    #[test]
+    fn query_rejects_invalid_json() {
+        assert!(matches!(
+            query("{not json}", "$.a", "  "),
+            Err(ToolError::InvalidInput(_))
+        ));
     }
 }

@@ -33,6 +33,7 @@ export function XmlTool() {
       inputLabel="XML input"
       outputLabel="XML output"
       inputPlaceholder="<root><item>value</item></root>"
+      sample='<catalog><book id="bk101"><author>Gambardella, Matthew</author><title>XML Developer Guide</title><price>44.95</price></book><book id="bk102"><author>Ralls, Kim</author><title>Midnight Rain</title><price>5.95</price></book></catalog>'
       outputPlaceholder="Result appears here"
       errorTitle="XML error"
     />

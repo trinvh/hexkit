@@ -35,10 +35,50 @@ pub fn convert(input: &str, base: u32) -> ToolResult<Bases> {
     })
 }
 
+/// Parse `input` in `from_base` and render it in `to_base`. Both bases must be
+/// in 2..=36. Supports negatives and zero.
+pub fn to_base(input: &str, from_base: u32, to_base: u32) -> ToolResult<String> {
+    if !(2..=36).contains(&from_base) || !(2..=36).contains(&to_base) {
+        return Err(ToolError::invalid_input("base must be between 2 and 36"));
+    }
+    let trimmed = input.trim();
+    if trimmed.is_empty() {
+        return Err(ToolError::invalid_input("input is empty"));
+    }
+    let value = i128::from_str_radix(trimmed, from_base)
+        .map_err(|_| ToolError::invalid_input(format!("not a valid base-{from_base} number")))?;
+    Ok(render_radix(value, to_base))
+}
+
+/// Render a signed integer in an arbitrary base using digits 0-9a-z.
+fn render_radix(value: i128, base: u32) -> String {
+    if value == 0 {
+        return "0".to_string();
+    }
+    const DIGITS: &[u8] = b"0123456789abcdefghijklmnopqrstuvwxyz";
+    let sign = if value < 0 { "-" } else { "" };
+    let mut magnitude = value.unsigned_abs();
+    let radix = base as u128;
+    let mut buf = Vec::new();
+    while magnitude > 0 {
+        buf.push(DIGITS[(magnitude % radix) as usize]);
+        magnitude /= radix;
+    }
+    buf.reverse();
+    format!("{sign}{}", String::from_utf8(buf).expect("ascii digits"))
+}
+
 #[derive(Deserialize)]
 struct ConvertParams {
     input: String,
     base: u32,
+}
+
+#[derive(Deserialize)]
+struct ToBaseParams {
+    input: String,
+    from_base: u32,
+    to_base: u32,
 }
 
 pub fn dispatch(action: &str, params: Value) -> ToolResult<Value> {
@@ -48,6 +88,11 @@ pub fn dispatch(action: &str, params: Value) -> ToolResult<Value> {
                 .map_err(|e| ToolError::invalid_input(e.to_string()))?;
             let bases = convert(&p.input, p.base)?;
             serde_json::to_value(bases).map_err(|e| ToolError::other(e.to_string()))
+        }
+        "number.to_base" => {
+            let p: ToBaseParams = serde_json::from_value(params)
+                .map_err(|e| ToolError::invalid_input(e.to_string()))?;
+            Ok(Value::String(to_base(&p.input, p.from_base, p.to_base)?))
         }
         _ => Err(ToolError::invalid_input(format!("unknown action: {action}"))),
     }
@@ -103,5 +148,37 @@ mod tests {
         assert!(matches!(convert("xyz", 10), Err(ToolError::InvalidInput(_))));
         assert!(matches!(convert("zz", 16), Err(ToolError::InvalidInput(_))));
         assert!(matches!(convert("2", 2), Err(ToolError::InvalidInput(_))));
+    }
+
+    #[test]
+    fn renders_into_an_arbitrary_target_base() {
+        assert_eq!(to_base("255", 10, 16).unwrap(), "ff");
+        assert_eq!(to_base("255", 10, 2).unwrap(), "11111111");
+        // 255 = 7*36 + 3 -> "73" in base 36.
+        assert_eq!(to_base("255", 10, 36).unwrap(), "73");
+    }
+
+    #[test]
+    fn converts_between_two_non_decimal_bases() {
+        assert_eq!(to_base("ff", 16, 10).unwrap(), "255");
+        assert_eq!(to_base("zz", 36, 10).unwrap(), "1295");
+    }
+
+    #[test]
+    fn to_base_handles_zero_and_negatives() {
+        assert_eq!(to_base("0", 10, 16).unwrap(), "0");
+        assert_eq!(to_base("-255", 10, 16).unwrap(), "-ff");
+    }
+
+    #[test]
+    fn to_base_rejects_invalid_base_or_digits() {
+        assert!(matches!(
+            to_base("10", 10, 99),
+            Err(ToolError::InvalidInput(_))
+        ));
+        assert!(matches!(
+            to_base("xyz", 10, 16),
+            Err(ToolError::InvalidInput(_))
+        ));
     }
 }

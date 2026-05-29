@@ -53,6 +53,30 @@ describe("JwtTool", () => {
     expect(screen.getByText("sigvalue")).toBeInTheDocument();
   });
 
+  it("verifies the signature when a secret is provided", async () => {
+    invokeImpl = (...args: unknown[]) => {
+      const action = (args[1] as { action: string }).action;
+      if (action === "jwt.verify") {
+        return Promise.resolve({ valid: true, algorithm: "HS256", reason: null });
+      }
+      return Promise.resolve({
+        header: '{\n  "alg": "HS256"\n}',
+        payload: '{\n  "iat": 1516239022\n}',
+        signature: "sig",
+      });
+    };
+    render(<JwtTool />);
+    fireEvent.change(screen.getByLabelText("JWT token"), {
+      target: { value: "a.b.c" },
+    });
+    fireEvent.change(screen.getByLabelText("HMAC secret"), {
+      target: { value: "your-256-bit-secret" },
+    });
+    expect(await screen.findByText(/Signature verified/)).toBeInTheDocument();
+    // The humanized iat claim is surfaced.
+    expect(screen.getByText("Issued at")).toBeInTheDocument();
+  });
+
   it("shows an error for an invalid token", async () => {
     invokeImpl = () =>
       Promise.reject({

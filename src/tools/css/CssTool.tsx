@@ -48,6 +48,7 @@ export function CssTool() {
       inputLabel="CSS input"
       outputLabel="CSS output"
       inputPlaceholder="a { color: red }"
+      sample=".card{display:flex;gap:1rem;padding:16px;color:#222;background:#fff}.card:hover{box-shadow:0 2px 8px rgba(0,0,0,.15)}@media(max-width:600px){.card{flex-direction:column}}"
       outputPlaceholder="Result appears here"
       errorTitle="CSS error"
     />

@@ -5,6 +5,7 @@ export const ID_KINDS: ReadonlyArray<SegmentedOption<string>> = [
   { value: "uuid_v4", label: "UUID v4" },
   { value: "uuid_v7", label: "UUID v7" },
   { value: "ulid", label: "ULID" },
+  { value: "nano_id", label: "Nano ID" },
 ];
 
 export function runInspect(value: string): Promise<Inspection> | null {

@@ -20,21 +20,30 @@ beforeEach(() => {
 
 describe("NumberTool", () => {
   it("shows all base conversions for the input", async () => {
-    invokeImpl = () =>
-      Promise.resolve({
+    invokeImpl = (...args: unknown[]) => {
+      const action = (args[1] as { action: string }).action;
+      if (action === "number.to_base") return Promise.resolve("73");
+      return Promise.resolve({
         decimal: "255",
         hexadecimal: "ff",
         binary: "11111111",
         octal: "377",
       });
+    };
     render(<NumberTool />);
     fireEvent.change(screen.getByLabelText("Number input"), {
       target: { value: "255" },
     });
     expect(await screen.findByText("11111111")).toBeInTheDocument();
+    // The custom-base output (base 36) is also surfaced.
+    expect(await screen.findByText("73")).toBeInTheDocument();
     expect(invokeSpy).toHaveBeenCalledWith(
       "run_action",
       expect.objectContaining({ action: "number.convert" }),
+    );
+    expect(invokeSpy).toHaveBeenCalledWith(
+      "run_action",
+      expect.objectContaining({ action: "number.to_base" }),
     );
   });
 

@@ -34,6 +34,11 @@ export function YamlTool() {
       inputLabel="YAML input"
       outputLabel="YAML output"
       inputPlaceholder={mode === "to_json" ? "YAML…" : "JSON…"}
+      sample={
+        mode === "to_json"
+          ? "name: hexkit\nversion: 1\nfeatures:\n  - json\n  - yaml\n  - base64\nnested:\n  enabled: true\n  count: 3"
+          : '{"name":"hexkit","version":1,"features":["json","yaml","base64"]}'
+      }
       outputPlaceholder="Result appears here"
       errorTitle="Conversion error"
     />

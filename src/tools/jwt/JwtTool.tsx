@@ -1,17 +1,15 @@
 import { useState } from "react";
 import { CodeEditor } from "../../components/ui/CodeEditor";
 import { CopyButton } from "../../components/ui/CopyButton";
+import { TextField } from "../../components/ui/TextField";
+import { ResultList } from "../../components/ui/ResultList";
 import { useLiveAction } from "../../lib/useLiveAction";
 import { useSeed } from "../../lib/seed";
-import { runJwt } from "./run";
+import { cn } from "../../lib/cn";
+import { runJwt, runVerify } from "./run";
+import { humanizeClaims } from "./claims";
 
-function Section({
-  title,
-  body,
-}: {
-  title: string;
-  body: string;
-}) {
+function Section({ title, body }: { title: string; body: string }) {
   return (
     <div className="border-b border-border">
       <div className="flex items-center justify-between px-4 py-2">
@@ -30,7 +28,14 @@ function Section({
 export function JwtTool() {
   const seed = useSeed();
   const [token, setToken] = useState(seed.value);
+  const [secret, setSecret] = useState("");
   const { data, error } = useLiveAction(() => runJwt(token), [token]);
+  const { data: verification } = useLiveAction(
+    () => runVerify(token, secret),
+    [token, secret],
+  );
+
+  const claims = data ? humanizeClaims(data.payload) : [];
 
   return (
     <div className="grid h-full grid-cols-2 divide-x divide-border">
@@ -46,6 +51,29 @@ export function JwtTool() {
             placeholder="Paste a JWT…"
           />
         </div>
+        <div className="border-t border-border p-3">
+          <TextField
+            value={secret}
+            onChange={setSecret}
+            ariaLabel="HMAC secret"
+            placeholder="HMAC secret to verify the signature…"
+            mono
+          />
+          {verification && (
+            <div
+              className={cn(
+                "mt-2 rounded-lg px-3 py-2 text-xs font-medium",
+                verification.valid
+                  ? "bg-emerald-500/12 text-emerald-600 dark:text-emerald-400"
+                  : "bg-red-500/12 text-red-600 dark:text-red-400",
+              )}
+            >
+              {verification.valid
+                ? `✓ Signature verified (${verification.algorithm})`
+                : `✗ ${verification.reason ?? "Signature invalid"}`}
+            </div>
+          )}
+        </div>
       </div>
       <div className="min-h-0 overflow-auto">
         {error ? (
@@ -57,6 +85,14 @@ export function JwtTool() {
           <>
             <Section title="Header" body={data.header} />
             <Section title="Payload" body={data.payload} />
+            {claims.length > 0 && (
+              <div className="border-b border-border">
+                <div className="px-4 py-2 text-xs font-medium uppercase tracking-wider text-fg-subtle">
+                  Claims
+                </div>
+                <ResultList rows={claims} />
+              </div>
+            )}
             <Section title="Signature" body={data.signature} />
           </>
         ) : (

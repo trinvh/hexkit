@@ -12,12 +12,17 @@ export function TimeTool() {
 
   const rows = data
     ? [
+        { label: "Relative", value: data.relative },
         { label: "Epoch (s)", value: data.epoch_seconds },
         { label: "Epoch (ms)", value: data.epoch_millis },
         { label: "ISO 8601", value: data.iso8601 },
+        { label: "RFC 2822", value: data.rfc2822 },
         { label: "UTC", value: data.utc },
         { label: "Local", value: data.local },
         { label: "Day", value: data.day_of_week },
+        { label: "Day of year", value: data.day_of_year },
+        { label: "Week of year", value: data.week_of_year },
+        { label: "Leap year", value: data.is_leap_year ? "Yes" : "No" },
       ]
     : null;
 

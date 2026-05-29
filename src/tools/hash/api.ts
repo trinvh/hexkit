@@ -10,3 +10,11 @@ export interface Hashes {
 export function hashGenerate(input: string): Promise<Hashes> {
   return runAction<Hashes>("hash.generate", { input });
 }
+
+export function hashHmac(
+  algorithm: string,
+  key: string,
+  message: string,
+): Promise<string> {
+  return runAction<string>("hash.hmac", { algorithm, key, message });
+}

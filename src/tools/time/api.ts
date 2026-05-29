@@ -7,6 +7,11 @@ export interface TimeInfo {
   utc: string;
   local: string;
   day_of_week: string;
+  relative: string;
+  day_of_year: string;
+  week_of_year: string;
+  is_leap_year: boolean;
+  rfc2822: string;
 }
 
 export function timeConvert(input: string): Promise<TimeInfo> {

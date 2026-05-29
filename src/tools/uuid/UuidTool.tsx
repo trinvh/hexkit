@@ -2,23 +2,37 @@ import { useEffect, useState } from "react";
 import { RefreshCw } from "lucide-react";
 import { Segmented } from "../../components/ui/Segmented";
 import { TextField } from "../../components/ui/TextField";
+import { Toggle } from "../../components/ui/Toggle";
 import { CopyButton } from "../../components/ui/CopyButton";
+import { ResultList } from "../../components/ui/ResultList";
 import { useLiveAction } from "../../lib/useLiveAction";
 import { useSeed } from "../../lib/seed";
 import { errorMessage } from "../../lib/ipc";
-import { idGenerate } from "./api";
+import { idGenerate, type Inspection } from "./api";
 import { ID_KINDS, runInspect } from "./run";
+
+function inspectionRows(info: Inspection) {
+  return [
+    { label: "Kind", value: info.kind },
+    { label: "Version", value: info.version },
+    { label: "Variant", value: info.variant },
+    { label: "Canonical", value: info.canonical },
+    { label: "Raw bytes", value: info.raw },
+    { label: "Detail", value: info.detail },
+  ].filter((row) => row.value !== "");
+}
 
 export function UuidTool() {
   const seed = useSeed();
   const [kind, setKind] = useState("uuid_v4");
   const [count, setCount] = useState(5);
+  const [lowercased, setLowercased] = useState(false);
   const [ids, setIds] = useState<string[]>([]);
   const [genError, setGenError] = useState<string | null>(null);
 
   async function generate() {
     try {
-      setIds(await idGenerate(kind, count));
+      setIds(await idGenerate(kind, count, lowercased));
       setGenError(null);
     } catch (e) {
       setGenError(errorMessage(e));
@@ -62,6 +76,12 @@ export function UuidTool() {
               className="h-9 w-20 rounded-lg border border-border bg-surface px-2 text-sm text-fg outline-none focus:border-border-strong"
             />
           </label>
+          <Toggle
+            active={lowercased}
+            onClick={() => setLowercased((v) => !v)}
+          >
+            lowercased
+          </Toggle>
           <button
             type="button"
             onClick={() => void generate()}
@@ -105,20 +125,7 @@ export function UuidTool() {
           <p className="text-sm text-accent">{inspectError}</p>
         ) : inspection ? (
           <div className="overflow-hidden rounded-xl border border-border bg-surface">
-            <div className="flex items-center gap-4 px-4 py-3">
-              <span className="w-24 shrink-0 text-xs uppercase tracking-wider text-fg-subtle">
-                Kind
-              </span>
-              <span className="font-mono text-sm text-fg">{inspection.kind}</span>
-            </div>
-            <div className="flex items-center gap-4 border-t border-border px-4 py-3">
-              <span className="w-24 shrink-0 text-xs uppercase tracking-wider text-fg-subtle">
-                Detail
-              </span>
-              <span className="font-mono text-sm text-fg">
-                {inspection.detail}
-              </span>
-            </div>
+            <ResultList rows={inspectionRows(inspection)} />
           </div>
         ) : null}
       </section>

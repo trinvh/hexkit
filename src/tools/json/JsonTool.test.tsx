@@ -77,6 +77,46 @@ describe("JsonTool", () => {
     );
   });
 
+  it("filters via JSONPath when a path is entered", async () => {
+    invokeImpl = () => Promise.resolve('"red"');
+    render(<JsonTool />);
+
+    fireEvent.change(screen.getByLabelText("JSON input"), {
+      target: { value: '{"color":"red"}' },
+    });
+    fireEvent.change(screen.getByLabelText("JSONPath filter"), {
+      target: { value: "$.color" },
+    });
+
+    await waitFor(() =>
+      expect(invokeSpy).toHaveBeenCalledWith(
+        "run_action",
+        expect.objectContaining({ action: "json.query" }),
+      ),
+    );
+  });
+
+  it("requests sorted keys when the Sort keys toggle is on", async () => {
+    const user = userEvent.setup();
+    invokeImpl = () => Promise.resolve("{}");
+    render(<JsonTool />);
+
+    await user.click(screen.getByRole("button", { name: "Sort keys" }));
+    fireEvent.change(screen.getByLabelText("JSON input"), {
+      target: { value: '{"b":1,"a":2}' },
+    });
+
+    await waitFor(() =>
+      expect(invokeSpy).toHaveBeenCalledWith(
+        "run_action",
+        expect.objectContaining({
+          action: "json.format",
+          params: expect.objectContaining({ sort: true }),
+        }),
+      ),
+    );
+  });
+
   it("shows an error banner when the backend rejects", async () => {
     invokeImpl = () =>
       Promise.reject({

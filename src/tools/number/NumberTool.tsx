@@ -3,14 +3,19 @@ import { Segmented } from "../../components/ui/Segmented";
 import { TextField } from "../../components/ui/TextField";
 import { ResultLayout } from "../../components/ui/ResultLayout";
 import { useLiveAction } from "../../lib/useLiveAction";
-import { NUMBER_BASES, runNumber } from "./run";
+import { NUMBER_BASES, runNumber, runCustomBase } from "./run";
 
 export function NumberTool() {
   const [input, setInput] = useState("");
   const [base, setBase] = useState("10");
+  const [customBase, setCustomBase] = useState("36");
   const { data, error } = useLiveAction(
     () => runNumber(input, base),
     [input, base],
+  );
+  const { data: custom } = useLiveAction(
+    () => runCustomBase(input, base, customBase),
+    [input, base, customBase],
   );
 
   const rows = data
@@ -19,6 +24,7 @@ export function NumberTool() {
         { label: "Hexadecimal", value: data.hexadecimal },
         { label: "Binary", value: data.binary },
         { label: "Octal", value: data.octal },
+        { label: `Base ${customBase || "?"}`, value: custom ?? "" },
       ]
     : null;
 
@@ -42,6 +48,18 @@ export function NumberTool() {
               placeholder="Enter a number…"
               mono
             />
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="text-xs text-fg-subtle">Custom base</span>
+            <div className="w-20">
+              <TextField
+                ariaLabel="Custom base"
+                value={customBase}
+                onChange={setCustomBase}
+                placeholder="36"
+                mono
+              />
+            </div>
           </div>
         </div>
       }

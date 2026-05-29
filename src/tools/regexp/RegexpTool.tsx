@@ -1,15 +1,17 @@
 import { useState } from "react";
 import { TextField } from "../../components/ui/TextField";
 import { Toggle } from "../../components/ui/Toggle";
+import { CopyButton } from "../../components/ui/CopyButton";
 import { CodeEditor } from "../../components/ui/CodeEditor";
 import { useLiveAction } from "../../lib/useLiveAction";
 import { useSeed } from "../../lib/seed";
-import { runRegexp } from "./run";
+import { runRegexp, runReplace } from "./run";
 
 const FLAGS = [
   { key: "i", label: "i" },
   { key: "m", label: "m" },
   { key: "s", label: "s" },
+  { key: "x", label: "x" },
 ] as const;
 
 export function RegexpTool() {
@@ -17,10 +19,15 @@ export function RegexpTool() {
   const [pattern, setPattern] = useState(seed.value);
   const [text, setText] = useState("");
   const [flags, setFlags] = useState("");
+  const [replacement, setReplacement] = useState("");
 
   const { data, error } = useLiveAction(
     () => runRegexp(pattern, text, flags),
     [pattern, text, flags],
+  );
+  const { data: replaced } = useLiveAction(
+    () => runReplace(pattern, text, flags, replacement),
+    [pattern, text, flags, replacement],
   );
 
   const toggleFlag = (flag: string) =>
@@ -53,6 +60,15 @@ export function RegexpTool() {
             </Toggle>
           ))}
         </div>
+        <div className="min-w-64 flex-1">
+          <TextField
+            ariaLabel="Replacement"
+            value={replacement}
+            onChange={setReplacement}
+            placeholder="Replacement, e.g. $1-$2 (optional)"
+            mono
+          />
+        </div>
       </div>
 
       <div className="grid min-h-0 flex-1 grid-cols-2 divide-x divide-border">
@@ -65,6 +81,19 @@ export function RegexpTool() {
           />
         </div>
         <div className="min-h-0 overflow-auto p-4">
+          {replaced !== null && replaced !== undefined && (
+            <div className="mb-3 rounded-lg border border-border bg-surface p-3">
+              <div className="mb-1 flex items-center justify-between">
+                <span className="text-xs font-medium uppercase tracking-wider text-fg-subtle">
+                  Replaced
+                </span>
+                <CopyButton value={replaced} label="" />
+              </div>
+              <pre className="whitespace-pre-wrap break-all font-mono text-sm text-fg">
+                {replaced}
+              </pre>
+            </div>
+          )}
           {error ? (
             <p className="text-sm text-accent">{error}</p>
           ) : data && data.matches.length > 0 ? (

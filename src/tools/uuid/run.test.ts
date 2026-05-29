@@ -22,7 +22,12 @@ describe("runInspect", () => {
     expect(idInspect).toHaveBeenCalledWith("abc");
   });
 
-  it("offers uuid and ulid kinds", () => {
-    expect(ID_KINDS.map((k) => k.value)).toEqual(["uuid_v4", "uuid_v7", "ulid"]);
+  it("offers uuid, ulid, and nano id kinds", () => {
+    expect(ID_KINDS.map((k) => k.value)).toEqual([
+      "uuid_v4",
+      "uuid_v7",
+      "ulid",
+      "nano_id",
+    ]);
   });
 });
