@@ -1,12 +1,26 @@
 import { numberConvert, numberToBase, type Bases } from "./api";
-import type { SegmentedOption } from "../../components/ui/Segmented";
 
-export const NUMBER_BASES: ReadonlyArray<SegmentedOption<string>> = [
-  { value: "10", label: "Decimal" },
-  { value: "16", label: "Hex" },
-  { value: "2", label: "Binary" },
-  { value: "8", label: "Octal" },
-];
+export interface BaseOption {
+  value: string;
+  label: string;
+}
+
+const NAMED_BASES: Record<number, string> = {
+  2: "Binary",
+  8: "Octal",
+  10: "Decimal",
+  16: "Hexadecimal",
+};
+
+/** All supported input bases (2-36), common ones labelled by name. */
+export const NUMBER_BASES: ReadonlyArray<BaseOption> = Array.from(
+  { length: 35 },
+  (_, i) => {
+    const base = i + 2;
+    const name = NAMED_BASES[base];
+    return { value: String(base), label: name ? `Base ${base} (${name})` : `Base ${base}` };
+  },
+);
 
 export function runNumber(input: string, base: string): Promise<Bases> | null {
   if (input.trim() === "") return null;

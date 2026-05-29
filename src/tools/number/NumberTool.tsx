@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { Segmented } from "../../components/ui/Segmented";
 import { TextField } from "../../components/ui/TextField";
 import { InputActions } from "../../components/ui/InputActions";
 import { ResultLayout } from "../../components/ui/ResultLayout";
@@ -35,12 +34,18 @@ export function NumberTool() {
       emptyHint="Enter a number to convert between bases."
       header={
         <div className="flex flex-wrap items-center gap-3">
-          <Segmented
-            ariaLabel="Input base"
-            options={NUMBER_BASES}
+          <select
+            aria-label="Input base"
             value={base}
-            onChange={setBase}
-          />
+            onChange={(e) => setBase(e.target.value)}
+            className="h-10 rounded-lg border border-border bg-surface px-2 text-sm text-fg outline-none focus:border-border-strong"
+          >
+            {NUMBER_BASES.map((opt) => (
+              <option key={opt.value} value={opt.value}>
+                {opt.label}
+              </option>
+            ))}
+          </select>
           <div className="min-w-48 flex-1">
             <TextField
               ariaLabel="Number input"
