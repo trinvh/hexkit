@@ -21,6 +21,11 @@ sha2 = { workspace = true }
 sha1 = { workspace = true }
 md-5 = { workspace = true }
 jiff = { workspace = true }
+lipsum = { workspace = true }
+rand = { workspace = true }
+saffron = { workspace = true }
+chrono = { workspace = true }
+csscolorparser = { workspace = true }
 
 [dev-dependencies]
 rstest = { workspace = true }

@@ -11,6 +11,14 @@ import {
   GitCompare,
   Code,
   Calculator,
+  Hexagon,
+  Slash,
+  ArrowDownAZ,
+  ScanText,
+  Dices,
+  Pilcrow,
+  Palette,
+  CalendarClock,
 } from "lucide-react";
 import type { ToolDefinition } from "./types";
 import { JsonTool } from "./json/JsonTool";
@@ -25,6 +33,14 @@ import { UuidTool } from "./uuid/UuidTool";
 import { DiffTool } from "./diff/DiffTool";
 import { JwtTool } from "./jwt/JwtTool";
 import { UrlParseTool } from "./urlparse/UrlParseTool";
+import { HexTool } from "./hex/HexTool";
+import { EscapeTool } from "./escape/EscapeTool";
+import { LinesTool } from "./lines/LinesTool";
+import { InspectorTool } from "./inspector/InspectorTool";
+import { RandomTool } from "./random/RandomTool";
+import { LoremTool } from "./lorem/LoremTool";
+import { ColorTool } from "./color/ColorTool";
+import { CronTool } from "./cron/CronTool";
 
 /**
  * The MVP tool set. Components are wired in Phase 3; until then each entry
@@ -138,6 +154,78 @@ export const TOOLS: ToolDefinition[] = [
     keywords: ["url", "parse", "query", "params", "host", "path", "scheme"],
     icon: Globe,
     component: UrlParseTool,
+  },
+  {
+    id: "hex-ascii",
+    name: "Hex / ASCII",
+    category: "Encoders",
+    description: "Convert between hex and text.",
+    keywords: ["hex", "ascii", "hexadecimal", "bytes", "encode", "decode"],
+    icon: Hexagon,
+    component: HexTool,
+  },
+  {
+    id: "backslash-escape",
+    name: "Backslash Escape / Unescape",
+    category: "Encoders",
+    description: "Escape and unescape string literals.",
+    keywords: ["backslash", "escape", "unescape", "\\n", "string", "literal"],
+    icon: Slash,
+    component: EscapeTool,
+  },
+  {
+    id: "line-tools",
+    name: "Line Sort / Dedupe",
+    category: "Text",
+    description: "Sort, dedupe, and trim lines.",
+    keywords: ["lines", "sort", "dedupe", "unique", "trim", "order"],
+    icon: ArrowDownAZ,
+    component: LinesTool,
+  },
+  {
+    id: "string-inspector",
+    name: "String Inspector",
+    category: "Text",
+    description: "Count characters, words, lines, and bytes.",
+    keywords: ["string", "inspect", "count", "length", "words", "bytes"],
+    icon: ScanText,
+    component: InspectorTool,
+  },
+  {
+    id: "random-string",
+    name: "Random String",
+    category: "Generators",
+    description: "Generate random strings and passwords.",
+    keywords: ["random", "string", "password", "token", "generate"],
+    icon: Dices,
+    component: RandomTool,
+  },
+  {
+    id: "lorem-ipsum",
+    name: "Lorem Ipsum",
+    category: "Generators",
+    description: "Generate placeholder text.",
+    keywords: ["lorem", "ipsum", "placeholder", "text", "filler", "dummy"],
+    icon: Pilcrow,
+    component: LoremTool,
+  },
+  {
+    id: "color-converter",
+    name: "Color Converter",
+    category: "Converters",
+    description: "Convert between HEX, RGB, and HSL.",
+    keywords: ["color", "hex", "rgb", "hsl", "convert", "palette"],
+    icon: Palette,
+    component: ColorTool,
+  },
+  {
+    id: "cron-parser",
+    name: "Cron Parser",
+    category: "Converters",
+    description: "Parse cron expressions and preview next runs.",
+    keywords: ["cron", "schedule", "crontab", "job", "next", "runs"],
+    icon: CalendarClock,
+    component: CronTool,
   },
 ];
 

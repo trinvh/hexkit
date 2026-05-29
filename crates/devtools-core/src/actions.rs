@@ -30,6 +30,14 @@ pub fn run(action: &str, params: Value) -> ToolResult<Value> {
         "diff" => crate::textdiff::dispatch(action, params),
         "jwt" => crate::jwt::dispatch(action, params),
         "detect" => crate::detect::dispatch(action, params),
+        "hex" => crate::hex::dispatch(action, params),
+        "escape" => crate::escape::dispatch(action, params),
+        "lines" => crate::lines::dispatch(action, params),
+        "string" => crate::inspector::dispatch(action, params),
+        "random" => crate::random::dispatch(action, params),
+        "lorem" => crate::lorem::dispatch(action, params),
+        "color" => crate::color::dispatch(action, params),
+        "cron" => crate::cron::dispatch(action, params),
         _ => Err(ToolError::invalid_input(format!("unknown action: {action}"))),
     }
 }

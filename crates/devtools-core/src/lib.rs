@@ -6,15 +6,23 @@
 
 pub mod actions;
 pub mod base64;
+pub mod color;
+pub mod cron;
 pub mod deeplink;
 pub mod detect;
 mod error;
+pub mod escape;
 pub mod hash;
+pub mod hex;
 pub mod html;
 pub mod ids;
+pub mod inspector;
 pub mod json;
 pub mod jwt;
+pub mod lines;
+pub mod lorem;
 pub mod numbase;
+pub mod random;
 pub mod textcase;
 pub mod textdiff;
 pub mod unixtime;
