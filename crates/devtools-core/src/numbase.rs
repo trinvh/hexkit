@@ -68,10 +68,40 @@ fn render_radix(value: i128, base: u32) -> String {
     format!("{sign}{}", String::from_utf8(buf).expect("ascii digits"))
 }
 
+#[derive(Debug, Serialize, PartialEq, Eq)]
+pub struct AllBases {
+    pub binary: String,
+    pub octal: String,
+    pub decimal: String,
+    pub hexadecimal: String,
+    pub custom: String,
+}
+
+/// Read `input` in `base` and render it in binary, octal, decimal, hex, and an
+/// arbitrary `custom_base` in one call.
+pub fn all(input: &str, base: u32, custom_base: u32) -> ToolResult<AllBases> {
+    let bases = convert(input, base)?;
+    let custom = to_base(input, base, custom_base)?;
+    Ok(AllBases {
+        binary: bases.binary,
+        octal: bases.octal,
+        decimal: bases.decimal,
+        hexadecimal: bases.hexadecimal,
+        custom,
+    })
+}
+
 #[derive(Deserialize)]
 struct ConvertParams {
     input: String,
     base: u32,
+}
+
+#[derive(Deserialize)]
+struct AllParams {
+    input: String,
+    base: u32,
+    custom_base: u32,
 }
 
 #[derive(Deserialize)]
@@ -93,6 +123,12 @@ pub fn dispatch(action: &str, params: Value) -> ToolResult<Value> {
             let p: ToBaseParams = serde_json::from_value(params)
                 .map_err(|e| ToolError::invalid_input(e.to_string()))?;
             Ok(Value::String(to_base(&p.input, p.from_base, p.to_base)?))
+        }
+        "number.all" => {
+            let p: AllParams = serde_json::from_value(params)
+                .map_err(|e| ToolError::invalid_input(e.to_string()))?;
+            serde_json::to_value(all(&p.input, p.base, p.custom_base)?)
+                .map_err(|e| ToolError::other(e.to_string()))
         }
         _ => Err(ToolError::invalid_input(format!("unknown action: {action}"))),
     }
@@ -180,5 +216,28 @@ mod tests {
             to_base("xyz", 10, 16),
             Err(ToolError::InvalidInput(_))
         ));
+    }
+
+    #[test]
+    fn all_returns_every_base() {
+        let a = all("255", 10, 16).unwrap();
+        assert_eq!(a.binary, "11111111");
+        assert_eq!(a.octal, "377");
+        assert_eq!(a.decimal, "255");
+        assert_eq!(a.hexadecimal, "ff");
+        assert_eq!(a.custom, "ff");
+    }
+
+    #[test]
+    fn all_reads_input_in_its_base() {
+        // "ff" is hex 255.
+        let a = all("ff", 16, 36).unwrap();
+        assert_eq!(a.decimal, "255");
+        assert_eq!(a.custom, "73");
+    }
+
+    #[test]
+    fn all_rejects_invalid() {
+        assert!(matches!(all("zz", 10, 16), Err(ToolError::InvalidInput(_))));
     }
 }

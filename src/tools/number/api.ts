@@ -1,24 +1,22 @@
 import { runAction } from "../../lib/ipc";
 
-export interface Bases {
+export interface AllBases {
   binary: string;
   octal: string;
   decimal: string;
   hexadecimal: string;
+  custom: string;
 }
 
-export function numberConvert(input: string, base: number): Promise<Bases> {
-  return runAction<Bases>("number.convert", { input, base });
-}
-
-export function numberToBase(
+/** Read `input` in `base` and render it in binary/octal/decimal/hex + `customBase`. */
+export function numberAll(
   input: string,
-  fromBase: number,
-  toBase: number,
-): Promise<string> {
-  return runAction<string>("number.to_base", {
+  base: number,
+  customBase: number,
+): Promise<AllBases> {
+  return runAction<AllBases>("number.all", {
     input,
-    from_base: fromBase,
-    to_base: toBase,
+    base,
+    custom_base: customBase,
   });
 }
