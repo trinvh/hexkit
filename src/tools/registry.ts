@@ -38,45 +38,49 @@ import {
   Terminal,
   Brackets,
 } from "lucide-react";
+import { lazy } from "react";
 import type { ToolDefinition } from "./types";
-import { JsonTool } from "./json/JsonTool";
-import { Base64Tool } from "./base64/Base64Tool";
-import { UrlTool } from "./url/UrlTool";
-import { HtmlTool } from "./html/HtmlTool";
-import { NumberTool } from "./number/NumberTool";
-import { CaseTool } from "./case/CaseTool";
-import { TimeTool } from "./time/TimeTool";
-import { HashTool } from "./hash/HashTool";
-import { UuidTool } from "./uuid/UuidTool";
-import { DiffTool } from "./diff/DiffTool";
-import { JwtTool } from "./jwt/JwtTool";
-import { UrlParseTool } from "./urlparse/UrlParseTool";
-import { HexTool } from "./hex/HexTool";
-import { EscapeTool } from "./escape/EscapeTool";
-import { LinesTool } from "./lines/LinesTool";
-import { InspectorTool } from "./inspector/InspectorTool";
-import { RandomTool } from "./random/RandomTool";
-import { LoremTool } from "./lorem/LoremTool";
-import { ColorTool } from "./color/ColorTool";
-import { CronTool } from "./cron/CronTool";
-import { YamlTool } from "./yaml/YamlTool";
-import { CsvTool } from "./csv/CsvTool";
-import { SqlTool } from "./sql/SqlTool";
-import { PhpTool } from "./php/PhpTool";
-import { SvgTool } from "./svg/SvgTool";
-import { JsxTool } from "./jsx/JsxTool";
-import { CssTool } from "./css/CssTool";
-import { HtmlFmtTool } from "./htmlfmt/HtmlFmtTool";
-import { XmlTool } from "./xml/XmlTool";
-import { JsTool } from "./js/JsTool";
-import { RegexpTool } from "./regexp/RegexpTool";
-import { MarkdownTool } from "./markdown/MarkdownTool";
-import { HtmlPreviewTool } from "./htmlpreview/HtmlPreviewTool";
-import { X509Tool } from "./x509/X509Tool";
-import { QrTool } from "./qr/QrTool";
-import { Base64ImageTool } from "./base64image/Base64ImageTool";
-import { CurlTool } from "./curlcode/CurlTool";
-import { JsonCodeTool } from "./jsoncode/JsonCodeTool";
+
+// Each tool is lazy-loaded so it lands in its own chunk; only the active tool's
+// code (and its heavy deps like CodeMirror) is fetched on demand.
+const JsonTool = lazy(() => import("./json/JsonTool").then((m) => ({ default: m.JsonTool })));
+const Base64Tool = lazy(() => import("./base64/Base64Tool").then((m) => ({ default: m.Base64Tool })));
+const UrlTool = lazy(() => import("./url/UrlTool").then((m) => ({ default: m.UrlTool })));
+const HtmlTool = lazy(() => import("./html/HtmlTool").then((m) => ({ default: m.HtmlTool })));
+const NumberTool = lazy(() => import("./number/NumberTool").then((m) => ({ default: m.NumberTool })));
+const CaseTool = lazy(() => import("./case/CaseTool").then((m) => ({ default: m.CaseTool })));
+const TimeTool = lazy(() => import("./time/TimeTool").then((m) => ({ default: m.TimeTool })));
+const HashTool = lazy(() => import("./hash/HashTool").then((m) => ({ default: m.HashTool })));
+const UuidTool = lazy(() => import("./uuid/UuidTool").then((m) => ({ default: m.UuidTool })));
+const DiffTool = lazy(() => import("./diff/DiffTool").then((m) => ({ default: m.DiffTool })));
+const JwtTool = lazy(() => import("./jwt/JwtTool").then((m) => ({ default: m.JwtTool })));
+const UrlParseTool = lazy(() => import("./urlparse/UrlParseTool").then((m) => ({ default: m.UrlParseTool })));
+const HexTool = lazy(() => import("./hex/HexTool").then((m) => ({ default: m.HexTool })));
+const EscapeTool = lazy(() => import("./escape/EscapeTool").then((m) => ({ default: m.EscapeTool })));
+const LinesTool = lazy(() => import("./lines/LinesTool").then((m) => ({ default: m.LinesTool })));
+const InspectorTool = lazy(() => import("./inspector/InspectorTool").then((m) => ({ default: m.InspectorTool })));
+const RandomTool = lazy(() => import("./random/RandomTool").then((m) => ({ default: m.RandomTool })));
+const LoremTool = lazy(() => import("./lorem/LoremTool").then((m) => ({ default: m.LoremTool })));
+const ColorTool = lazy(() => import("./color/ColorTool").then((m) => ({ default: m.ColorTool })));
+const CronTool = lazy(() => import("./cron/CronTool").then((m) => ({ default: m.CronTool })));
+const YamlTool = lazy(() => import("./yaml/YamlTool").then((m) => ({ default: m.YamlTool })));
+const CsvTool = lazy(() => import("./csv/CsvTool").then((m) => ({ default: m.CsvTool })));
+const SqlTool = lazy(() => import("./sql/SqlTool").then((m) => ({ default: m.SqlTool })));
+const PhpTool = lazy(() => import("./php/PhpTool").then((m) => ({ default: m.PhpTool })));
+const SvgTool = lazy(() => import("./svg/SvgTool").then((m) => ({ default: m.SvgTool })));
+const JsxTool = lazy(() => import("./jsx/JsxTool").then((m) => ({ default: m.JsxTool })));
+const CssTool = lazy(() => import("./css/CssTool").then((m) => ({ default: m.CssTool })));
+const HtmlFmtTool = lazy(() => import("./htmlfmt/HtmlFmtTool").then((m) => ({ default: m.HtmlFmtTool })));
+const XmlTool = lazy(() => import("./xml/XmlTool").then((m) => ({ default: m.XmlTool })));
+const JsTool = lazy(() => import("./js/JsTool").then((m) => ({ default: m.JsTool })));
+const RegexpTool = lazy(() => import("./regexp/RegexpTool").then((m) => ({ default: m.RegexpTool })));
+const MarkdownTool = lazy(() => import("./markdown/MarkdownTool").then((m) => ({ default: m.MarkdownTool })));
+const HtmlPreviewTool = lazy(() => import("./htmlpreview/HtmlPreviewTool").then((m) => ({ default: m.HtmlPreviewTool })));
+const X509Tool = lazy(() => import("./x509/X509Tool").then((m) => ({ default: m.X509Tool })));
+const QrTool = lazy(() => import("./qr/QrTool").then((m) => ({ default: m.QrTool })));
+const Base64ImageTool = lazy(() => import("./base64image/Base64ImageTool").then((m) => ({ default: m.Base64ImageTool })));
+const CurlTool = lazy(() => import("./curlcode/CurlTool").then((m) => ({ default: m.CurlTool })));
+const JsonCodeTool = lazy(() => import("./jsoncode/JsonCodeTool").then((m) => ({ default: m.JsonCodeTool })));
 
 /**
  * The MVP tool set. Components are wired in Phase 3; until then each entry

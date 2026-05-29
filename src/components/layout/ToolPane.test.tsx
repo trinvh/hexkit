@@ -21,10 +21,13 @@ describe("ToolPane", () => {
     expect(screen.getByText(/Wired up in the next phase/)).toBeInTheDocument();
   });
 
-  it("renders the tool component when one is wired", () => {
+  it("renders the tool component when one is wired", async () => {
     useApp.setState({ activeToolId: "json-format" });
     render(<ToolPane />);
-    expect(screen.getByRole("radio", { name: "2 spaces" })).toBeInTheDocument();
+    // Tool components are lazy-loaded, so wait for the chunk to resolve.
+    expect(
+      await screen.findByRole("radio", { name: "2 spaces" }),
+    ).toBeInTheDocument();
     expect(
       screen.queryByText(/Wired up in the next phase/),
     ).not.toBeInTheDocument();

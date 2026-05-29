@@ -1,15 +1,7 @@
-import { useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import CodeMirror from "@uiw/react-codemirror";
 import { EditorView } from "@codemirror/view";
 import type { Extension } from "@codemirror/state";
-import { json } from "@codemirror/lang-json";
-import { css } from "@codemirror/lang-css";
-import { html } from "@codemirror/lang-html";
-import { xml } from "@codemirror/lang-xml";
-import { sql } from "@codemirror/lang-sql";
-import { yaml } from "@codemirror/lang-yaml";
-import { markdown } from "@codemirror/lang-markdown";
-import { javascript } from "@codemirror/lang-javascript";
 import { HighlightStyle, syntaxHighlighting } from "@codemirror/language";
 import { tags as t } from "@lezer/highlight";
 
@@ -50,18 +42,23 @@ const highlightStyle = HighlightStyle.define([
   { tag: [t.punctuation, t.separator, t.bracket, t.angleBracket], color: "var(--fg-subtle)" },
 ]);
 
-const LANGUAGES = {
-  json,
-  css,
-  html,
-  xml,
-  sql,
-  yaml,
-  markdown,
-  javascript: () => javascript({ jsx: true, typescript: true }),
-} as const;
+// Language grammars are imported on demand so each one is its own chunk and
+// only the language a tool actually uses is fetched.
+const LANGUAGE_LOADERS = {
+  json: () => import("@codemirror/lang-json").then((m) => m.json()),
+  css: () => import("@codemirror/lang-css").then((m) => m.css()),
+  html: () => import("@codemirror/lang-html").then((m) => m.html()),
+  xml: () => import("@codemirror/lang-xml").then((m) => m.xml()),
+  sql: () => import("@codemirror/lang-sql").then((m) => m.sql()),
+  yaml: () => import("@codemirror/lang-yaml").then((m) => m.yaml()),
+  markdown: () => import("@codemirror/lang-markdown").then((m) => m.markdown()),
+  javascript: () =>
+    import("@codemirror/lang-javascript").then((m) =>
+      m.javascript({ jsx: true, typescript: true }),
+    ),
+} as const satisfies Record<string, () => Promise<Extension>>;
 
-export type CodeLanguage = keyof typeof LANGUAGES;
+export type CodeLanguage = keyof typeof LANGUAGE_LOADERS;
 
 export interface CodeEditorProps {
   value: string;
@@ -80,14 +77,30 @@ export function CodeEditor({
   placeholder,
   ariaLabel,
 }: CodeEditorProps) {
+  const [langExtension, setLangExtension] = useState<Extension | null>(null);
+
+  useEffect(() => {
+    if (!language) {
+      setLangExtension(null);
+      return;
+    }
+    let active = true;
+    void LANGUAGE_LOADERS[language]().then((ext) => {
+      if (active) setLangExtension(ext);
+    });
+    return () => {
+      active = false;
+    };
+  }, [language]);
+
   const extensions = useMemo<Extension[]>(() => {
     const ext: Extension[] = [
       syntaxHighlighting(highlightStyle),
       EditorView.lineWrapping,
     ];
-    if (language) ext.push(LANGUAGES[language]());
+    if (langExtension) ext.push(langExtension);
     return ext;
-  }, [language]);
+  }, [langExtension]);
 
   return (
     <CodeMirror

@@ -1,4 +1,4 @@
-import type { ComponentType } from "react";
+import type { ComponentType, LazyExoticComponent } from "react";
 import type { LucideIcon } from "lucide-react";
 
 export type ToolCategory =
@@ -19,8 +19,8 @@ export interface ToolDefinition {
   /** Extra search terms for the command palette and sidebar filter. */
   keywords: string[];
   icon: LucideIcon;
-  /** Tool view. Absent while the tool is still scaffolded (Phase 3). */
-  component?: ComponentType;
+  /** Tool view (lazy-loaded). Absent while the tool is still scaffolded. */
+  component?: ComponentType | LazyExoticComponent<ComponentType>;
 }
 
 /** Display + grouping order for categories in the sidebar. */

@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import { Hammer } from "lucide-react";
 import { useApp } from "../../store/app";
 import { getTool } from "../../tools/registry";
@@ -13,9 +14,11 @@ export function ToolPane() {
   return (
     <div className="h-full min-h-0 overflow-auto">
       {Component ? (
-        // Remount on seed so a freshly detected value is picked up even when
-        // the same tool is already active.
-        <Component key={`${activeToolId}:${seedNonce}`} />
+        <Suspense fallback={null}>
+          {/* Remount on seed so a freshly detected value is picked up even when
+              the same tool is already active. */}
+          <Component key={`${activeToolId}:${seedNonce}`} />
+        </Suspense>
       ) : (
         <Scaffolded tool={tool} />
       )}
