@@ -15,9 +15,15 @@ describe("runDiff", () => {
     expect(diffCompare).not.toHaveBeenCalled();
   });
 
-  it("compares when either side has content", () => {
+  it("compares with default text format when either side has content", () => {
     diffCompare.mockReturnValue(Promise.resolve([]));
     runDiff("a", "");
-    expect(diffCompare).toHaveBeenCalledWith("a", "");
+    expect(diffCompare).toHaveBeenCalledWith("a", "", "text", false);
+  });
+
+  it("passes the format and sort flag through", () => {
+    diffCompare.mockReturnValue(Promise.resolve([]));
+    runDiff("{}", "{}", "json", true);
+    expect(diffCompare).toHaveBeenCalledWith("{}", "{}", "json", true);
   });
 });

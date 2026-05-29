@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { render, screen, fireEvent } from "@testing-library/react";
+import { render, screen, fireEvent, waitFor } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 
 const invokeSpy = vi.fn();
 let invokeImpl: (...args: unknown[]) => Promise<unknown> = () =>
@@ -56,6 +57,24 @@ describe("DiffTool", () => {
     expect(invokeSpy).toHaveBeenCalledWith(
       "run_action",
       expect.objectContaining({ action: "diff.compare" }),
+    );
+  });
+
+  it("diffs as JSON with sort keys when selected", async () => {
+    const user = userEvent.setup();
+    render(<DiffTool />);
+    await user.click(screen.getByRole("radio", { name: "JSON" }));
+    await user.click(screen.getByRole("button", { name: "Sort keys" }));
+    fireEvent.change(screen.getByLabelText("Original text"), {
+      target: { value: '{"b":1,"a":2}' },
+    });
+    await waitFor(() =>
+      expect(invokeSpy).toHaveBeenCalledWith(
+        "run_action",
+        expect.objectContaining({
+          params: expect.objectContaining({ format: "json", sort: true }),
+        }),
+      ),
     );
   });
 });

@@ -5,9 +5,18 @@ export interface DiffLine {
   value: string;
 }
 
+export type DiffFormat = "text" | "json" | "xml";
+
 export function diffCompare(
   oldText: string,
   newText: string,
+  format: DiffFormat = "text",
+  sort = false,
 ): Promise<DiffLine[]> {
-  return runAction<DiffLine[]>("diff.compare", { old: oldText, new: newText });
+  return runAction<DiffLine[]>("diff.compare", {
+    old: oldText,
+    new: newText,
+    format,
+    sort,
+  });
 }

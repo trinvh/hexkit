@@ -1,24 +1,52 @@
 import { useState } from "react";
+import { Segmented } from "../../components/ui/Segmented";
+import { Toggle } from "../../components/ui/Toggle";
 import { CodeEditor } from "../../components/ui/CodeEditor";
 import { useLiveAction } from "../../lib/useLiveAction";
 import { cn } from "../../lib/cn";
-import { runDiff } from "./run";
+import { runDiff, DIFF_FORMATS } from "./run";
+import type { DiffFormat } from "./api";
 
 export function DiffTool() {
   const [oldText, setOldText] = useState("");
   const [newText, setNewText] = useState("");
-  const { data } = useLiveAction(
-    () => runDiff(oldText, newText),
-    [oldText, newText],
+  const [format, setFormat] = useState<DiffFormat>("text");
+  const [sort, setSort] = useState(false);
+  const { data, error } = useLiveAction(
+    () => runDiff(oldText, newText, format, sort),
+    [oldText, newText, format, sort],
   );
+
+  const language =
+    format === "json" ? "json" : format === "xml" ? "xml" : undefined;
 
   return (
     <div className="flex h-full flex-col">
+      <div className="flex shrink-0 items-center gap-2 border-b border-border px-4 py-2.5">
+        <Segmented
+          ariaLabel="Diff format"
+          options={DIFF_FORMATS}
+          value={format}
+          onChange={setFormat}
+        />
+        {format === "json" && (
+          <Toggle active={sort} onClick={() => setSort((s) => !s)}>
+            Sort keys
+          </Toggle>
+        )}
+        <span className="ml-1 text-xs text-fg-subtle">
+          {format === "text"
+            ? "Compares line by line"
+            : `Formats each side as ${format.toUpperCase()} before diffing`}
+        </span>
+      </div>
+
       <div className="grid h-1/2 grid-cols-2 divide-x divide-border border-b border-border">
         <div className="min-h-0 overflow-hidden">
           <CodeEditor
             value={oldText}
             onChange={setOldText}
+            language={language}
             ariaLabel="Original text"
             placeholder="Original…"
           />
@@ -27,13 +55,20 @@ export function DiffTool() {
           <CodeEditor
             value={newText}
             onChange={setNewText}
+            language={language}
             ariaLabel="Changed text"
             placeholder="Changed…"
           />
         </div>
       </div>
+
       <div className="min-h-0 flex-1 overflow-auto py-2">
-        {data && data.length > 0 ? (
+        {error ? (
+          <div className="mx-4 rounded-lg border border-border-strong bg-surface px-3 py-2 text-xs">
+            <span className="font-medium text-accent">Cannot format input</span>
+            <span className="ml-2 text-fg-muted">{error}</span>
+          </div>
+        ) : data && data.length > 0 ? (
           data.map((line, index) => {
             const prefix =
               line.tag === "insert" ? "+" : line.tag === "delete" ? "-" : " ";
