@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Segmented } from "../../components/ui/Segmented";
+import { TextField } from "../../components/ui/TextField";
 import { TransformLayout } from "../../components/ui/TransformLayout";
 import { useLiveAction } from "../../lib/useLiveAction";
 import { useSeed } from "../../lib/seed";
@@ -9,9 +10,10 @@ export function XmlTool() {
   const seed = useSeed();
   const [input, setInput] = useState(seed.value);
   const [mode, setMode] = useState<XmlMode>("beautify");
+  const [xpath, setXpath] = useState("");
   const { data, error, loading } = useLiveAction(
-    () => runXml(input, mode),
-    [input, mode],
+    () => runXml(input, mode, { xpath }),
+    [input, mode, xpath],
   );
 
   return (
@@ -35,7 +37,16 @@ export function XmlTool() {
       inputPlaceholder="<root><item>value</item></root>"
       sample='<catalog><book id="bk101"><author>Gambardella, Matthew</author><title>XML Developer Guide</title><price>44.95</price></book><book id="bk102"><author>Ralls, Kim</author><title>Midnight Rain</title><price>5.95</price></book></catalog>'
       outputPlaceholder="Result appears here"
-      errorTitle="XML error"
+      errorTitle={xpath.trim() ? "XPath error" : "XML error"}
+      outputFooter={
+        <TextField
+          value={xpath}
+          onChange={setXpath}
+          ariaLabel="XPath filter"
+          placeholder="XPath, e.g. //book/@id or //title/text()"
+          mono
+        />
+      }
     />
   );
 }

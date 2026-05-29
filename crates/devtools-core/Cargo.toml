@@ -38,6 +38,8 @@ minify-html = { workspace = true }
 lightningcss = { workspace = true }
 minify-js = { workspace = true }
 quick-xml = { workspace = true }
+sxd-document = { workspace = true }
+sxd-xpath = { workspace = true }
 anyhow = { workspace = true }
 fancy-regex = { workspace = true }
 pulldown-cmark = { workspace = true }

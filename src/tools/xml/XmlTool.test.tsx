@@ -51,4 +51,21 @@ describe("XmlTool", () => {
       expect.objectContaining({ action: "xml.beautify" }),
     );
   });
+
+  it("filters via XPath when an expression is entered", async () => {
+    invokeImpl = () => Promise.resolve("bk101\nbk102");
+    render(<XmlTool />);
+    fireEvent.change(screen.getByLabelText("XML input"), {
+      target: { value: "<catalog><book id=\"bk101\"/></catalog>" },
+    });
+    fireEvent.change(screen.getByLabelText("XPath filter"), {
+      target: { value: "//book/@id" },
+    });
+    await waitFor(() =>
+      expect(invokeSpy).toHaveBeenCalledWith(
+        "run_action",
+        expect.objectContaining({ action: "xml.query" }),
+      ),
+    );
+  });
 });
