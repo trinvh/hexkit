@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { CodeEditor } from "./CodeEditor";
+import { CodeEditor, type CodeLanguage } from "./CodeEditor";
 import { CopyButton } from "./CopyButton";
 
 interface TransformLayoutProps {
@@ -10,7 +10,12 @@ interface TransformLayoutProps {
   output: string;
   error: string | null;
   loading?: boolean;
-  language?: "json";
+  /** Syntax highlighting for both panes (shorthand for same-language tools). */
+  language?: CodeLanguage;
+  /** Override highlighting for the input pane. */
+  inputLanguage?: CodeLanguage;
+  /** Override highlighting for the output pane. */
+  outputLanguage?: CodeLanguage;
   inputLabel?: string;
   outputLabel?: string;
   inputPlaceholder?: string;
@@ -27,6 +32,8 @@ export function TransformLayout({
   error,
   loading = false,
   language,
+  inputLanguage,
+  outputLanguage,
   inputLabel = "Input",
   outputLabel = "Output",
   inputPlaceholder,
@@ -48,7 +55,7 @@ export function TransformLayout({
           <CodeEditor
             value={input}
             onChange={onInput}
-            language={language}
+            language={inputLanguage ?? language}
             ariaLabel={inputLabel}
             placeholder={inputPlaceholder}
           />
@@ -57,7 +64,7 @@ export function TransformLayout({
           <CodeEditor
             value={error ? "" : output}
             readOnly
-            language={language}
+            language={outputLanguage ?? language}
             ariaLabel={outputLabel}
             placeholder={outputPlaceholder}
           />

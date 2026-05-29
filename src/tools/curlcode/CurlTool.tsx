@@ -29,6 +29,7 @@ export function CurlTool() {
       output={data ?? ""}
       error={error}
       loading={loading}
+      outputLanguage={target === "js" ? "javascript" : undefined}
       inputLabel="cURL command"
       outputLabel="Generated code"
       inputPlaceholder="curl -X POST https://api.example.com -d '{}'"

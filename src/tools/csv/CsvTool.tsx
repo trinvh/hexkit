@@ -29,7 +29,8 @@ export function CsvTool() {
       output={data ?? ""}
       error={error}
       loading={loading}
-      language={mode === "to_json" ? "json" : undefined}
+      inputLanguage={mode === "to_json" ? undefined : "json"}
+      outputLanguage={mode === "to_json" ? "json" : undefined}
       inputLabel="CSV input"
       outputLabel="CSV output"
       inputPlaceholder={mode === "to_json" ? "a,b\n1,2" : '[{"a":1,"b":2}]'}

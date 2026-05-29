@@ -21,6 +21,8 @@ export function SvgTool() {
       output={data ?? ""}
       error={error}
       loading={loading}
+      inputLanguage="xml"
+      outputLanguage="css"
       inputLabel="SVG input"
       outputLabel="CSS output"
       inputPlaceholder="<svg>…</svg>"

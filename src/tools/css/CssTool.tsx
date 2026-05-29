@@ -44,6 +44,7 @@ export function CssTool() {
       output={data ?? ""}
       error={error}
       loading={loading}
+      language="css"
       inputLabel="CSS input"
       outputLabel="CSS output"
       inputPlaceholder="a { color: red }"

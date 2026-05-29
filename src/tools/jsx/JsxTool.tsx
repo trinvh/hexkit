@@ -21,6 +21,8 @@ export function JsxTool() {
       output={data ?? ""}
       error={error}
       loading={loading}
+      inputLanguage="html"
+      outputLanguage="javascript"
       inputLabel="HTML input"
       outputLabel="JSX output"
       inputPlaceholder='<label class="x" for="y">'

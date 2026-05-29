@@ -3,6 +3,13 @@ import CodeMirror from "@uiw/react-codemirror";
 import { EditorView } from "@codemirror/view";
 import type { Extension } from "@codemirror/state";
 import { json } from "@codemirror/lang-json";
+import { css } from "@codemirror/lang-css";
+import { html } from "@codemirror/lang-html";
+import { xml } from "@codemirror/lang-xml";
+import { sql } from "@codemirror/lang-sql";
+import { yaml } from "@codemirror/lang-yaml";
+import { markdown } from "@codemirror/lang-markdown";
+import { javascript } from "@codemirror/lang-javascript";
 import { HighlightStyle, syntaxHighlighting } from "@codemirror/language";
 import { tags as t } from "@lezer/highlight";
 
@@ -33,19 +40,34 @@ const baseTheme = EditorView.theme({
 });
 
 const highlightStyle = HighlightStyle.define([
-  { tag: t.propertyName, color: "var(--cm-key)" },
-  { tag: [t.string, t.special(t.string)], color: "var(--cm-string)" },
-  { tag: [t.number, t.bool, t.null, t.keyword], color: "var(--cm-number)" },
-  { tag: [t.punctuation, t.separator, t.bracket], color: "var(--fg-subtle)" },
+  { tag: t.comment, color: "var(--fg-subtle)", fontStyle: "italic" },
+  { tag: [t.keyword, t.operator, t.modifier, t.controlKeyword], color: "var(--cm-keyword)" },
+  { tag: [t.string, t.special(t.string), t.attributeValue], color: "var(--cm-string)" },
+  { tag: [t.number, t.bool, t.null, t.literal], color: "var(--cm-number)" },
+  { tag: [t.propertyName, t.attributeName, t.definition(t.variableName)], color: "var(--cm-key)" },
+  { tag: [t.tagName, t.typeName, t.className, t.namespace], color: "var(--cm-tag)" },
+  { tag: [t.function(t.variableName), t.labelName], color: "var(--cm-key)" },
+  { tag: [t.punctuation, t.separator, t.bracket, t.angleBracket], color: "var(--fg-subtle)" },
 ]);
 
-const LANGUAGES = { json } as const;
+const LANGUAGES = {
+  json,
+  css,
+  html,
+  xml,
+  sql,
+  yaml,
+  markdown,
+  javascript: () => javascript({ jsx: true, typescript: true }),
+} as const;
+
+export type CodeLanguage = keyof typeof LANGUAGES;
 
 export interface CodeEditorProps {
   value: string;
   onChange?: (value: string) => void;
   readOnly?: boolean;
-  language?: keyof typeof LANGUAGES;
+  language?: CodeLanguage;
   placeholder?: string;
   ariaLabel?: string;
 }

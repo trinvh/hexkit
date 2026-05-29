@@ -12,6 +12,7 @@ export function HtmlPreviewTool() {
         <CodeEditor
           value={input}
           onChange={setInput}
+          language="html"
           ariaLabel="HTML source"
           placeholder="<h1>Hello</h1>"
         />

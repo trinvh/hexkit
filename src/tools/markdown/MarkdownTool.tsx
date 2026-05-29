@@ -15,6 +15,7 @@ export function MarkdownTool() {
         <CodeEditor
           value={input}
           onChange={setInput}
+          language="markdown"
           ariaLabel="Markdown input"
           placeholder="# Hello&#10;&#10;Some **markdown**."
         />

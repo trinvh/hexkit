@@ -29,7 +29,8 @@ export function PhpTool() {
       output={data ?? ""}
       error={error}
       loading={loading}
-      language={mode === "to_json" ? "json" : undefined}
+      inputLanguage={mode === "to_json" ? undefined : "json"}
+      outputLanguage={mode === "to_json" ? "json" : undefined}
       inputLabel="PHP input"
       outputLabel="PHP output"
       inputPlaceholder={mode === "to_json" ? 'a:1:{s:1:"a";i:1;}' : '{"a":1}'}

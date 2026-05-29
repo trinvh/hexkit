@@ -29,7 +29,8 @@ export function YamlTool() {
       output={data ?? ""}
       error={error}
       loading={loading}
-      language={mode === "to_json" ? "json" : undefined}
+      inputLanguage={mode === "to_json" ? "yaml" : "json"}
+      outputLanguage={mode === "to_json" ? "json" : "yaml"}
       inputLabel="YAML input"
       outputLabel="YAML output"
       inputPlaceholder={mode === "to_json" ? "YAML…" : "JSON…"}

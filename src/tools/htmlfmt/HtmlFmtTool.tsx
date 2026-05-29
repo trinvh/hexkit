@@ -29,6 +29,7 @@ export function HtmlFmtTool() {
       output={data ?? ""}
       error={error}
       loading={loading}
+      language="html"
       inputLabel="HTML input"
       outputLabel="HTML output"
       inputPlaceholder="<div><p>hi</p></div>"

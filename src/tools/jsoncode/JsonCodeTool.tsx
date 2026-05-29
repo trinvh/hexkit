@@ -29,7 +29,8 @@ export function JsonCodeTool() {
       output={data ?? ""}
       error={error}
       loading={loading}
-      language="json"
+      inputLanguage="json"
+      outputLanguage={target === "typescript" ? "javascript" : undefined}
       inputLabel="JSON input"
       outputLabel="Generated types"
       inputPlaceholder='{"name":"hexkit","version":1}'

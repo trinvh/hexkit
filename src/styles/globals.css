@@ -21,6 +21,8 @@
   --cm-key: oklch(48% 0.13 250);
   --cm-string: oklch(48% 0.12 150);
   --cm-number: oklch(50% 0.15 300);
+  --cm-keyword: oklch(52% 0.18 25);
+  --cm-tag: oklch(48% 0.12 200);
   color-scheme: light;
 }
 
@@ -42,6 +44,8 @@
   --cm-key: oklch(74% 0.11 250);
   --cm-string: oklch(76% 0.13 150);
   --cm-number: oklch(76% 0.12 300);
+  --cm-keyword: oklch(74% 0.16 25);
+  --cm-tag: oklch(75% 0.12 200);
   color-scheme: dark;
 }
 

@@ -21,6 +21,7 @@ export function JsTool() {
       output={data ?? ""}
       error={error}
       loading={loading}
+      language="javascript"
       inputLabel="JavaScript input"
       outputLabel="Minified output"
       inputPlaceholder="const x = 1 + 2;"

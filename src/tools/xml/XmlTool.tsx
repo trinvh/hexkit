@@ -29,6 +29,7 @@ export function XmlTool() {
       output={data ?? ""}
       error={error}
       loading={loading}
+      language="xml"
       inputLabel="XML input"
       outputLabel="XML output"
       inputPlaceholder="<root><item>value</item></root>"

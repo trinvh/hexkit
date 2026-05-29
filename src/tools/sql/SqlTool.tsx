@@ -21,6 +21,7 @@ export function SqlTool() {
       output={data ?? ""}
       error={error}
       loading={loading}
+      language="sql"
       inputLabel="SQL input"
       outputLabel="SQL output"
       inputPlaceholder="select * from users where id = 1"
