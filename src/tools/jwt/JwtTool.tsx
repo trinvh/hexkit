@@ -3,13 +3,22 @@ import { CodeEditor } from "../../components/ui/CodeEditor";
 import { CopyButton } from "../../components/ui/CopyButton";
 import { TextField } from "../../components/ui/TextField";
 import { ResultList } from "../../components/ui/ResultList";
+import { JsonView } from "../../components/ui/JsonView";
 import { useLiveAction } from "../../lib/useLiveAction";
 import { useSeed } from "../../lib/seed";
 import { cn } from "../../lib/cn";
 import { runJwt, runVerify } from "./run";
 import { humanizeClaims, algorithmOf } from "./claims";
 
-function Section({ title, body }: { title: string; body: string }) {
+function Section({
+  title,
+  body,
+  json = false,
+}: {
+  title: string;
+  body: string;
+  json?: boolean;
+}) {
   return (
     <div className="border-b border-border">
       <div className="flex items-center justify-between px-4 py-2">
@@ -18,9 +27,13 @@ function Section({ title, body }: { title: string; body: string }) {
         </span>
         <CopyButton value={body} label="" />
       </div>
-      <pre className="overflow-x-auto whitespace-pre-wrap break-all px-4 pb-3 font-mono text-xs text-fg">
-        {body}
-      </pre>
+      {json ? (
+        <JsonView value={body} ariaLabel={title} className="px-4 pb-3" />
+      ) : (
+        <pre className="overflow-x-auto whitespace-pre-wrap break-all px-4 pb-3 font-mono text-xs text-fg">
+          {body}
+        </pre>
+      )}
     </div>
   );
 }
@@ -91,8 +104,8 @@ export function JwtTool() {
           </div>
         ) : data ? (
           <>
-            <Section title="Header" body={data.header} />
-            <Section title="Payload" body={data.payload} />
+            <Section title="Header" body={data.header} json />
+            <Section title="Payload" body={data.payload} json />
             {claims.length > 0 && (
               <div className="border-b border-border">
                 <div className="px-4 py-2 text-xs font-medium uppercase tracking-wider text-fg-subtle">
