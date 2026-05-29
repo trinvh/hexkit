@@ -1,5 +1,11 @@
 import { describe, it, expect } from "vitest";
-import { TOOLS, getTool, DEFAULT_TOOL_ID, toolIdForAction } from "./registry";
+import {
+  TOOLS,
+  getTool,
+  DEFAULT_TOOL_ID,
+  toolIdForAction,
+  toolIdForKind,
+} from "./registry";
 import { CATEGORY_ORDER } from "./types";
 
 describe("tool registry", () => {
@@ -58,5 +64,18 @@ describe("toolIdForAction", () => {
   it("resolves to a real registered tool", () => {
     const id = toolIdForAction("jwt.decode");
     expect(id && getTool(id)).toBeTruthy();
+  });
+});
+
+describe("toolIdForKind", () => {
+  it("maps detection kinds to registered tools", () => {
+    for (const kind of ["json", "base64", "jwt", "unix_time", "url", "uuid"]) {
+      const id = toolIdForKind(kind);
+      expect(id && getTool(id), `${kind} -> ${id}`).toBeTruthy();
+    }
+  });
+
+  it("returns undefined for unknown kinds", () => {
+    expect(toolIdForKind("mystery")).toBeUndefined();
   });
 });

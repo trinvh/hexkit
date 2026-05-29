@@ -5,13 +5,20 @@ import type { ToolDefinition } from "../../tools/types";
 
 export function ToolPane() {
   const activeToolId = useApp((s) => s.activeToolId);
+  const seedNonce = useApp((s) => s.seedNonce);
   const tool = getTool(activeToolId);
   if (!tool) return null;
 
   const Component = tool.component;
   return (
     <div className="h-full min-h-0 overflow-auto">
-      {Component ? <Component /> : <Scaffolded tool={tool} />}
+      {Component ? (
+        // Remount on seed so a freshly detected value is picked up even when
+        // the same tool is already active.
+        <Component key={`${activeToolId}:${seedNonce}`} />
+      ) : (
+        <Scaffolded tool={tool} />
+      )}
     </div>
   );
 }

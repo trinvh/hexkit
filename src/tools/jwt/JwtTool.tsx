@@ -2,6 +2,7 @@ import { useState } from "react";
 import { CodeEditor } from "../../components/ui/CodeEditor";
 import { CopyButton } from "../../components/ui/CopyButton";
 import { useLiveAction } from "../../lib/useLiveAction";
+import { useSeed } from "../../lib/seed";
 import { runJwt } from "./run";
 
 function Section({
@@ -27,7 +28,8 @@ function Section({
 }
 
 export function JwtTool() {
-  const [token, setToken] = useState("");
+  const seed = useSeed();
+  const [token, setToken] = useState(seed.value);
   const { data, error } = useLiveAction(() => runJwt(token), [token]);
 
   return (

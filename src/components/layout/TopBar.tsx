@@ -1,6 +1,7 @@
-import { Search } from "lucide-react";
+import { Search, Wand2 } from "lucide-react";
 import { useApp } from "../../store/app";
 import { getTool } from "../../tools/registry";
+import { detectFromClipboard } from "../../lib/detect";
 import { ThemeToggle } from "../ui/ThemeToggle";
 import { cn } from "../../lib/cn";
 
@@ -10,11 +11,23 @@ export function TopBar() {
   const tool = getTool(activeToolId);
 
   return (
-    <header className="flex h-14 shrink-0 items-center gap-4 border-b border-border px-5">
+    <header className="flex h-14 shrink-0 items-center gap-3 border-b border-border px-5">
       <div className="min-w-0 flex-1">
         <h1 className="truncate text-sm font-semibold text-fg">{tool?.name}</h1>
         <p className="truncate text-xs text-fg-muted">{tool?.description}</p>
       </div>
+      <button
+        type="button"
+        onClick={detectFromClipboard}
+        title="Detect the right tool from clipboard contents"
+        className={cn(
+          "inline-flex items-center gap-2 rounded-lg border border-border px-3 py-1.5",
+          "text-xs text-fg-muted transition-colors hover:border-border-strong hover:text-fg",
+        )}
+      >
+        <Wand2 className="size-3.5 text-accent" />
+        <span>Detect</span>
+      </button>
       <button
         type="button"
         onClick={togglePalette}

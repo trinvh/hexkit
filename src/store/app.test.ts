@@ -4,7 +4,12 @@ import { DEFAULT_TOOL_ID } from "../tools/registry";
 
 describe("useApp", () => {
   beforeEach(() => {
-    useApp.setState({ activeToolId: DEFAULT_TOOL_ID, paletteOpen: false });
+    useApp.setState({
+      activeToolId: DEFAULT_TOOL_ID,
+      paletteOpen: false,
+      seed: null,
+      seedNonce: 0,
+    });
   });
 
   it("starts on the default tool with the palette closed", () => {
@@ -29,5 +34,15 @@ describe("useApp", () => {
   it("setPaletteOpen sets the palette state directly", () => {
     useApp.getState().setPaletteOpen(true);
     expect(useApp.getState().paletteOpen).toBe(true);
+  });
+
+  it("openToolWithSeed activates the tool, seeds input, and bumps the nonce", () => {
+    useApp.setState({ paletteOpen: true });
+    useApp.getState().openToolWithSeed("base64-string", "aGk=", "decode");
+    const state = useApp.getState();
+    expect(state.activeToolId).toBe("base64-string");
+    expect(state.paletteOpen).toBe(false);
+    expect(state.seed).toEqual({ value: "aGk=", mode: "decode" });
+    expect(state.seedNonce).toBe(1);
   });
 });

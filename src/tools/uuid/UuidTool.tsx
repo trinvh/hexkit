@@ -4,11 +4,13 @@ import { Segmented } from "../../components/ui/Segmented";
 import { TextField } from "../../components/ui/TextField";
 import { CopyButton } from "../../components/ui/CopyButton";
 import { useLiveAction } from "../../lib/useLiveAction";
+import { useSeed } from "../../lib/seed";
 import { errorMessage } from "../../lib/ipc";
 import { idGenerate } from "./api";
 import { ID_KINDS, runInspect } from "./run";
 
 export function UuidTool() {
+  const seed = useSeed();
   const [kind, setKind] = useState("uuid_v4");
   const [count, setCount] = useState(5);
   const [ids, setIds] = useState<string[]>([]);
@@ -28,7 +30,7 @@ export function UuidTool() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const [inspectInput, setInspectInput] = useState("");
+  const [inspectInput, setInspectInput] = useState(seed.value);
   const { data: inspection, error: inspectError } = useLiveAction(
     () => runInspect(inspectInput),
     [inspectInput],

@@ -2,10 +2,12 @@ import { useState } from "react";
 import { Segmented } from "../../components/ui/Segmented";
 import { TransformLayout } from "../../components/ui/TransformLayout";
 import { useLiveAction } from "../../lib/useLiveAction";
+import { useSeed } from "../../lib/seed";
 import { JSON_MODES, runJson, type JsonMode } from "./run";
 
 export function JsonTool() {
-  const [input, setInput] = useState("");
+  const seed = useSeed();
+  const [input, setInput] = useState(seed.value);
   const [mode, setMode] = useState<JsonMode>("  ");
   const { data, error, loading } = useLiveAction(
     () => runJson(input, mode),

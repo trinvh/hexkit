@@ -29,6 +29,7 @@ pub fn run(action: &str, params: Value) -> ToolResult<Value> {
         "id" => crate::ids::dispatch(action, params),
         "diff" => crate::textdiff::dispatch(action, params),
         "jwt" => crate::jwt::dispatch(action, params),
+        "detect" => crate::detect::dispatch(action, params),
         _ => Err(ToolError::invalid_input(format!("unknown action: {action}"))),
     }
 }

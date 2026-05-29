@@ -7,6 +7,7 @@
 pub mod actions;
 pub mod base64;
 pub mod deeplink;
+pub mod detect;
 mod error;
 pub mod hash;
 pub mod html;

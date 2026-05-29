@@ -168,3 +168,17 @@ export function toolIdForAction(action: string): string | undefined {
   if (namespace === "url") return verb === "parse" ? "url-parser" : "url-encode";
   return ACTION_NAMESPACE_TO_TOOL[namespace];
 }
+
+const KIND_TO_TOOL: Record<string, string> = {
+  json: "json-format",
+  base64: "base64-string",
+  jwt: "jwt-debugger",
+  unix_time: "unix-time",
+  url: "url-parser",
+  uuid: "uuid-generator",
+};
+
+/** Map a smart-detection kind to the tool that should open. */
+export function toolIdForKind(kind: string): string | undefined {
+  return KIND_TO_TOOL[kind];
+}

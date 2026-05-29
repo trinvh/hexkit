@@ -23,4 +23,9 @@ describe("TopBar", () => {
     await user.click(screen.getByRole("button", { name: /search/i }));
     expect(useApp.getState().paletteOpen).toBe(true);
   });
+
+  it("offers a clipboard detection button", () => {
+    render(<TopBar />);
+    expect(screen.getByRole("button", { name: "Detect" })).toBeInTheDocument();
+  });
 });

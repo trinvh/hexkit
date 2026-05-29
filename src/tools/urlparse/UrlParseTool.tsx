@@ -2,10 +2,12 @@ import { useState } from "react";
 import { TextField } from "../../components/ui/TextField";
 import { ResultLayout } from "../../components/ui/ResultLayout";
 import { useLiveAction } from "../../lib/useLiveAction";
+import { useSeed } from "../../lib/seed";
 import { runUrlParse } from "./run";
 
 export function UrlParseTool() {
-  const [input, setInput] = useState("");
+  const seed = useSeed();
+  const [input, setInput] = useState(seed.value);
   const { data, error } = useLiveAction(() => runUrlParse(input), [input]);
 
   const rows = data
