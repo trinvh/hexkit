@@ -1,14 +1,14 @@
-import { useState } from "react";
 import { TextField } from "../../components/ui/TextField";
 import { InputActions } from "../../components/ui/InputActions";
 import { ResultLayout } from "../../components/ui/ResultLayout";
 import { useLiveAction } from "../../lib/useLiveAction";
 import { useSeed } from "../../lib/seed";
+import { useToolState } from "../../lib/toolState";
 import { runColor } from "./run";
 
 export function ColorTool() {
   const seed = useSeed();
-  const [input, setInput] = useState(seed.value);
+  const [input, setInput] = useToolState("input", seed.value);
   const { data, error } = useLiveAction(() => runColor(input), [input]);
 
   const rows = data

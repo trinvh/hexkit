@@ -1,14 +1,14 @@
-import { useState } from "react";
 import { Segmented } from "../../components/ui/Segmented";
 import { TransformLayout } from "../../components/ui/TransformLayout";
 import { useLiveAction } from "../../lib/useLiveAction";
 import { useSeed } from "../../lib/seed";
+import { useToolState } from "../../lib/toolState";
 import { HTML_FMT_MODES, runHtmlFmt, type HtmlFmtMode } from "./run";
 
 export function HtmlFmtTool() {
   const seed = useSeed();
-  const [input, setInput] = useState(seed.value);
-  const [mode, setMode] = useState<HtmlFmtMode>("beautify");
+  const [input, setInput] = useToolState("input", seed.value);
+  const [mode, setMode] = useToolState<HtmlFmtMode>("mode", "beautify");
   const { data, error, loading } = useLiveAction(
     () => runHtmlFmt(input, mode),
     [input, mode],

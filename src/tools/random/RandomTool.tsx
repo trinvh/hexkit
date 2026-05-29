@@ -3,14 +3,15 @@ import { RefreshCw } from "lucide-react";
 import { Toggle } from "../../components/ui/Toggle";
 import { CopyButton } from "../../components/ui/CopyButton";
 import { errorMessage } from "../../lib/ipc";
+import { useToolState } from "../../lib/toolState";
 import { randomGenerate } from "./api";
 
 export function RandomTool() {
-  const [length, setLength] = useState(24);
-  const [uppercase, setUppercase] = useState(true);
-  const [lowercase, setLowercase] = useState(true);
-  const [digits, setDigits] = useState(true);
-  const [symbols, setSymbols] = useState(false);
+  const [length, setLength] = useToolState("length", 24);
+  const [uppercase, setUppercase] = useToolState("uppercase", true);
+  const [lowercase, setLowercase] = useToolState("lowercase", true);
+  const [digits, setDigits] = useToolState("digits", true);
+  const [symbols, setSymbols] = useToolState("symbols", false);
   const [value, setValue] = useState("");
   const [error, setError] = useState<string | null>(null);
 

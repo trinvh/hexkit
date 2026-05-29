@@ -1,16 +1,16 @@
-import { useState } from "react";
 import { Segmented } from "../../components/ui/Segmented";
 import { TextField } from "../../components/ui/TextField";
 import { TransformLayout } from "../../components/ui/TransformLayout";
 import { useLiveAction } from "../../lib/useLiveAction";
 import { useSeed } from "../../lib/seed";
+import { useToolState } from "../../lib/toolState";
 import { XML_MODES, runXml, type XmlMode } from "./run";
 
 export function XmlTool() {
   const seed = useSeed();
-  const [input, setInput] = useState(seed.value);
-  const [mode, setMode] = useState<XmlMode>("beautify");
-  const [xpath, setXpath] = useState("");
+  const [input, setInput] = useToolState("input", seed.value);
+  const [mode, setMode] = useToolState<XmlMode>("mode", "beautify");
+  const [xpath, setXpath] = useToolState("xpath", "");
   const { data, error, loading } = useLiveAction(
     () => runXml(input, mode, { xpath }),
     [input, mode, xpath],

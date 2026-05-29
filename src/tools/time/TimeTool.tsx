@@ -1,16 +1,16 @@
-import { useState } from "react";
 import { Segmented } from "../../components/ui/Segmented";
 import { TextField } from "../../components/ui/TextField";
 import { InputActions } from "../../components/ui/InputActions";
 import { ResultLayout } from "../../components/ui/ResultLayout";
 import { useLiveAction } from "../../lib/useLiveAction";
 import { useSeed } from "../../lib/seed";
+import { useToolState } from "../../lib/toolState";
 import { runTime, TIME_UNITS } from "./run";
 
 export function TimeTool() {
   const seed = useSeed();
-  const [input, setInput] = useState(seed.value);
-  const [unit, setUnit] = useState("auto");
+  const [input, setInput] = useToolState("input", seed.value);
+  const [unit, setUnit] = useToolState("unit", "auto");
   const { data, error } = useLiveAction(
     () => runTime(input, unit),
     [input, unit],

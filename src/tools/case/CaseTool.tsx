@@ -1,11 +1,11 @@
-import { useState } from "react";
 import { TextField } from "../../components/ui/TextField";
 import { ResultLayout } from "../../components/ui/ResultLayout";
 import { useLiveAction } from "../../lib/useLiveAction";
+import { useToolState } from "../../lib/toolState";
 import { CASE_ROWS, runCase } from "./run";
 
 export function CaseTool() {
-  const [input, setInput] = useState("");
+  const [input, setInput] = useToolState("input", "");
   const { data, error } = useLiveAction(() => runCase(input), [input]);
 
   const rows = data

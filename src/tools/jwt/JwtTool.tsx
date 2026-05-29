@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { CodeEditor } from "../../components/ui/CodeEditor";
 import { CopyButton } from "../../components/ui/CopyButton";
 import { TextField } from "../../components/ui/TextField";
@@ -6,6 +5,7 @@ import { ResultList } from "../../components/ui/ResultList";
 import { JsonView } from "../../components/ui/JsonView";
 import { useLiveAction } from "../../lib/useLiveAction";
 import { useSeed } from "../../lib/seed";
+import { useToolState } from "../../lib/toolState";
 import { cn } from "../../lib/cn";
 import { runJwt, runVerify } from "./run";
 import { humanizeClaims, algorithmOf } from "./claims";
@@ -40,8 +40,8 @@ function Section({
 
 export function JwtTool() {
   const seed = useSeed();
-  const [token, setToken] = useState(seed.value);
-  const [secret, setSecret] = useState("");
+  const [token, setToken] = useToolState("input", seed.value);
+  const [secret, setSecret] = useToolState("secret", "");
   const { data, error } = useLiveAction(() => runJwt(token), [token]);
   const { data: verification } = useLiveAction(
     () => runVerify(token, secret),

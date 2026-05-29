@@ -1,14 +1,14 @@
-import { useState } from "react";
 import { Segmented } from "../../components/ui/Segmented";
 import { TransformLayout } from "../../components/ui/TransformLayout";
 import { useLiveAction } from "../../lib/useLiveAction";
 import { useSeed } from "../../lib/seed";
+import { useToolState } from "../../lib/toolState";
 import { PHP_MODES, runPhp, type PhpMode } from "./run";
 
 export function PhpTool() {
   const seed = useSeed();
-  const [input, setInput] = useState(seed.value);
-  const [mode, setMode] = useState<PhpMode>("to_json");
+  const [input, setInput] = useToolState("input", seed.value);
+  const [mode, setMode] = useToolState<PhpMode>("mode", "to_json");
   const { data, error, loading } = useLiveAction(
     () => runPhp(input, mode),
     [input, mode],

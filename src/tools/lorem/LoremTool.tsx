@@ -4,12 +4,13 @@ import { Segmented } from "../../components/ui/Segmented";
 import { CodeEditor } from "../../components/ui/CodeEditor";
 import { CopyButton } from "../../components/ui/CopyButton";
 import { errorMessage } from "../../lib/ipc";
+import { useToolState } from "../../lib/toolState";
 import { loremGenerate } from "./api";
 import { LOREM_KINDS, type LoremKind } from "./run";
 
 export function LoremTool() {
-  const [kind, setKind] = useState<LoremKind>("paragraphs");
-  const [count, setCount] = useState(3);
+  const [kind, setKind] = useToolState<LoremKind>("kind", "paragraphs");
+  const [count, setCount] = useToolState("count", 3);
   const [value, setValue] = useState("");
   const [error, setError] = useState<string | null>(null);
 

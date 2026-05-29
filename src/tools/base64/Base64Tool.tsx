@@ -1,14 +1,15 @@
-import { useState } from "react";
 import { Segmented } from "../../components/ui/Segmented";
 import { TransformLayout } from "../../components/ui/TransformLayout";
 import { useLiveAction } from "../../lib/useLiveAction";
 import { useSeed } from "../../lib/seed";
+import { useToolState } from "../../lib/toolState";
 import { BASE64_MODES, runBase64, type Base64Mode } from "./run";
 
 export function Base64Tool() {
   const seed = useSeed();
-  const [input, setInput] = useState(seed.value);
-  const [mode, setMode] = useState<Base64Mode>(
+  const [input, setInput] = useToolState("input", seed.value);
+  const [mode, setMode] = useToolState<Base64Mode>(
+    "mode",
     seed.mode === "decode" ? "decode" : "encode",
   );
   const { data, error, loading } = useLiveAction(

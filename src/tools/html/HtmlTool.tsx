@@ -1,12 +1,12 @@
-import { useState } from "react";
 import { Segmented } from "../../components/ui/Segmented";
 import { TransformLayout } from "../../components/ui/TransformLayout";
 import { useLiveAction } from "../../lib/useLiveAction";
+import { useToolState } from "../../lib/toolState";
 import { HTML_MODES, runHtml, type HtmlMode } from "./run";
 
 export function HtmlTool() {
-  const [input, setInput] = useState("");
-  const [mode, setMode] = useState<HtmlMode>("encode");
+  const [input, setInput] = useToolState("input", "");
+  const [mode, setMode] = useToolState<HtmlMode>("mode", "encode");
   const { data, error, loading } = useLiveAction(
     () => runHtml(input, mode),
     [input, mode],

@@ -1,8 +1,8 @@
-import { useState } from "react";
 import { Segmented } from "../../components/ui/Segmented";
 import { TransformLayout } from "../../components/ui/TransformLayout";
 import { useLiveAction } from "../../lib/useLiveAction";
 import { useSeed } from "../../lib/seed";
+import { useToolState } from "../../lib/toolState";
 import {
   CSS_MODES,
   CSS_SYNTAXES,
@@ -13,9 +13,9 @@ import {
 
 export function CssTool() {
   const seed = useSeed();
-  const [input, setInput] = useState(seed.value);
-  const [syntax, setSyntax] = useState<CssSyntax>("css");
-  const [mode, setMode] = useState<CssMode>("beautify");
+  const [input, setInput] = useToolState("input", seed.value);
+  const [syntax, setSyntax] = useToolState<CssSyntax>("syntax", "css");
+  const [mode, setMode] = useToolState<CssMode>("mode", "beautify");
   const { data, error, loading } = useLiveAction(
     () => runCss(input, syntax, mode),
     [input, syntax, mode],

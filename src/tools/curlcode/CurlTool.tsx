@@ -1,14 +1,14 @@
-import { useState } from "react";
 import { Segmented } from "../../components/ui/Segmented";
 import { TransformLayout } from "../../components/ui/TransformLayout";
 import { useLiveAction } from "../../lib/useLiveAction";
 import { useSeed } from "../../lib/seed";
+import { useToolState } from "../../lib/toolState";
 import { CURL_TARGETS, runCurl, type CurlTarget } from "./run";
 
 export function CurlTool() {
   const seed = useSeed();
-  const [command, setCommand] = useState(seed.value);
-  const [target, setTarget] = useState<CurlTarget>("js");
+  const [command, setCommand] = useToolState("input", seed.value);
+  const [target, setTarget] = useToolState<CurlTarget>("target", "js");
   const { data, error, loading } = useLiveAction(
     () => runCurl(command, target),
     [command, target],

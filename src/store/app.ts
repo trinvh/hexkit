@@ -109,6 +109,9 @@ export const useApp = create<AppState>()(
           seed: { value, mode },
           seedNonce: state.seedNonce + 1,
           recents: recordRecent(state.recents, id),
+          // Clear the active tab's stored fields so the seed value wins over
+          // whatever was previously persisted for this tab.
+          tabState: { ...state.tabState, [state.activeTabId]: {} },
         })),
       openInNewTab: (id) =>
         set((state) => {

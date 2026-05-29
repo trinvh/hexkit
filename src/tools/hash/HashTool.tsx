@@ -1,13 +1,13 @@
-import { useState } from "react";
 import { TextField } from "../../components/ui/TextField";
 import { InputActions } from "../../components/ui/InputActions";
 import { ResultLayout } from "../../components/ui/ResultLayout";
 import { useLiveAction } from "../../lib/useLiveAction";
+import { useToolState } from "../../lib/toolState";
 import { runDigests } from "./run";
 
 export function HashTool() {
-  const [input, setInput] = useState("");
-  const [key, setKey] = useState("");
+  const [input, setInput] = useToolState("input", "");
+  const [key, setKey] = useToolState("key", "");
   const { data, error } = useLiveAction(
     () => runDigests(input, key),
     [input, key],

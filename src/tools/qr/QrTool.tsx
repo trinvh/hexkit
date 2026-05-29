@@ -4,13 +4,14 @@ import { TextField } from "../../components/ui/TextField";
 import { CopyButton } from "../../components/ui/CopyButton";
 import { useLiveAction } from "../../lib/useLiveAction";
 import { useSeed } from "../../lib/seed";
+import { useToolState } from "../../lib/toolState";
 import { errorMessage } from "../../lib/ipc";
 import { readFileAsDataUrl } from "../../lib/file";
 import { qrGenerate, qrRead } from "./api";
 
 export function QrTool() {
   const seed = useSeed();
-  const [text, setText] = useState(seed.value);
+  const [text, setText] = useToolState("input", seed.value);
   const { data: svg, error: genError } = useLiveAction(
     () => (text.trim() === "" ? null : qrGenerate(text)),
     [text],

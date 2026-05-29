@@ -1,12 +1,12 @@
-import { useState } from "react";
 import { Segmented } from "../../components/ui/Segmented";
 import { TransformLayout } from "../../components/ui/TransformLayout";
 import { useLiveAction } from "../../lib/useLiveAction";
+import { useToolState } from "../../lib/toolState";
 import { URL_MODES, runUrl, type UrlMode } from "./run";
 
 export function UrlTool() {
-  const [input, setInput] = useState("");
-  const [mode, setMode] = useState<UrlMode>("encode");
+  const [input, setInput] = useToolState("input", "");
+  const [mode, setMode] = useToolState<UrlMode>("mode", "encode");
   const { data, error, loading } = useLiveAction(
     () => runUrl(input, mode),
     [input, mode],

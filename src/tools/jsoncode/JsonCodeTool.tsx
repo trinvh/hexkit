@@ -1,14 +1,14 @@
-import { useState } from "react";
 import { Segmented } from "../../components/ui/Segmented";
 import { TransformLayout } from "../../components/ui/TransformLayout";
 import { useLiveAction } from "../../lib/useLiveAction";
 import { useSeed } from "../../lib/seed";
+import { useToolState } from "../../lib/toolState";
 import { CODE_TARGETS, runJsonCode, type CodeTarget } from "./run";
 
 export function JsonCodeTool() {
   const seed = useSeed();
-  const [input, setInput] = useState(seed.value);
-  const [target, setTarget] = useState<CodeTarget>("typescript");
+  const [input, setInput] = useToolState("input", seed.value);
+  const [target, setTarget] = useToolState<CodeTarget>("target", "typescript");
   const { data, error, loading } = useLiveAction(
     () => runJsonCode(input, target),
     [input, target],

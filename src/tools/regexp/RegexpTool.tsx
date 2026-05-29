@@ -6,6 +6,7 @@ import { CopyButton } from "../../components/ui/CopyButton";
 import { CodeEditor } from "../../components/ui/CodeEditor";
 import { useLiveAction } from "../../lib/useLiveAction";
 import { useSeed } from "../../lib/seed";
+import { useToolState } from "../../lib/toolState";
 import { runRegexp, runReplace } from "./run";
 
 const FLAGS = [
@@ -32,10 +33,10 @@ const CHEAT_SHEET: ReadonlyArray<[token: string, meaning: string]> = [
 
 export function RegexpTool() {
   const seed = useSeed();
-  const [pattern, setPattern] = useState(seed.value);
-  const [text, setText] = useState("");
-  const [flags, setFlags] = useState("");
-  const [replacement, setReplacement] = useState("");
+  const [pattern, setPattern] = useToolState("input", seed.value);
+  const [text, setText] = useToolState("text", "");
+  const [flags, setFlags] = useToolState("flags", "");
+  const [replacement, setReplacement] = useToolState("replacement", "");
   const [showCheatSheet, setShowCheatSheet] = useState(false);
 
   const { data, error } = useLiveAction(

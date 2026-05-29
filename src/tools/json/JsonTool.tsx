@@ -1,18 +1,18 @@
-import { useState } from "react";
 import { Segmented } from "../../components/ui/Segmented";
 import { Toggle } from "../../components/ui/Toggle";
 import { TextField } from "../../components/ui/TextField";
 import { TransformLayout } from "../../components/ui/TransformLayout";
 import { useLiveAction } from "../../lib/useLiveAction";
 import { useSeed } from "../../lib/seed";
+import { useToolState } from "../../lib/toolState";
 import { JSON_MODES, runJson, type JsonMode } from "./run";
 
 export function JsonTool() {
   const seed = useSeed();
-  const [input, setInput] = useState(seed.value);
-  const [mode, setMode] = useState<JsonMode>("  ");
-  const [sort, setSort] = useState(false);
-  const [path, setPath] = useState("");
+  const [input, setInput] = useToolState("input", seed.value);
+  const [mode, setMode] = useToolState<JsonMode>("mode", "  ");
+  const [sort, setSort] = useToolState("sort", false);
+  const [path, setPath] = useToolState("path", "");
   const { data, error, loading } = useLiveAction(
     () => runJson(input, mode, { sort, path }),
     [input, mode, sort, path],

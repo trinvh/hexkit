@@ -7,6 +7,7 @@ import { CopyButton } from "../../components/ui/CopyButton";
 import { ResultList } from "../../components/ui/ResultList";
 import { useLiveAction } from "../../lib/useLiveAction";
 import { useSeed } from "../../lib/seed";
+import { useToolState } from "../../lib/toolState";
 import { errorMessage } from "../../lib/ipc";
 import { idGenerate, type Inspection } from "./api";
 import { ID_KINDS, runInspect } from "./run";
@@ -24,9 +25,9 @@ function inspectionRows(info: Inspection) {
 
 export function UuidTool() {
   const seed = useSeed();
-  const [kind, setKind] = useState("uuid_v4");
-  const [count, setCount] = useState(5);
-  const [lowercased, setLowercased] = useState(false);
+  const [kind, setKind] = useToolState("kind", "uuid_v4");
+  const [count, setCount] = useToolState("count", 5);
+  const [lowercased, setLowercased] = useToolState("lowercased", false);
   const [ids, setIds] = useState<string[]>([]);
   const [genError, setGenError] = useState<string | null>(null);
 
@@ -44,7 +45,7 @@ export function UuidTool() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const [inspectInput, setInspectInput] = useState(seed.value);
+  const [inspectInput, setInspectInput] = useToolState("inspect", seed.value);
   const { data: inspection, error: inspectError } = useLiveAction(
     () => runInspect(inspectInput),
     [inspectInput],

@@ -1,14 +1,14 @@
-import { useState } from "react";
 import { Segmented } from "../../components/ui/Segmented";
 import { TransformLayout } from "../../components/ui/TransformLayout";
 import { useLiveAction } from "../../lib/useLiveAction";
 import { useSeed } from "../../lib/seed";
+import { useToolState } from "../../lib/toolState";
 import { HEX_MODES, runHex, type HexMode } from "./run";
 
 export function HexTool() {
   const seed = useSeed();
-  const [input, setInput] = useState(seed.value);
-  const [mode, setMode] = useState<HexMode>("encode");
+  const [input, setInput] = useToolState("input", seed.value);
+  const [mode, setMode] = useToolState<HexMode>("mode", "encode");
   const { data, error, loading } = useLiveAction(
     () => runHex(input, mode),
     [input, mode],

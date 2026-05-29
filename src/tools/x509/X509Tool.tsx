@@ -1,13 +1,13 @@
-import { useState } from "react";
 import { CodeEditor } from "../../components/ui/CodeEditor";
 import { ResultList } from "../../components/ui/ResultList";
 import { useLiveAction } from "../../lib/useLiveAction";
 import { useSeed } from "../../lib/seed";
+import { useToolState } from "../../lib/toolState";
 import { runX509 } from "./run";
 
 export function X509Tool() {
   const seed = useSeed();
-  const [input, setInput] = useState(seed.value);
+  const [input, setInput] = useToolState("input", seed.value);
   const { data, error } = useLiveAction(() => runX509(input), [input]);
 
   const rows = data

@@ -1,8 +1,9 @@
-import { useState, type ReactNode } from "react";
+import { type ReactNode } from "react";
 import { TextField } from "../../components/ui/TextField";
 import { CopyButton } from "../../components/ui/CopyButton";
 import { readClipboardText } from "../../lib/clipboard";
 import { useLiveAction } from "../../lib/useLiveAction";
+import { useToolState } from "../../lib/toolState";
 import { NUMBER_BASES, runAll } from "./run";
 import type { AllBases } from "./api";
 
@@ -63,8 +64,8 @@ function BaseField({
 }
 
 export function NumberTool() {
-  const [source, setSource] = useState<Source | null>(null);
-  const [customBase, setCustomBase] = useState("36");
+  const [source, setSource] = useToolState<Source | null>("source", null);
+  const [customBase, setCustomBase] = useToolState("customBase", "36");
   const { data } = useLiveAction(
     () =>
       source ? runAll(source.value, source.base, Number(customBase)) : null,

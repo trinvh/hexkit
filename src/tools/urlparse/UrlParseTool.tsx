@@ -1,13 +1,13 @@
-import { useState } from "react";
 import { TextField } from "../../components/ui/TextField";
 import { ResultLayout } from "../../components/ui/ResultLayout";
 import { useLiveAction } from "../../lib/useLiveAction";
 import { useSeed } from "../../lib/seed";
+import { useToolState } from "../../lib/toolState";
 import { runUrlParse } from "./run";
 
 export function UrlParseTool() {
   const seed = useSeed();
-  const [input, setInput] = useState(seed.value);
+  const [input, setInput] = useToolState("input", seed.value);
   const { data, error } = useLiveAction(() => runUrlParse(input), [input]);
 
   const rows = data

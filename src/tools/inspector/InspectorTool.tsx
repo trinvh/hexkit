@@ -1,16 +1,16 @@
-import { useState } from "react";
 import { CodeEditor } from "../../components/ui/CodeEditor";
 import { InputActions } from "../../components/ui/InputActions";
 import { ResultList } from "../../components/ui/ResultList";
 import { useLiveAction } from "../../lib/useLiveAction";
 import { useSeed } from "../../lib/seed";
+import { useToolState } from "../../lib/toolState";
 import { inspectString } from "./api";
 
 const SAMPLE = "Hello, 世界! 🌍\nThe quick brown fox jumps over the lazy dog.";
 
 export function InspectorTool() {
   const seed = useSeed();
-  const [input, setInput] = useState(seed.value);
+  const [input, setInput] = useToolState("input", seed.value);
   const { data } = useLiveAction(() => inspectString(input), [input]);
 
   const rows = [

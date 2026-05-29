@@ -1,10 +1,10 @@
-import { useState } from "react";
 import { CodeEditor } from "../../components/ui/CodeEditor";
 import { useSeed } from "../../lib/seed";
+import { useToolState } from "../../lib/toolState";
 
 export function HtmlPreviewTool() {
   const seed = useSeed();
-  const [input, setInput] = useState(seed.value);
+  const [input, setInput] = useToolState("input", seed.value);
 
   return (
     <div className="grid h-full grid-cols-2 divide-x divide-border">

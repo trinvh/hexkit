@@ -1,12 +1,12 @@
-import { useState } from "react";
 import { TransformLayout } from "../../components/ui/TransformLayout";
 import { useLiveAction } from "../../lib/useLiveAction";
 import { useSeed } from "../../lib/seed";
+import { useToolState } from "../../lib/toolState";
 import { runJsx } from "./run";
 
 export function JsxTool() {
   const seed = useSeed();
-  const [input, setInput] = useState(seed.value);
+  const [input, setInput] = useToolState("input", seed.value);
   const { data, error, loading } = useLiveAction(() => runJsx(input), [input]);
 
   return (

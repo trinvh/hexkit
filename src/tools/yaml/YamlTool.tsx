@@ -1,14 +1,14 @@
-import { useState } from "react";
 import { Segmented } from "../../components/ui/Segmented";
 import { TransformLayout } from "../../components/ui/TransformLayout";
 import { useLiveAction } from "../../lib/useLiveAction";
 import { useSeed } from "../../lib/seed";
+import { useToolState } from "../../lib/toolState";
 import { YAML_MODES, runYaml, type YamlMode } from "./run";
 
 export function YamlTool() {
   const seed = useSeed();
-  const [input, setInput] = useState(seed.value);
-  const [mode, setMode] = useState<YamlMode>("to_json");
+  const [input, setInput] = useToolState("input", seed.value);
+  const [mode, setMode] = useToolState<YamlMode>("mode", "to_json");
   const { data, error, loading } = useLiveAction(
     () => runYaml(input, mode),
     [input, mode],

@@ -1,18 +1,18 @@
-import { useState } from "react";
 import { Segmented } from "../../components/ui/Segmented";
 import { Toggle } from "../../components/ui/Toggle";
 import { TransformLayout } from "../../components/ui/TransformLayout";
 import { useLiveAction } from "../../lib/useLiveAction";
 import { useSeed } from "../../lib/seed";
+import { useToolState } from "../../lib/toolState";
 import { SORT_MODES, runLines, type SortMode } from "./run";
 
 export function LinesTool() {
   const seed = useSeed();
-  const [input, setInput] = useState(seed.value);
-  const [sort, setSort] = useState<SortMode>("none");
-  const [dedupe, setDedupe] = useState(false);
-  const [trim, setTrim] = useState(false);
-  const [caseInsensitive, setCaseInsensitive] = useState(false);
+  const [input, setInput] = useToolState("input", seed.value);
+  const [sort, setSort] = useToolState<SortMode>("sort", "none");
+  const [dedupe, setDedupe] = useToolState("dedupe", false);
+  const [trim, setTrim] = useToolState("trim", false);
+  const [caseInsensitive, setCaseInsensitive] = useToolState("ci", false);
 
   const { data, error, loading } = useLiveAction(
     () => runLines(input, { sort, dedupe, trim, caseInsensitive }),

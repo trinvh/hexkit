@@ -1,14 +1,14 @@
-import { useState } from "react";
 import { Segmented } from "../../components/ui/Segmented";
 import { TransformLayout } from "../../components/ui/TransformLayout";
 import { useLiveAction } from "../../lib/useLiveAction";
 import { useSeed } from "../../lib/seed";
+import { useToolState } from "../../lib/toolState";
 import { CSV_MODES, runCsv, type CsvMode } from "./run";
 
 export function CsvTool() {
   const seed = useSeed();
-  const [input, setInput] = useState(seed.value);
-  const [mode, setMode] = useState<CsvMode>("to_json");
+  const [input, setInput] = useToolState("input", seed.value);
+  const [mode, setMode] = useToolState<CsvMode>("mode", "to_json");
   const { data, error, loading } = useLiveAction(
     () => runCsv(input, mode),
     [input, mode],

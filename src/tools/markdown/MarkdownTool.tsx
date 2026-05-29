@@ -1,12 +1,12 @@
-import { useState } from "react";
 import { CodeEditor } from "../../components/ui/CodeEditor";
 import { useLiveAction } from "../../lib/useLiveAction";
 import { useSeed } from "../../lib/seed";
+import { useToolState } from "../../lib/toolState";
 import { runMarkdown } from "./run";
 
 export function MarkdownTool() {
   const seed = useSeed();
-  const [input, setInput] = useState(seed.value);
+  const [input, setInput] = useToolState("input", seed.value);
   const { data } = useLiveAction(() => runMarkdown(input), [input]);
 
   return (

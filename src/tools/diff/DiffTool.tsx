@@ -1,17 +1,17 @@
-import { useState } from "react";
 import { Segmented } from "../../components/ui/Segmented";
 import { Toggle } from "../../components/ui/Toggle";
 import { CodeEditor } from "../../components/ui/CodeEditor";
 import { useLiveAction } from "../../lib/useLiveAction";
+import { useToolState } from "../../lib/toolState";
 import { cn } from "../../lib/cn";
 import { runDiff, DIFF_FORMATS } from "./run";
 import type { DiffFormat } from "./api";
 
 export function DiffTool() {
-  const [oldText, setOldText] = useState("");
-  const [newText, setNewText] = useState("");
-  const [format, setFormat] = useState<DiffFormat>("text");
-  const [sort, setSort] = useState(false);
+  const [oldText, setOldText] = useToolState("old", "");
+  const [newText, setNewText] = useToolState("new", "");
+  const [format, setFormat] = useToolState<DiffFormat>("format", "text");
+  const [sort, setSort] = useToolState("sort", false);
   const { data, error } = useLiveAction(
     () => runDiff(oldText, newText, format, sort),
     [oldText, newText, format, sort],

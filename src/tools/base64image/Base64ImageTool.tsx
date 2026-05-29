@@ -4,6 +4,7 @@ import { Segmented } from "../../components/ui/Segmented";
 import { TextField } from "../../components/ui/TextField";
 import { CopyButton } from "../../components/ui/CopyButton";
 import { errorMessage } from "../../lib/ipc";
+import { useToolState } from "../../lib/toolState";
 import { readFileAsDataUrl } from "../../lib/file";
 
 type Mode = "encode" | "decode";
@@ -14,7 +15,7 @@ const MODES = [
 ];
 
 export function Base64ImageTool() {
-  const [mode, setMode] = useState<Mode>("encode");
+  const [mode, setMode] = useToolState<Mode>("mode", "encode");
   const [dataUrl, setDataUrl] = useState("");
   const [error, setError] = useState<string | null>(null);
 

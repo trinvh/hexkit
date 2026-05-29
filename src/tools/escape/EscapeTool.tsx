@@ -1,14 +1,14 @@
-import { useState } from "react";
 import { Segmented } from "../../components/ui/Segmented";
 import { TransformLayout } from "../../components/ui/TransformLayout";
 import { useLiveAction } from "../../lib/useLiveAction";
 import { useSeed } from "../../lib/seed";
+import { useToolState } from "../../lib/toolState";
 import { ESCAPE_MODES, runEscape, type EscapeMode } from "./run";
 
 export function EscapeTool() {
   const seed = useSeed();
-  const [input, setInput] = useState(seed.value);
-  const [mode, setMode] = useState<EscapeMode>("escape");
+  const [input, setInput] = useToolState("input", seed.value);
+  const [mode, setMode] = useToolState<EscapeMode>("mode", "escape");
   const { data, error, loading } = useLiveAction(
     () => runEscape(input, mode),
     [input, mode],
