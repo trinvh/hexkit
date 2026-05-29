@@ -1,0 +1,19 @@
+[package]
+name = "hexkit-cli"
+version = "0.1.0"
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+description = "Headless CLI for Hexkit dev tools — ideal for scripting and Raycast."
+
+[[bin]]
+name = "hexkit"
+path = "src/main.rs"
+
+[lib]
+name = "hexkit_cli"
+path = "src/lib.rs"
+
+[dependencies]
+devtools-core = { workspace = true }
+serde_json = { workspace = true }

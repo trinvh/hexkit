@@ -1,0 +1,111 @@
+@import "tailwindcss";
+
+/* Manual dark mode driven by a `.dark` class on <html> (set by the theme store). */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* ---- Paper (light) ---- */
+:root {
+  --canvas: oklch(98.5% 0.006 85);
+  --surface: oklch(99.4% 0.004 85);
+  --surface-2: oklch(96.5% 0.008 80);
+  --border: oklch(90% 0.008 80);
+  --border-strong: oklch(83% 0.01 75);
+  --fg: oklch(25% 0.012 60);
+  --fg-muted: oklch(46% 0.012 60);
+  --fg-subtle: oklch(62% 0.01 60);
+  --accent: oklch(57% 0.2 30);
+  --accent-hover: oklch(52% 0.2 30);
+  --accent-fg: oklch(99% 0.01 60);
+  --ring: var(--accent);
+
+  --cm-key: oklch(48% 0.13 250);
+  --cm-string: oklch(48% 0.12 150);
+  --cm-number: oklch(50% 0.15 300);
+  color-scheme: light;
+}
+
+/* ---- Ink (dark) ---- */
+.dark {
+  --canvas: oklch(16% 0.008 265);
+  --surface: oklch(19.5% 0.009 265);
+  --surface-2: oklch(24% 0.01 265);
+  --border: oklch(29% 0.012 265);
+  --border-strong: oklch(38% 0.014 265);
+  --fg: oklch(95% 0.008 85);
+  --fg-muted: oklch(73% 0.012 85);
+  --fg-subtle: oklch(56% 0.012 85);
+  --accent: oklch(70% 0.18 33);
+  --accent-hover: oklch(75% 0.17 33);
+  --accent-fg: oklch(17% 0.02 40);
+  --ring: var(--accent);
+
+  --cm-key: oklch(74% 0.11 250);
+  --cm-string: oklch(76% 0.13 150);
+  --cm-number: oklch(76% 0.12 300);
+  color-scheme: dark;
+}
+
+@theme inline {
+  --color-canvas: var(--canvas);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-border: var(--border);
+  --color-border-strong: var(--border-strong);
+  --color-fg: var(--fg);
+  --color-fg-muted: var(--fg-muted);
+  --color-fg-subtle: var(--fg-subtle);
+  --color-accent: var(--accent);
+  --color-accent-hover: var(--accent-hover);
+  --color-accent-fg: var(--accent-fg);
+  --color-ring: var(--ring);
+
+  --font-sans: "Space Grotesk Variable", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono Variable", ui-monospace, "SF Mono", monospace;
+
+  --radius-lg: 0.625rem;
+  --radius-xl: 0.875rem;
+}
+
+@layer base {
+  * {
+    border-color: var(--color-border);
+  }
+
+  html {
+    font-family: var(--font-sans);
+  }
+
+  html,
+  body,
+  #root {
+    height: 100%;
+  }
+
+  body {
+    margin: 0;
+    background-color: var(--color-canvas);
+    color: var(--color-fg);
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  ::selection {
+    background: color-mix(in oklch, var(--accent) 28%, transparent);
+  }
+
+  /* Subtle, theme-aware scrollbars */
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-border-strong) transparent;
+  }
+  *::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  *::-webkit-scrollbar-thumb {
+    background-color: var(--color-border-strong);
+    border: 3px solid transparent;
+    background-clip: content-box;
+    border-radius: 9999px;
+  }
+}

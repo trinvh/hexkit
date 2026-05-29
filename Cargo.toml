@@ -1,0 +1,26 @@
+[workspace]
+members = ["src-tauri", "crates/devtools-core", "crates/hexkit-cli"]
+resolver = "2"
+
+[workspace.package]
+edition = "2021"
+authors = ["Hexkit"]
+license = "MIT"
+
+[workspace.dependencies]
+serde = { version = "1", features = ["derive"] }
+serde_json = { version = "1", features = ["preserve_order"] }
+thiserror = "2"
+base64 = "0.22"
+percent-encoding = "2"
+html-escape = "0.2"
+similar = "3"
+url = "2"
+uuid = { version = "1", features = ["v4", "v7"] }
+ulid = "1"
+sha2 = "0.11"
+sha1 = "0.11"
+md-5 = "0.11"
+jiff = "0.2"
+rstest = "0.26"
+devtools-core = { path = "crates/devtools-core" }
