@@ -37,6 +37,7 @@ import {
   FileImage,
   Terminal,
   Brackets,
+  CreditCard,
 } from "lucide-react";
 import { lazy } from "react";
 import type { ToolDefinition } from "./types";
@@ -81,6 +82,9 @@ const QrTool = lazy(() => import("./qr/QrTool").then((m) => ({ default: m.QrTool
 const Base64ImageTool = lazy(() => import("./base64image/Base64ImageTool").then((m) => ({ default: m.Base64ImageTool })));
 const CurlTool = lazy(() => import("./curlcode/CurlTool").then((m) => ({ default: m.CurlTool })));
 const JsonCodeTool = lazy(() => import("./jsoncode/JsonCodeTool").then((m) => ({ default: m.JsonCodeTool })));
+const LuhnTool = lazy(() => import("./luhn/LuhnTool").then((m) => ({ default: m.LuhnTool })));
+const CreditCardTool = lazy(() => import("./creditcard/CreditCardTool").then((m) => ({ default: m.CreditCardTool })));
+const TlvTool = lazy(() => import("./tlv/TlvTool").then((m) => ({ default: m.TlvTool })));
 
 /**
  * The MVP tool set. Components are wired in Phase 3; until then each entry
@@ -443,6 +447,33 @@ export const TOOLS: ToolDefinition[] = [
     icon: Brackets,
     component: JsonCodeTool,
   },
+  {
+    id: "luhn-checker",
+    name: "Luhn Checker",
+    category: "Encoders",
+    description: "Validate and complete Luhn (mod 10) check digits.",
+    keywords: ["luhn", "mod10", "checksum", "credit card", "iban", "imei", "validate"],
+    icon: ShieldCheck,
+    component: LuhnTool,
+  },
+  {
+    id: "credit-card-generator",
+    name: "Credit Card Generator",
+    category: "Generators",
+    description: "Generate Luhn-valid TEST credit card numbers (not real cards).",
+    keywords: ["credit card", "test", "luhn", "visa", "mastercard", "amex", "fake"],
+    icon: CreditCard,
+    component: CreditCardTool,
+  },
+  {
+    id: "tlv-decoder",
+    name: "TLV Decoder",
+    category: "Encoders",
+    description: "Decode BER-TLV / EMV chip data into a tagged tree.",
+    keywords: ["tlv", "ber", "emv", "smart card", "chip", "tag length value"],
+    icon: Brackets,
+    component: TlvTool,
+  },
 ];
 
 export const DEFAULT_TOOL_ID = TOOLS[0].id;
@@ -464,6 +495,9 @@ const ACTION_NAMESPACE_TO_TOOL: Record<string, string> = {
   id: "uuid-generator",
   diff: "text-diff",
   jwt: "jwt-debugger",
+  luhn: "luhn-checker",
+  card: "credit-card-generator",
+  tlv: "tlv-decoder",
 };
 
 /** Map a dispatcher action id (e.g. from a deep link) to the owning tool. */
@@ -475,6 +509,9 @@ export function toolIdForAction(action: string): string | undefined {
 
 const KIND_TO_TOOL: Record<string, string> = {
   json: "json-format",
+  xml: "xml-beautify",
+  sql: "sql-formatter",
+  css: "css-beautify",
   base64: "base64-string",
   jwt: "jwt-debugger",
   unix_time: "unix-time",
