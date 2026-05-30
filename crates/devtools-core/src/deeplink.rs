@@ -27,9 +27,13 @@ pub fn parse_deep_link(url: &str) -> ToolResult<(String, Value)> {
 
     let mut params = Map::new();
     for (key, value) in parsed.query_pairs() {
-        let parsed_value = match value.parse::<i64>() {
-            Ok(number) => Value::from(number),
-            Err(_) => Value::from(value.into_owned()),
+        let parsed_value = match value.as_ref() {
+            "true" => Value::Bool(true),
+            "false" => Value::Bool(false),
+            s => match s.parse::<i64>() {
+                Ok(number) => Value::from(number),
+                Err(_) => Value::from(value.into_owned()),
+            },
         };
         params.insert(key.into_owned(), parsed_value);
     }
@@ -47,6 +51,16 @@ mod tests {
         let (action, params) = parse_deep_link("hexkit://base64.encode?input=hello").unwrap();
         assert_eq!(action, "base64.encode");
         assert_eq!(params, json!({ "input": "hello" }));
+    }
+
+    #[test]
+    fn parses_boolean_params() {
+        let (_, params) =
+            parse_deep_link("hexkit://json.format?input=hi&sort=true&strict=false").unwrap();
+        assert_eq!(
+            params,
+            json!({ "input": "hi", "sort": true, "strict": false }),
+        );
     }
 
     #[test]

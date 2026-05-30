@@ -73,6 +73,12 @@ interface AppState {
   setRecentCollapsed: (collapsed: boolean) => void;
   /** Persist a single field for a tab (used by the useToolState hook). */
   setTabField: (tabId: string, field: string, value: unknown) => void;
+  /**
+   * Switch to `id` and replace the active tab's field state with `fields`.
+   * Used by `hexkit://` deep links so an Open-in-Hexkit from Raycast / the
+   * CLI can prefill every Form field at once, not just `input`.
+   */
+  openFromDeepLink: (id: string, fields: Record<string, unknown>) => void;
 }
 
 const INITIAL_TAB = makeMainTab();
@@ -185,6 +191,36 @@ export const useApp = create<AppState>()(
             [tabId]: { ...state.tabState[tabId], [field]: value },
           },
         })),
+      openFromDeepLink: (id, fields) =>
+        set((state) => {
+          const input = fields.input;
+          const mode = fields.mode;
+          return {
+            tabs: state.tabs.map((tab) =>
+              tab.id === state.activeTabId ? { ...tab, toolId: id } : tab,
+            ),
+            activeToolId: id,
+            paletteOpen: false,
+            recents: recordRecent(state.recents, id),
+            // Tools that read the one-shot seed (smart-detect path) still see
+            // the input via `useSeed`; tools that use `useToolState` pick up
+            // every other field straight from the replaced tab state.
+            seed:
+              typeof input === "string" && input.length > 0
+                ? {
+                    value: input,
+                    mode: typeof mode === "string" ? mode : undefined,
+                  }
+                : null,
+            seedNonce:
+              state.seedNonce +
+              (typeof input === "string" && input.length > 0 ? 1 : 0),
+            tabState: {
+              ...state.tabState,
+              [state.activeTabId]: { ...fields },
+            },
+          };
+        }),
     }),
     {
       name: "hexkit:app",

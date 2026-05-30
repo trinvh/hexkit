@@ -23,12 +23,7 @@ export function useDeepLinkNavigation() {
       const { action, params } = event.payload;
       const toolId = toolIdForAction(action);
       if (!toolId) return;
-      const seed = params?.input;
-      if (typeof seed === "string" && seed.length > 0) {
-        useApp.getState().openToolWithSeed(toolId, seed);
-      } else {
-        useApp.getState().setActiveTool(toolId);
-      }
+      useApp.getState().openFromDeepLink(toolId, params ?? {});
     })
       .then((fn) => {
         unlisten = fn;

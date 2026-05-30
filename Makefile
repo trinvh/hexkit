@@ -35,6 +35,23 @@ build: ## Build the production frontend bundle (tsc + vite)
 bundle: cli-sidecar ## Build the distributable desktop app (Tauri installer/app)
 	pnpm tauri build
 
+# Build a debug-profile .app bundle and "open" it so macOS Launch Services
+# registers the `hexkit://` scheme. After running this once you can iterate
+# with `make dev` and `hexkit://` URLs (from Raycast, the CLI, anywhere) will
+# launch the bundled app — deep links *don't* reach the raw `tauri dev`
+# binary because it has no Info.plist for LS to route to.
+dev-bundle: cli-sidecar ## Build + register a debug .app so hexkit:// works during dev
+	pnpm tauri build --debug
+	@APP=$$(ls -dt src-tauri/target/debug/bundle/macos/*.app 2>/dev/null | head -1); \
+	if [ -z "$$APP" ]; then \
+		echo "error: no .app bundle was produced" >&2; exit 1; \
+	fi; \
+	echo "Registering $$APP with Launch Services…"; \
+	/System/Library/Frameworks/CoreServices.framework/Frameworks/LaunchServices.framework/Support/lsregister -f "$$APP"; \
+	open "$$APP"; \
+	echo; \
+	echo "Done. Try: open 'hexkit://json.format?input=%7B%22a%22%3A1%7D'"
+
 cli: ## Build the headless `hexkit` CLI (release)
 	cargo build --release -p hexkit-cli
 	@echo "Built target/release/hexkit"
@@ -110,6 +127,6 @@ help: ## Show this help
 	@grep -hE '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) \
 		| awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-12s\033[0m %s\n", $$1, $$2}'
 
-.PHONY: install dev web watch build bundle cli cli-sidecar test test-rust \
-	test-web coverage check typecheck lint fmt fmt-check bump release \
-	clean help
+.PHONY: install dev web watch build bundle dev-bundle cli cli-sidecar test \
+	test-rust test-web coverage check typecheck lint fmt fmt-check bump \
+	release clean help
