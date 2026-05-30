@@ -66,7 +66,7 @@ cli-sidecar: ## Build and stage the CLI sidecar Tauri bundles into the app
 
 test: test-rust test-web ## Run all tests (Rust + frontend)
 
-test-rust: ## Run the Rust workspace tests
+test-rust: cli-sidecar ## Run the Rust workspace tests
 	cargo test --workspace
 
 test-web: ## Run the frontend (Vitest) tests
@@ -82,7 +82,7 @@ check: typecheck lint test build ## Full gate: typecheck, lint, tests, build
 typecheck: ## Type-check the frontend (tsc --noEmit)
 	pnpm typecheck
 
-lint: ## Lint Rust with clippy (warnings = errors)
+lint: cli-sidecar ## Lint Rust with clippy (warnings = errors)
 	cargo clippy --workspace --all-targets -- -D warnings
 
 fmt: ## Format Rust code (cargo fmt)
