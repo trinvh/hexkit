@@ -16,7 +16,8 @@
         "width": 1100,
         "height": 720,
         "minWidth": 860,
-        "minHeight": 560
+        "minHeight": 560,
+        "devtools": false
       }
     ],
     "security": {
@@ -32,7 +33,8 @@
       "icons/128x128@2x.png",
       "icons/icon.icns",
       "icons/icon.ico"
-    ]
+    ],
+    "externalBin": ["binaries/hexkit-cli"]
   },
   "plugins": {
     "deep-link": {

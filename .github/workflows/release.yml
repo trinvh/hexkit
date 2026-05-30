@@ -1,10 +1,12 @@
 name: release
 
-# Build the desktop app for macOS (Apple Silicon + Intel), Windows, and Linux.
-# - Push a version tag (e.g. `v0.1.0`) to build and create a DRAFT GitHub Release
-#   with all platform installers attached.
-# - Run manually (workflow_dispatch) to just build and upload the bundles as
-#   workflow artifacts, without creating a release.
+# Build the desktop app + CLI for macOS (Apple Silicon + Intel), Windows and
+# Linux.
+#
+# - Push a version tag (e.g. `v0.1.0`) to create a DRAFT GitHub Release with
+#   all installers and standalone `hexkit` CLI archives attached.
+# - Run manually (workflow_dispatch) to build and upload everything as
+#   workflow artifacts (no release).
 on:
   push:
     tags:
@@ -24,19 +26,23 @@ jobs:
           - name: macos-arm64
             platform: macos-latest
             args: "--target aarch64-apple-darwin"
-            rust-targets: aarch64-apple-darwin
+            rust-target: aarch64-apple-darwin
+            bin-suffix: ""
           - name: macos-x64
             platform: macos-latest
             args: "--target x86_64-apple-darwin"
-            rust-targets: x86_64-apple-darwin
+            rust-target: x86_64-apple-darwin
+            bin-suffix: ""
           - name: linux
             platform: ubuntu-22.04
             args: ""
-            rust-targets: ""
+            rust-target: x86_64-unknown-linux-gnu
+            bin-suffix: ""
           - name: windows
             platform: windows-latest
             args: ""
-            rust-targets: ""
+            rust-target: x86_64-pc-windows-msvc
+            bin-suffix: ".exe"
 
     runs-on: ${{ matrix.platform }}
 
@@ -67,16 +73,31 @@ jobs:
       - name: Install Rust (stable)
         uses: dtolnay/rust-toolchain@stable
         with:
-          targets: ${{ matrix.rust-targets }}
+          targets: ${{ matrix.rust-target }}
 
       - name: Cache Rust build
         uses: swatinem/rust-cache@v2
         with:
-          workspaces: "./src-tauri -> target"
+          workspaces: ". -> target"
 
       - name: Install frontend dependencies
         run: pnpm install --frozen-lockfile
 
+      # ----- Build the standalone `hexkit` CLI ------------------------------
+      # Built first so it can be copied into src-tauri/binaries/ as a Tauri
+      # sidecar (named hexkit-cli to avoid colliding with the main binary).
+      # The desktop app self-installs from this sidecar on demand.
+      - name: Build hexkit CLI
+        shell: bash
+        run: |
+          cargo build --release -p hexkit-cli --target "${{ matrix.rust-target }}"
+          mkdir -p src-tauri/binaries
+          SRC="target/${{ matrix.rust-target }}/release/hexkit${{ matrix.bin-suffix }}"
+          DEST="src-tauri/binaries/hexkit-cli-${{ matrix.rust-target }}${{ matrix.bin-suffix }}"
+          cp "$SRC" "$DEST"
+          ls -la src-tauri/binaries/
+
+      # ----- Build the desktop app (bundles the sidecar via externalBin) ----
       - name: Build app (+ draft release on tag)
         uses: tauri-apps/tauri-action@v0
         env:
@@ -93,15 +114,49 @@ jobs:
           # TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
           # TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
         with:
-          # Only create a release when building from a version tag.
           tagName: ${{ startsWith(github.ref, 'refs/tags/') && github.ref_name || '' }}
           releaseName: ${{ startsWith(github.ref, 'refs/tags/') && 'Hexkit __VERSION__' || '' }}
-          releaseBody: "Download the installer for your platform from the assets below."
+          releaseBody: "Download the installer for your platform from the assets below. Standalone `hexkit` CLI archives are also attached."
           releaseDraft: true
           prerelease: false
           args: ${{ matrix.args }}
 
-      - name: Upload bundles (manual runs)
+      # ----- Package the CLI as a standalone archive + checksum -------------
+      - name: Package CLI archive
+        id: cli-archive
+        shell: bash
+        run: |
+          NAME="hexkit-cli-${{ matrix.name }}"
+          STAGE="dist-cli/$NAME"
+          mkdir -p "$STAGE"
+          cp "src-tauri/binaries/hexkit-cli-${{ matrix.rust-target }}${{ matrix.bin-suffix }}" \
+             "$STAGE/hexkit${{ matrix.bin-suffix }}"
+          cp LICENSE "$STAGE/"
+          cp README.md "$STAGE/"
+          cd dist-cli
+          if [ "${{ matrix.platform }}" = "windows-latest" ]; then
+            powershell -NoLogo -NoProfile -Command "Compress-Archive -Path '$NAME' -DestinationPath '$NAME.zip' -Force"
+            ARCHIVE="$NAME.zip"
+          else
+            tar -czf "$NAME.tar.gz" "$NAME"
+            ARCHIVE="$NAME.tar.gz"
+          fi
+          shasum -a 256 "$ARCHIVE" > "$ARCHIVE.sha256"
+          echo "archive=dist-cli/$ARCHIVE" >> "$GITHUB_OUTPUT"
+          echo "checksum=dist-cli/$ARCHIVE.sha256" >> "$GITHUB_OUTPUT"
+
+      - name: Attach CLI archive to draft release
+        if: startsWith(github.ref, 'refs/tags/')
+        shell: bash
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release upload "${{ github.ref_name }}" \
+            "${{ steps.cli-archive.outputs.archive }}" \
+            "${{ steps.cli-archive.outputs.checksum }}" \
+            --clobber
+
+      - name: Upload artifacts (manual runs)
         if: ${{ !startsWith(github.ref, 'refs/tags/') }}
         uses: actions/upload-artifact@v4
         with:
@@ -110,3 +165,5 @@ jobs:
           path: |
             src-tauri/target/release/bundle/**
             src-tauri/target/*/release/bundle/**
+            ${{ steps.cli-archive.outputs.archive }}
+            ${{ steps.cli-archive.outputs.checksum }}

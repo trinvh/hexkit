@@ -18,6 +18,9 @@ coverage
 # Rust / Cargo workspace build output
 /target
 
+# Tauri sidecar binaries (built per-platform by `make cli-sidecar` and CI)
+src-tauri/binaries/
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

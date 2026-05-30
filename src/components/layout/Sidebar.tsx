@@ -6,6 +6,7 @@ import { CATEGORY_ORDER, type ToolDefinition } from "../../tools/types";
 import { cn } from "../../lib/cn";
 import { Menu, type MenuItem } from "../ui/Menu";
 import { pinMenuItems } from "../../lib/toolMenu";
+import { SidebarFooter } from "./SidebarFooter";
 
 const RECENT_VISIBLE = 3;
 
@@ -261,6 +262,8 @@ export function Sidebar() {
           </p>
         )}
       </nav>
+
+      <SidebarFooter />
 
       {menu && (
         <Menu

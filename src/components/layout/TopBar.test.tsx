@@ -17,7 +17,7 @@ describe("TopBar", () => {
   });
 
   it("shows the active tool name and description", () => {
-    render(<TopBar />);
+    render(<TopBar onOpenCli={() => {}} />);
     expect(
       screen.getByRole("heading", { name: "JSON Format / Validate" }),
     ).toBeInTheDocument();
@@ -26,19 +26,19 @@ describe("TopBar", () => {
 
   it("opens the palette from the search button", async () => {
     const user = userEvent.setup();
-    render(<TopBar />);
+    render(<TopBar onOpenCli={() => {}} />);
     await user.click(screen.getByRole("button", { name: /search/i }));
     expect(useApp.getState().paletteOpen).toBe(true);
   });
 
   it("offers a clipboard detection button", () => {
-    render(<TopBar />);
+    render(<TopBar onOpenCli={() => {}} />);
     expect(screen.getByRole("button", { name: "Detect" })).toBeInTheDocument();
   });
 
   it("pins the active tool from the three-dot menu", async () => {
     const user = userEvent.setup();
-    render(<TopBar />);
+    render(<TopBar onOpenCli={() => {}} />);
     await user.click(screen.getByRole("button", { name: "Tool actions" }));
     await user.click(screen.getByRole("menuitem", { name: "Pin to top" }));
     expect(useApp.getState().pinned).toContain("json-format");
@@ -47,7 +47,7 @@ describe("TopBar", () => {
   it("offers Unpin when the active tool is already pinned", async () => {
     const user = userEvent.setup();
     useApp.setState({ pinned: ["json-format"] });
-    render(<TopBar />);
+    render(<TopBar onOpenCli={() => {}} />);
     await user.click(screen.getByRole("button", { name: "Tool actions" }));
     expect(screen.getByRole("menuitem", { name: "Unpin" })).toBeInTheDocument();
   });

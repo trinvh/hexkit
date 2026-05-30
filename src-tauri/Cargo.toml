@@ -1,6 +1,6 @@
 [package]
 name = "hexkit"
-version = "0.1.0"
+version.workspace = true
 description = "Hexkit — a modern offline developer toolbox"
 authors.workspace = true
 edition.workspace = true
@@ -14,6 +14,13 @@ license-file.workspace = true
 # This seems to be only an issue on Windows, see https://github.com/rust-lang/cargo/issues/8519
 name = "hexkit_lib"
 crate-type = ["staticlib", "cdylib", "rlib"]
+
+# Override the cargo binary name so the macOS dock + app menu read "Hexkit"
+# during `tauri dev`. Production .app bundles already use productName from
+# tauri.conf.json (also "Hexkit"); this aligns the two.
+[[bin]]
+name = "Hexkit"
+path = "src/main.rs"
 
 [build-dependencies]
 tauri-build = { version = "2", features = [] }

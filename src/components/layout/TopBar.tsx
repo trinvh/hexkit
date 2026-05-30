@@ -7,10 +7,16 @@ import { ThemeToggle } from "../ui/ThemeToggle";
 import { Menu, type MenuItem } from "../ui/Menu";
 import { pinMenuItems } from "../../lib/toolMenu";
 import { cn } from "../../lib/cn";
+import { CliStatusBadge } from "../cli/CliStatusBadge";
+import { useCliStatus } from "../../lib/useCliStatus";
 
 type MenuState = { x: number; y: number; items: MenuItem[] };
 
-export function TopBar() {
+interface TopBarProps {
+  onOpenCli: () => void;
+}
+
+export function TopBar({ onOpenCli }: TopBarProps) {
   const activeToolId = useApp((s) => s.activeToolId);
   const togglePalette = useApp((s) => s.togglePalette);
   const pinned = useApp((s) => s.pinned);
@@ -18,6 +24,7 @@ export function TopBar() {
   const openInNewTab = useApp((s) => s.openInNewTab);
   const tool = getTool(activeToolId);
   const [menu, setMenu] = useState<MenuState | null>(null);
+  const { state: cliState } = useCliStatus();
 
   function openToolMenu(event: MouseEvent) {
     const rect = event.currentTarget.getBoundingClientRect();
@@ -30,10 +37,6 @@ export function TopBar() {
 
   return (
     <header className="flex h-14 shrink-0 items-center gap-3 border-b border-border px-5">
-      <div className="min-w-0 flex-1">
-        <h1 className="truncate text-sm font-semibold text-fg">{tool?.name}</h1>
-        <p className="truncate text-xs text-fg-muted">{tool?.description}</p>
-      </div>
       <button
         type="button"
         onClick={openToolMenu}
@@ -46,6 +49,11 @@ export function TopBar() {
       >
         <MoreVertical className="size-4" />
       </button>
+      <div className="min-w-0 flex-1">
+        <h1 className="truncate text-sm font-semibold text-fg">{tool?.name}</h1>
+        <p className="truncate text-xs text-fg-muted">{tool?.description}</p>
+      </div>
+      
       <button
         type="button"
         onClick={detectFromClipboard}
@@ -72,6 +80,7 @@ export function TopBar() {
           ⌘K
         </kbd>
       </button>
+      <CliStatusBadge state={cliState} onClick={onOpenCli} />
       <ThemeToggle />
       {menu && (
         <Menu

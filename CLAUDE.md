@@ -11,6 +11,30 @@ project-specific layer.)
 All tool logic lives in pure Rust; the UI is a thin client. Nothing the user
 pastes ever leaves the machine.
 
+## Related working directories (siblings, not subdirs)
+
+Two sibling repos live next to this one and are commonly added to the same
+session via `/add-dir`. Treat them as separate projects with their own
+package managers and lockfiles — do not vendor them into this repo.
+
+| Path                          | What it is                                                            |
+| ----------------------------- | --------------------------------------------------------------------- |
+| `../hexkit-devutils-landing`  | Marketing site for hexkit.app. Vite + React 19 + Tailwind v4, deployed to Cloudflare Workers with Static Assets. Worker reserves `/api/*` for future license endpoints. `make help` lists tasks. |
+| `../hexkit-devutils-raycast`  | Raycast extension. Renders text-in/text-out tools inline by shelling out to the `hexkit` CLI; falls back to `hexkit://<action>?input=…` deep links for visual tools (color, QR, certs, diff). Tool catalog in `src/lib/tools.ts`; an `inline` flag toggles each tool's path. `npm run build` / `npm run dev`. |
+
+When working across them:
+
+- **Action ids and `hexkit://` deep links are the contract** between this
+  repo and the Raycast extension. If you rename an action in
+  `crates/devtools-core/src/actions.rs`, update `src/lib/tools.ts` in the
+  Raycast repo to match.
+- **The CLI surface is also part of that contract.** Inline Raycast
+  commands shell out via `hexkit <action> '<json-params>'`; keep that
+  signature stable (see `crates/hexkit-cli/src/lib.rs`).
+- **Brand tokens live in this repo's `src/styles/globals.css`.** The
+  landing site mirrors them in its own `src/index.css` `@theme` block —
+  keep the two in sync when adjusting the palette.
+
 ## Architecture (the one rule that matters most)
 
 **All tool logic lives in Rust, in `crates/devtools-core`.** The frontend never

@@ -54,6 +54,9 @@ interface AppState {
   recentCollapsed: boolean;
   /** Persisted per-tab tool field state, keyed by tab id then field name. */
   tabState: Record<string, Record<string, unknown>>;
+  /** True once the user has dismissed (or completed) the first-run CLI prompt. */
+  cliPromptDismissed: boolean;
+  setCliPromptDismissed: (dismissed: boolean) => void;
   /** Point the active tab at `id` (records it as recent). */
   setActiveTool: (id: string) => void;
   setPaletteOpen: (open: boolean) => void;
@@ -88,6 +91,8 @@ export const useApp = create<AppState>()(
       pinnedCollapsed: false,
       recentCollapsed: false,
       tabState: {},
+      cliPromptDismissed: false,
+      setCliPromptDismissed: (cliPromptDismissed) => set({ cliPromptDismissed }),
       setActiveTool: (id) =>
         set((state) => ({
           tabs: state.tabs.map((tab) =>
@@ -192,6 +197,7 @@ export const useApp = create<AppState>()(
         recents: state.recents,
         pinnedCollapsed: state.pinnedCollapsed,
         recentCollapsed: state.recentCollapsed,
+        cliPromptDismissed: state.cliPromptDismissed,
       }),
       // Recompute the derived activeToolId from the restored tabs, and guarantee
       // at least one tab even if older storage had none.

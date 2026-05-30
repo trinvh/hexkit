@@ -1,0 +1,87 @@
+---
+name: hexkit-release
+description: Cut a Hexkit release — bump every version-of-record, run the gate, commit, and tag. Use when the user asks to "release", "ship a version", "cut vX.Y.Z", "bump and tag", "tag a release", or otherwise wants to publish a new Hexkit version. Operates only on the hexkit-devutils repo (the desktop app + CLI); the landing page and Raycast extension version independently.
+---
+
+# Hexkit release
+
+Drive `make release` end-to-end, stopping before push so the user confirms.
+
+## Preconditions (verify in this order)
+
+1. CWD is the hexkit-devutils repo root. Check by ensuring `Cargo.toml`,
+   `src-tauri/`, and `scripts/bump.mjs` all exist. If not, ask the user to
+   `cd` there.
+2. The target version is a bare `X.Y.Z` semver. If the user said "patch",
+   "minor" or "major" instead of a number, read the current version from
+   `[workspace.package]` in `Cargo.toml` and compute the next one (don't
+   guess). Confirm the resulting number with the user before continuing.
+3. Working tree is clean: `git status --porcelain` must be empty. If it
+   isn't, show the dirty files and ask whether to stash, commit, or abort.
+   Do NOT pass `--allow-dirty` to `bump.mjs` on the user's behalf.
+4. Branch sanity: the user is usually on `main`. If they're on a feature
+   branch, confirm they actually want to tag from there.
+
+## The flow
+
+Run these as separate steps so each one's output is visible:
+
+1. `make release VERSION=<X.Y.Z>` — this delegates to `scripts/bump.mjs`
+   (rewriting `Cargo.toml`'s `[workspace.package].version`,
+   `src-tauri/tauri.conf.json`, and `package.json`), then runs the gate
+   (`make check`: typecheck + clippy + tests + build), stages the four
+   version files plus `Cargo.lock`, creates `chore: release vX.Y.Z`, and
+   creates the annotated `vX.Y.Z` tag.
+2. After `make release` finishes, run `git log -1 --oneline` and
+   `git tag --points-at HEAD` so the user can see the commit + tag landed.
+3. STOP. Show the user the exact push commands and wait for explicit
+   confirmation before running them:
+
+   ```text
+   git push origin <current-branch>
+   git push origin v<X.Y.Z>
+   ```
+
+   Substitute the real branch (`git rev-parse --abbrev-ref HEAD`) and
+   version. Make it clear that pushing the tag is what fires
+   `.github/workflows/release.yml` and creates the draft GitHub release.
+4. Only after the user says yes, run both pushes.
+5. Point them at the Actions URL so they can watch the build:
+   `https://github.com/trinvh/hexkit/actions`.
+
+## When things go wrong
+
+- Gate fails (`make check` returns non-zero inside `make release`): the
+  bump already wrote the version files but no commit was made. Show the
+  failure, then either fix forward (run the failing target manually,
+  re-run `make check`, then `git commit` + `git tag` by hand) or roll
+  back with `git checkout -- Cargo.toml Cargo.lock src-tauri/tauri.conf.json package.json`
+  and let the user re-run after fixing the underlying issue. Ask the user
+  which path to take.
+- Tag already exists (`fatal: tag 'vX.Y.Z' already exists`): never delete
+  a published tag silently. Ask the user; default to bumping patch (e.g.
+  propose `X.Y.(Z+1)`).
+- Workspace dirty after `make release` somehow: usually means a
+  PostToolUse formatter rewrote a file. Inspect the diff, amend the
+  release commit if it's purely formatting, otherwise ask the user.
+
+## What this skill does NOT do
+
+- Does not push without explicit confirmation.
+- Does not bump the landing page or Raycast extension — those repos
+  version on their own cadence.
+- Does not publish the draft GitHub release. After the workflow uploads
+  installers and CLI archives, the user opens the draft on GitHub, writes
+  notes, and clicks Publish themselves.
+- Does not create signed-and-notarized macOS builds unless the Apple
+  signing secrets are configured in the workflow (commented out today).
+  Mention this once if the user is releasing publicly.
+
+## Notes for the editor
+
+- The `make bump` target alone (without `release`) is fine for the
+  bump-only case (e.g. when iterating before the gate passes). Skip
+  straight to step 1 in that case and stop after the bump.
+- `scripts/bump.mjs` accepts `--allow-dirty` and `--skip-cargo-check`
+  for advanced use. Don't expose them by default — they exist for
+  hand-driven recovery, not the happy path.

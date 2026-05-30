@@ -25,6 +25,10 @@ fn main() -> ExitCode {
             println!("{USAGE}");
             return ExitCode::SUCCESS;
         }
+        Some("-V" | "--version") => {
+            println!("hexkit {}", env!("CARGO_PKG_VERSION"));
+            return ExitCode::SUCCESS;
+        }
         _ => {}
     }
 

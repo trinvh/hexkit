@@ -2,6 +2,12 @@
 # Ensure the rustup toolchain is on PATH even in non-login shells.
 export PATH := $(HOME)/.cargo/bin:$(PATH)
 
+# Host Rust target — needed so `cargo build --target …` picks the same triple
+# Tauri expects for sidecar binaries (e.g. binaries/hexkit-aarch64-apple-darwin).
+HOST_TARGET := $(shell rustc -Vv 2>/dev/null | sed -n 's/^host: //p')
+SIDECAR_EXT := $(if $(findstring windows,$(HOST_TARGET)),.exe,)
+SIDECAR_PATH := src-tauri/binaries/hexkit-cli-$(HOST_TARGET)$(SIDECAR_EXT)
+
 .DEFAULT_GOAL := help
 
 ## ----- Setup -----
@@ -12,7 +18,7 @@ install: ## Install JS + Rust dependencies
 
 ## ----- Develop -----
 
-dev: ## Run the desktop app (Tauri, hot-reload)
+dev: cli-sidecar ## Run the desktop app (Tauri, hot-reload)
 	pnpm tauri dev
 
 web: ## Run the frontend only in a browser (http://localhost:1420)
@@ -26,12 +32,18 @@ watch: ## Run frontend tests in watch mode
 build: ## Build the production frontend bundle (tsc + vite)
 	pnpm build
 
-bundle: ## Build the distributable desktop app (Tauri installer/app)
+bundle: cli-sidecar ## Build the distributable desktop app (Tauri installer/app)
 	pnpm tauri build
 
 cli: ## Build the headless `hexkit` CLI (release)
 	cargo build --release -p hexkit-cli
 	@echo "Built target/release/hexkit"
+
+cli-sidecar: ## Build and stage the CLI sidecar Tauri bundles into the app
+	@cargo build --release -p hexkit-cli --target $(HOST_TARGET)
+	@mkdir -p src-tauri/binaries
+	@cp target/$(HOST_TARGET)/release/hexkit$(SIDECAR_EXT) $(SIDECAR_PATH)
+	@echo "Sidecar staged: $(SIDECAR_PATH)"
 
 ## ----- Test -----
 
@@ -62,6 +74,32 @@ fmt: ## Format Rust code (cargo fmt)
 fmt-check: ## Verify Rust formatting without writing
 	cargo fmt --all --check
 
+## ----- Release -----
+
+# Bump the version in Cargo workspace + tauri.conf.json + package.json.
+# Usage: make bump VERSION=0.2.0
+bump: ## Bump every version-of-record (VERSION=X.Y.Z)
+	@if [ -z "$(VERSION)" ]; then \
+		echo "error: VERSION is required, e.g. make bump VERSION=0.2.0"; exit 2; \
+	fi
+	@node scripts/bump.mjs $(VERSION)
+
+# Full release flow: bump, gate, commit, tag, push.
+# Usage: make release VERSION=0.2.0
+release: ## Bump + run gate + commit + tag + push (VERSION=X.Y.Z)
+	@if [ -z "$(VERSION)" ]; then \
+		echo "error: VERSION is required, e.g. make release VERSION=0.2.0"; exit 2; \
+	fi
+	@node scripts/bump.mjs $(VERSION)
+	@$(MAKE) check
+	@git add Cargo.toml Cargo.lock src-tauri/tauri.conf.json package.json
+	@git commit -m "chore: release v$(VERSION)"
+	@git tag -a "v$(VERSION)" -m "Hexkit v$(VERSION)"
+	@echo
+	@echo "Tagged v$(VERSION). To publish, push both:"
+	@echo "  git push origin $$(git rev-parse --abbrev-ref HEAD)"
+	@echo "  git push origin v$(VERSION)"
+
 ## ----- Maintenance -----
 
 clean: ## Remove build artifacts (target, dist, coverage)
@@ -72,5 +110,6 @@ help: ## Show this help
 	@grep -hE '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) \
 		| awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-12s\033[0m %s\n", $$1, $$2}'
 
-.PHONY: install dev web watch build bundle cli test test-rust test-web \
-	coverage check typecheck lint fmt fmt-check clean help
+.PHONY: install dev web watch build bundle cli cli-sidecar test test-rust \
+	test-web coverage check typecheck lint fmt fmt-check bump release \
+	clean help
