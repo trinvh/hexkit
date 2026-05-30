@@ -1,5 +1,13 @@
 # Hexkit
 
+<p align="center">
+  <img
+    src="docs/screenshots/text-diff-checker.png"
+    alt="Hexkit's Text Diff Checker comparing two XML snippets with per-line highlighting"
+    width="900"
+  />
+</p>
+
 A fast, **offline** developer toolbox for macOS, Windows, and Linux — ~40 everyday
 encoding, formatting, conversion, and inspection tools in one keyboard-driven app.
 Everything runs locally; nothing you paste ever leaves your machine.
@@ -34,14 +42,19 @@ CLI, and `hexkit://` deep links.
 CSS/SCSS/Less, HTML, XML (with XPath filter), JS minify.
 
 **Encoders** — Base64 string, URL encode/decode, HTML entities, Hex/ASCII,
-backslash escape, X.509 certificate decoder, Base64 image.
+backslash escape, X.509 certificate decoder, Base64 image, Luhn check,
+BER-TLV / EMV decoder.
 
 **Converters** — Unix time, number base (2–36), string case, color
 (HEX/RGB(A)/HSL(A)/HSB/HWB/CMYK), cron parser, YAML↔JSON, CSV↔JSON, PHP↔JSON,
 SVG→CSS, HTML→JSX, cURL→code, JSON→code.
 
 **Generators** — hashes (MD5/SHA-1/256/512 + HMAC), UUID/ULID/Nano ID, random
-string, Lorem Ipsum, QR code.
+string, Lorem Ipsum, QR code, test credit card numbers (Luhn-valid, Visa /
+Mastercard / Amex / Discover / JCB / Diners / UnionPay).
+
+> _Tool-spotlight screenshots: only **Text Diff Checker** is shown above —
+> dedicated screenshots for the other tools are not yet available._
 
 **Text** — diff checker (text/JSON/XML), line sort/dedupe, string inspector,
 RegExp tester (with substitution).
@@ -75,6 +88,90 @@ make cli          # build the headless `hexkit` CLI
 make test         # Rust + frontend test suites
 make check        # typecheck + lint (clippy) + tests + build
 ```
+
+## The `hexkit` CLI
+
+Every tool also runs headless via the `hexkit` binary, over the exact same
+dispatcher the desktop app and `hexkit://` deep links use. Install it once
+from inside the app (**Hexkit → Install Command Line Tools…**) or build it
+yourself:
+
+```bash
+cargo install --git https://github.com/trinvh/hexkit hexkit-cli
+# → ~/.cargo/bin/hexkit
+```
+
+### Calling convention
+
+```
+hexkit <action> '<json-params>'
+echo '<json-params>' | hexkit <action>
+hexkit 'hexkit://<action>?key=value'
+```
+
+- Actions are namespaced `<tool>.<verb>` (e.g. `json.format`, `jwt.decode`).
+- Params are a JSON object; string-shaped results print raw, object/array
+  results print as pretty JSON.
+- The deep-link form takes URL-encoded params and is what
+  `hexkit://…` links from your browser, Raycast, or shell hand off to.
+
+### Cheatsheet
+
+```bash
+# Format JSON (with optional indent + key sort)
+hexkit json.format '{"input":"{\"b\":2,\"a\":1}","indent":"  ","sort":true}'
+
+# JSONPath query
+hexkit json.query '{"input":"{\"users\":[{\"id\":1},{\"id\":2}]}","path":"$.users[*].id"}'
+
+# Base64
+hexkit base64.encode '{"input":"hello"}'
+echo aGVsbG8= | hexkit base64.decode
+
+# URL encode / decode (deep-link form, handy in scripts)
+hexkit 'hexkit://url.encode?input=hello world'
+
+# Hash digests (single call returns md5/sha1/sha256/sha512)
+hexkit hash.generate '{"input":"hello"}'
+
+# HMAC
+hexkit hash.hmac '{"algorithm":"sha256","key":"secret","message":"hi"}'
+
+# JWT inspect (header + payload + algorithm + signature)
+hexkit jwt.decode '{"input":"eyJhbGciOi…"}'
+
+# UUID v4 (or ulid, nano_id) — `count` and `lowercased` are optional
+hexkit uuid.generate '{"kind":"uuid_v4","count":3}'
+
+# Luhn validate + propose a corrected check digit
+hexkit luhn.check '{"input":"4111 1111 1111 1112"}'
+
+# Generate Luhn-valid TEST card numbers
+hexkit card.generate '{"brand":"visa","count":3}'
+
+# BER-TLV / EMV chip data
+hexkit tlv.decode '{"input":"6F2A840E315041592E5359532E4444463031A5..."}'
+
+# Unix time ↔ ISO
+hexkit time.convert '{"input":"1700000000","unit":"auto"}'
+
+# Number base conversion (binary / octal / decimal / hex / custom)
+hexkit number.all '{"input":"255","base":10}'
+
+# Pretty-print, query and beautify XML / SQL / CSS
+hexkit xml.format  '{"input":"<a><b/></a>"}'
+hexkit sql.format  '{"input":"select * from users where id=1"}'
+hexkit css.beautify '{"input":".a{color:red}","syntax":"css"}'
+```
+
+### Discoverability
+
+- Run `hexkit --help` for usage.
+- The full action list is the `match` in
+  [`crates/devtools-core/src/actions.rs`](crates/devtools-core/src/actions.rs);
+  every namespace there is a callable namespace from the CLI.
+- Anything you can copy as a "Deep link" from the in-app context menu can be
+  pasted as `hexkit '…'` and produces the same result.
 
 ## Architecture
 

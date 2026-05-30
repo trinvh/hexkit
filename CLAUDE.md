@@ -92,6 +92,36 @@ Every tool is reachable identically from the desktop app, the CLI, and
 2. Add the frontend `src/tools/<name>/` (`api.ts`, `run.ts`, view) and register
    in `registry.ts`. Use `useToolState` for inputs/options.
 3. Add `run.test.ts` (pure logic) and `<Name>Tool.test.tsx` (component).
+4. **Propagate to the sibling repos and READMEs.** Every new tool — and every
+   meaningful change to an existing tool's usage — must land in all four
+   places below in the same change set. If a piece is genuinely missing
+   (no screenshot taken yet, no Raycast inline view implemented, etc.),
+   write that down explicitly in the corresponding file with a "not yet
+   available" line — never silently omit it, because future-me will assume
+   it was an oversight.
+   - **`README.md`** — add the tool to the Tools section, and if it's
+     callable from the CLI, add a one-line example to the
+     `## The hexkit CLI` cheatsheet. If there's no representative screenshot
+     yet, note "Screenshot not yet available" in any tool-spotlight section
+     that would normally have one.
+   - **`../hexkit-devutils-landing/src/data.ts`** — append to the right
+     `TOOL_CATEGORIES` entry. If you cross a tool-count threshold,
+     bump `TOOL_COUNT` in `App.tsx`. Rebuild with `make build` to confirm
+     the bundle still fits the budget.
+   - **`../hexkit-devutils-raycast/src/lib/tools.ts`** — add a `ToolEntry`
+     with the action id, title, kind, `inline` flag, icon, and keywords.
+     For tools whose UI can plausibly render inside Raycast (text-in /
+     text-out), set `inline: true` and either reuse `Search Tools` or
+     add a dedicated `src/<command>.tsx` + `package.json` command. For
+     visual-only tools (color, QR, diff, certificates, anything with
+     custom layout), set `inline: false` — the extension will fall back
+     to the `hexkit://` deep link. If you choose not to add an inline
+     view today, leave a `// TODO: inline view not yet implemented`
+     comment so future passes can find it.
+   - **Cross-repo contract refresher** — action ids and `hexkit://` deep
+     links are the wire between this repo and the Raycast extension; if
+     you rename an action in `actions.rs`, every entry in
+     `src/lib/tools.ts` over there must move with it.
 
 ## Testing & the gate
 
