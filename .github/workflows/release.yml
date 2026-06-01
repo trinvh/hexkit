@@ -1,25 +1,23 @@
 name: release
 
-# Single workflow covering both day-to-day CI and the release matrix:
+# Release workflow — only fires on version tags or manual dispatch.
 #
-#   - `gate` runs on every push, every PR, and as a prerequisite for the
-#     release build. One Linux job, `make check`. Cheap and fast.
+#   - `gate` runs first: typecheck + clippy + tests + build. One Linux
+#     job, `make check`. Fails fast before the matrix spins up.
 #   - `build` is the 4-platform matrix that builds the desktop app + CLI
-#     archives. Only runs after `gate` is green AND the trigger is either
-#     a `v*` tag push or a manual workflow_dispatch.
+#     archives. Runs only after `gate` is green.
 #   - `publish` flips the draft release to published once every platform
 #     has uploaded its artifacts. Only runs on tag pushes.
 #
 # So:
-#   - PR / push to main      → gate only
 #   - Tag push (vX.Y.Z)      → gate → build (4×) → publish (auto, no draft)
-#   - workflow_dispatch      → gate, then build, uploaded as artifacts
+#   - workflow_dispatch      → gate → build, uploaded as artifacts (no release)
+#
+# Day-to-day pushes to main and PRs no longer trigger this workflow —
+# rely on `make check` locally before pushing.
 on:
   push:
-    branches: [main]
     tags: ["v*"]
-  pull_request:
-    branches: [main]
   workflow_dispatch:
 
 concurrency:
