@@ -57,6 +57,7 @@ pub fn run(action: &str, params: Value) -> ToolResult<Value> {
         "luhn" => crate::luhn::dispatch(action, params),
         "card" => crate::creditcard::dispatch(action, params),
         "tlv" => crate::tlv::dispatch(action, params),
+        "pgp" => crate::pgp::dispatch(action, params),
         _ => Err(ToolError::invalid_input(format!("unknown action: {action}"))),
     }
 }

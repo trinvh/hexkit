@@ -49,6 +49,8 @@ qrcode = { workspace = true }
 rqrr = { workspace = true }
 image = { workspace = true }
 shell-words = { workspace = true }
+pgp = { workspace = true }
+rand_v08 = { workspace = true }
 
 [dev-dependencies]
 rstest = { workspace = true }

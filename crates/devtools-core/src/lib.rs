@@ -32,6 +32,7 @@ pub mod lorem;
 pub mod luhn;
 pub mod markdown;
 pub mod numbase;
+pub mod pgp;
 pub mod php;
 pub mod qr;
 pub mod random;

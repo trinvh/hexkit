@@ -53,6 +53,10 @@ SVG→CSS, HTML→JSX, cURL→code, JSON→code.
 string, Lorem Ipsum, QR code, test credit card numbers (Luhn-valid, Visa /
 Mastercard / Amex / Discover / JCB / Diners / UnionPay).
 
+**Cryptography** — OpenPGP keypair generation (Ed25519 + Curve25519,
+ASCII-armored), encrypt, decrypt, sign, verify, encrypt-and-sign,
+decrypt-and-verify. Pure-Rust (rpgp), GnuPG-interoperable, fully offline.
+
 > _Tool-spotlight screenshots: only **Text Diff Checker** is shown above —
 > dedicated screenshots for the other tools are not yet available._
 
@@ -162,6 +166,15 @@ hexkit number.all '{"input":"255","base":10}'
 hexkit xml.format  '{"input":"<a><b/></a>"}'
 hexkit sql.format  '{"input":"select * from users where id=1"}'
 hexkit css.beautify '{"input":".a{color:red}","syntax":"css"}'
+
+# OpenPGP — keygen, encrypt, decrypt, sign, verify (all ASCII-armored)
+hexkit pgp.keygen        '{"user_id":"Alice <alice@hexkit.app>","passphrase":""}'
+hexkit pgp.encrypt       '{"input":"secret","public_key":"-----BEGIN PGP PUBLIC KEY BLOCK-----…"}'
+hexkit pgp.decrypt       '{"input":"-----BEGIN PGP MESSAGE-----…","private_key":"…","passphrase":""}'
+hexkit pgp.sign          '{"input":"doc text","private_key":"…","passphrase":""}'
+hexkit pgp.verify        '{"input":"doc text","signature":"-----BEGIN PGP SIGNATURE-----…","public_key":"…"}'
+hexkit pgp.encrypt_sign  '{"input":"…","public_key":"…","private_key":"…","passphrase":""}'
+hexkit pgp.decrypt_verify '{"input":"-----BEGIN PGP MESSAGE-----…","private_key":"…","passphrase":"","public_key":"…"}'
 ```
 
 ### Discoverability

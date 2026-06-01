@@ -6,6 +6,7 @@ export type ToolCategory =
   | "Encoders"
   | "Converters"
   | "Generators"
+  | "Cryptography"
   | "Text"
   | "Web";
 
@@ -29,6 +30,7 @@ export const CATEGORY_ORDER: ToolCategory[] = [
   "Encoders",
   "Converters",
   "Generators",
+  "Cryptography",
   "Text",
   "Web",
 ];

@@ -52,5 +52,7 @@ rqrr = "0.10"
 image = "0.25"
 rcgen = "0.14"
 shell-words = "1.1"
+pgp = "0.19"
+rand_v08 = { package = "rand", version = "0.8" }
 rstest = "0.26"
 devtools-core = { path = "crates/devtools-core" }

@@ -38,6 +38,12 @@ import {
   Terminal,
   Brackets,
   CreditCard,
+  Key,
+  Lock,
+  Unlock,
+  PenTool,
+  BadgeCheck,
+  ShieldPlus,
 } from "lucide-react";
 import { lazy } from "react";
 import type { ToolDefinition } from "./types";
@@ -85,6 +91,13 @@ const JsonCodeTool = lazy(() => import("./jsoncode/JsonCodeTool").then((m) => ({
 const LuhnTool = lazy(() => import("./luhn/LuhnTool").then((m) => ({ default: m.LuhnTool })));
 const CreditCardTool = lazy(() => import("./creditcard/CreditCardTool").then((m) => ({ default: m.CreditCardTool })));
 const TlvTool = lazy(() => import("./tlv/TlvTool").then((m) => ({ default: m.TlvTool })));
+const PgpKeygenTool = lazy(() => import("./pgp-keygen/PgpKeygenTool").then((m) => ({ default: m.PgpKeygenTool })));
+const PgpEncryptTool = lazy(() => import("./pgp-encrypt/PgpEncryptTool").then((m) => ({ default: m.PgpEncryptTool })));
+const PgpDecryptTool = lazy(() => import("./pgp-decrypt/PgpDecryptTool").then((m) => ({ default: m.PgpDecryptTool })));
+const PgpSignTool = lazy(() => import("./pgp-sign/PgpSignTool").then((m) => ({ default: m.PgpSignTool })));
+const PgpVerifyTool = lazy(() => import("./pgp-verify/PgpVerifyTool").then((m) => ({ default: m.PgpVerifyTool })));
+const PgpEncryptSignTool = lazy(() => import("./pgp-encrypt-sign/PgpEncryptSignTool").then((m) => ({ default: m.PgpEncryptSignTool })));
+const PgpDecryptVerifyTool = lazy(() => import("./pgp-decrypt-verify/PgpDecryptVerifyTool").then((m) => ({ default: m.PgpDecryptVerifyTool })));
 
 /**
  * The MVP tool set. Components are wired in Phase 3; until then each entry
@@ -474,6 +487,69 @@ export const TOOLS: ToolDefinition[] = [
     icon: Brackets,
     component: TlvTool,
   },
+  {
+    id: "pgp-keygen",
+    name: "Generate PGP Key Pair",
+    category: "Cryptography",
+    description: "Generate an Ed25519 + Curve25519 OpenPGP key pair (ASCII-armored).",
+    keywords: ["pgp", "gpg", "openpgp", "key", "keygen", "generate", "ed25519", "curve25519"],
+    icon: Key,
+    component: PgpKeygenTool,
+  },
+  {
+    id: "pgp-encrypt",
+    name: "PGP Encrypt",
+    category: "Cryptography",
+    description: "Encrypt a message to a recipient's OpenPGP public key.",
+    keywords: ["pgp", "gpg", "openpgp", "encrypt", "cipher"],
+    icon: Lock,
+    component: PgpEncryptTool,
+  },
+  {
+    id: "pgp-decrypt",
+    name: "PGP Decrypt",
+    category: "Cryptography",
+    description: "Decrypt an OpenPGP message with your private key.",
+    keywords: ["pgp", "gpg", "openpgp", "decrypt", "cipher"],
+    icon: Unlock,
+    component: PgpDecryptTool,
+  },
+  {
+    id: "pgp-sign",
+    name: "PGP Sign",
+    category: "Cryptography",
+    description: "Produce a detached OpenPGP signature over a message.",
+    keywords: ["pgp", "gpg", "openpgp", "sign", "signature", "detached"],
+    icon: PenTool,
+    component: PgpSignTool,
+  },
+  {
+    id: "pgp-verify",
+    name: "PGP Verify",
+    category: "Cryptography",
+    description: "Verify a detached OpenPGP signature against a public key.",
+    keywords: ["pgp", "gpg", "openpgp", "verify", "signature", "detached"],
+    icon: BadgeCheck,
+    component: PgpVerifyTool,
+  },
+  {
+    id: "pgp-encrypt-sign",
+    name: "PGP Encrypt and Sign",
+    category: "Cryptography",
+    description: "Encrypt to a recipient and sign in one inline-signed message.",
+    keywords: ["pgp", "gpg", "openpgp", "encrypt", "sign", "inline", "signed"],
+    icon: ShieldPlus,
+    component: PgpEncryptSignTool,
+  },
+  {
+    id: "pgp-decrypt-verify",
+    name: "PGP Decrypt and Verify",
+    category: "Cryptography",
+    description: "Decrypt an inline-signed PGP message and verify the embedded signature.",
+    keywords: ["pgp", "gpg", "openpgp", "decrypt", "verify", "inline", "signed"],
+    icon: ShieldCheck,
+    component: PgpDecryptVerifyTool,
+  },
 ];
 
 export const DEFAULT_TOOL_ID = TOOLS[0].id;
@@ -528,6 +604,27 @@ const ACTION_NAMESPACE_TO_TOOL: Record<string, string> = {
 export function toolIdForAction(action: string): string | undefined {
   const [namespace, verb] = action.split(".");
   if (namespace === "url") return verb === "parse" ? "url-parser" : "url-encode";
+  // `pgp` has seven distinct verbs, each its own tool — verb-specific routing.
+  if (namespace === "pgp") {
+    switch (verb) {
+      case "keygen":
+        return "pgp-keygen";
+      case "encrypt":
+        return "pgp-encrypt";
+      case "decrypt":
+        return "pgp-decrypt";
+      case "sign":
+        return "pgp-sign";
+      case "verify":
+        return "pgp-verify";
+      case "encrypt_sign":
+        return "pgp-encrypt-sign";
+      case "decrypt_verify":
+        return "pgp-decrypt-verify";
+      default:
+        return undefined;
+    }
+  }
   return ACTION_NAMESPACE_TO_TOOL[namespace];
 }
 
