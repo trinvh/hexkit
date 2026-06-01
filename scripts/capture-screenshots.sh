@@ -50,11 +50,36 @@ urlencode() {
     python3 -c "import urllib.parse, sys; print(urllib.parse.quote(sys.argv[1]))" "$1"
 }
 
+# Convert a JSON file ({"key": "value", ...}) to a URL query string. Used by
+# multi-field tools (e.g. PGP) whose `useToolState` fields are populated from
+# tabState — `openFromDeepLink` writes every URL query param straight into
+# the destination tool's tab state.
+json_to_query() {
+    python3 -c "
+import json, urllib.parse, sys
+data = json.load(open(sys.argv[1]))
+print('&'.join(
+    f'{urllib.parse.quote(k)}={urllib.parse.quote(str(v))}'
+    for k, v in data.items()
+))
+" "$1"
+}
+
 capture_one() {
     local action="$1" filename="$2" seed="$3"
     local url
     if [ -n "$seed" ]; then
-        url="hexkit://$action?input=$(urlencode "$seed")"
+        if [[ "$seed" == @* ]]; then
+            # @<path> → load JSON file, every key becomes a URL param.
+            local params_file="${seed#@}"
+            if [ ! -f "$params_file" ]; then
+                echo "✗ $filename: params file not found: $params_file"
+                return 1
+            fi
+            url="hexkit://$action?$(json_to_query "$params_file")"
+        else
+            url="hexkit://$action?input=$(urlencode "$seed")"
+        fi
     else
         url="hexkit://$action"
     fi
@@ -156,6 +181,13 @@ lorem.generate	lorem-ipsum
 hash.hmac	hmac-generator
 regexp.test	regexp-tester
 card.generate	card-generator
+pgp.keygen	pgp-keygen	@scripts/screenshot-seeds/pgp-keygen.json
+pgp.encrypt	pgp-encrypt	@scripts/screenshot-seeds/pgp-encrypt.json
+pgp.decrypt	pgp-decrypt	@scripts/screenshot-seeds/pgp-decrypt.json
+pgp.sign	pgp-sign	@scripts/screenshot-seeds/pgp-sign.json
+pgp.verify	pgp-verify	@scripts/screenshot-seeds/pgp-verify.json
+pgp.encrypt_sign	pgp-encrypt-sign	@scripts/screenshot-seeds/pgp-encrypt-sign.json
+pgp.decrypt_verify	pgp-decrypt-verify	@scripts/screenshot-seeds/pgp-decrypt-verify.json
 SPEC
 
 echo
