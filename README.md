@@ -38,6 +38,9 @@ machine — the demo page is just the screenshots.
 - **100% offline** — all processing happens in local Rust; no network calls.
 - **Command palette** (⌘K) and a filterable sidebar to reach any tool instantly.
 - **Smart Detection** — detects the right tool from your clipboard contents.
+- **Distraction-free View menu** — toggle the sidebar (⌘/Ctrl+B) and header bar
+  (⌘/Ctrl+Shift+B) to maximize the content area. Native menu bar on macOS,
+  Windows and Linux.
 - **Syntax highlighting** on inputs and outputs (CodeMirror 6).
 - **Pinned & recently-used** tools above the sidebar filter.
 - **Light & dark** themes, both designed intentionally.
@@ -197,11 +200,88 @@ hexkit pgp.decrypt_verify '{"input":"-----BEGIN PGP MESSAGE-----…","private_ke
 - Anything you can copy as a "Deep link" from the in-app context menu can be
   pasted as `hexkit '…'` and produces the same result.
 
+## MCP server (for AI agents)
+
+`hexkit-mcp` is a [Model Context Protocol](https://modelcontextprotocol.io)
+server that lets an LLM agent (Claude Desktop, Cursor, Cline, …) call a
+**curated** subset of Hexkit's tools — the deterministic, spec-heavy ones an
+LLM is unreliable at on its own. Everything still runs locally through the same
+`devtools-core` dispatcher; nothing is uploaded.
+
+It deliberately exposes a **small** tool set (so it stays cheap on the agent's
+context window) rather than all ~55 tools:
+
+| Tool | What it does |
+| --- | --- |
+| `jwt_decode`, `jwt_verify` | Decode a JWT; verify an HS256/384/512 signature |
+| `hash`, `hmac` | MD5/SHA-1/SHA-256/SHA-512 digests; keyed HMAC |
+| `pgp_keygen`, `pgp_encrypt`, `pgp_decrypt`, `pgp_sign`, `pgp_verify` | OpenPGP (Ed25519/Curve25519) |
+| `x509_decode` | Decode a PEM/DER X.509 certificate |
+| `tlv_decode` | Parse BER-TLV / EMV chip-card data |
+| `cron_parse` | Explain a cron expression |
+| `id_generate` | Generate UUID v4/v7, ULID or Nano ID |
+
+Trivial transforms an agent already does well (JSON formatting, base64, case
+conversion, …) are intentionally omitted.
+
+There are two ways to connect, depending on what your client supports.
+
+### Option A — from inside the app (Streamable HTTP)
+
+Open **View → Settings…** and turn on **MCP server** (off by default). Hexkit
+then hosts the tools on a loopback port (default `7676`) for as long as the app
+is running. Point any client that supports a local MCP **URL** — Claude Code,
+Cursor, Cline, Continue — at it:
+
+```json
+{
+  "mcpServers": {
+    "hexkit": {
+      "type": "http",
+      "url": "http://127.0.0.1:7676/mcp"
+    }
+  }
+}
+```
+
+The `"type": "http"` field is required by clients like Claude Code and Cursor to
+recognise it as an HTTP (Streamable-HTTP) server. The Settings panel shows the
+live status and this copy-paste block. The listener is bound to `127.0.0.1` only
+(loopback); nothing is exposed off-machine.
+
+> **Claude Desktop note:** its *Add custom connector* dialog only accepts remote
+> **`https://`** URLs, so it rejects `http://127.0.0.1` (the field turns red).
+> Use **Option B (stdio)** below for Claude Desktop instead.
+
+### Option B — standalone binary (stdio)
+
+For clients that launch servers over stdio (e.g. Claude Desktop), build the
+`hexkit-mcp` binary and point the client's `command` at it:
+
+```bash
+# Build the server binary (debug or --release)
+cargo build --release -p hexkit-mcp     # → target/release/hexkit-mcp
+
+# Or install it onto your PATH
+cargo install --path crates/hexkit-mcp  # → ~/.cargo/bin/hexkit-mcp
+```
+
+```json
+{
+  "mcpServers": {
+    "hexkit": { "command": "/absolute/path/to/hexkit-mcp" }
+  }
+}
+```
+
+No arguments, no environment, no network — the server only computes locally.
+
 ## Architecture
 
 ```
 crates/devtools-core/   Pure, Tauri-independent tool logic (one module per tool)
 crates/hexkit-cli/      Headless `hexkit` binary over the same dispatcher
+crates/hexkit-mcp/      MCP (stdio) server exposing a curated tool subset to agents
 src-tauri/              Tauri shell (run_action command, clipboard, deep link)
 src/                    React UI (tool registry, shared primitives, per-tool views)
 ```
