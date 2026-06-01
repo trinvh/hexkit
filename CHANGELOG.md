@@ -8,6 +8,52 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 Each release is also published at <https://github.com/trinvh/hexkit/releases>
 with platform installers and a standalone `hexkit` CLI archive attached.
 
+## [0.2.0] - 2026-06-01
+
+### Added
+
+- **Built-in MCP server** (`crates/hexkit-mcp`) — exposes a curated subset of
+  Hexkit's deterministic tools to LLM agents over the Model Context Protocol,
+  routed through the same `devtools-core` dispatcher as the app and CLI. The
+  set is intentionally small — PGP keygen / encrypt / decrypt / sign / verify,
+  hash, HMAC, JWT decode / verify, X.509 decode, BER-TLV decode, cron parse and
+  ID generate — so it stays cheap on a client's context window. Trivial
+  transforms (JSON formatting, Base64, …) are omitted on purpose. Ships as a
+  standalone stdio binary (`hexkit-mcp`) for clients like Claude Desktop.
+- **In-app MCP server toggle** — `View → Settings…` hosts the same tools over a
+  loopback Streamable-HTTP endpoint (default `127.0.0.1:7676`, **off by
+  default**) for clients that take a local URL (Claude Code, Cursor, Cline).
+  The Settings panel shows live status and a tabbed copy-paste client config
+  (HTTP URL / stdio binary).
+- **View menu** with **Show Sidebar** (Cmd/Ctrl+B) and **Show Header Bar**
+  (Cmd/Ctrl+Shift+B) toggles to maximize the content area; the choices persist
+  across restarts.
+
+### Changed
+
+- **Native menu bar on every platform.** The application menu (the CLI / app /
+  View items) now builds on Windows and Linux too — previously macOS-only.
+- **Release flow documents itself.** `make release` and the `hexkit-release`
+  skill now require updating `CHANGELOG.md` and stage it into the release
+  commit; `scripts/bump.mjs` tolerates a dirty `CHANGELOG.md`.
+
+### Fixed
+
+- **"Check for updates" no longer dies on `GitHub returned 403`.** The check
+  now runs in Rust with a proper `User-Agent`, and when GitHub's API rate limit
+  is exhausted it reports when to retry — "rate limit is exhausted. Try again in
+  ~N min (around H:MM)" — derived from the `x-ratelimit-reset` header, instead
+  of a bare 403.
+
+### Internal
+
+- New workspace dependencies: `rmcp` (official Rust MCP SDK), `axum`, `tokio`,
+  `tokio-util`, `ureq`. The stdio binary stays axum-free; the Streamable-HTTP
+  transport lives behind an `http` cargo feature enabled only by the desktop
+  app.
+- The `hexkit-release` skill now pushes the branch and tag automatically after
+  tagging.
+
 ## [0.1.3] - 2026-06-01
 
 ### Added
@@ -181,6 +227,7 @@ desktop app, the headless `hexkit` CLI, and `hexkit://` deep links.
 - Strict TypeScript (`noUnusedLocals`), Clippy with `-D warnings`,
   Vitest + Testing Library for the frontend.
 
+[0.2.0]: https://github.com/trinvh/hexkit/releases/tag/v0.2.0
 [0.1.3]: https://github.com/trinvh/hexkit/releases/tag/v0.1.3
 [0.1.2]: https://github.com/trinvh/hexkit/releases/tag/v0.1.2
 [0.1.1]: https://github.com/trinvh/hexkit/releases/tag/v0.1.1
