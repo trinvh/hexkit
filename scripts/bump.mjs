@@ -52,10 +52,19 @@ function ensureCleanTree() {
     cwd: ROOT,
     encoding: "utf8",
   });
-  if (stdout.trim().length > 0) {
+  // A modified CHANGELOG.md is an expected part of a release (the
+  // hexkit-release skill updates it just before bumping), so it doesn't count
+  // as "dirty" — `make release` stages it into the release commit alongside
+  // the version files. Everything else must be clean.
+  const dirty = stdout
+    .split("\n")
+    .map((line) => line.replace(/\s+$/, ""))
+    .filter((line) => line.length > 0)
+    .filter((line) => line.slice(3) !== "CHANGELOG.md");
+  if (dirty.length > 0) {
     fail(
       "working tree is dirty. Commit or stash first, or pass --allow-dirty:\n" +
-        stdout,
+        dirty.join("\n"),
     );
   }
 }

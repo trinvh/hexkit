@@ -109,7 +109,7 @@ release: ## Bump + run gate + commit + tag + push (VERSION=X.Y.Z)
 	fi
 	@node scripts/bump.mjs $(VERSION)
 	@$(MAKE) check
-	@git add Cargo.toml Cargo.lock src-tauri/tauri.conf.json package.json
+	@git add Cargo.toml Cargo.lock src-tauri/tauri.conf.json package.json CHANGELOG.md
 	@git commit -m "chore: release v$(VERSION)"
 	@git tag -a "v$(VERSION)" -m "Hexkit v$(VERSION)"
 	@echo

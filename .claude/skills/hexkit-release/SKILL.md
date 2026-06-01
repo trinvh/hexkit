@@ -1,11 +1,12 @@
 ---
 name: hexkit-release
-description: Cut a Hexkit release — bump every version-of-record, run the gate, commit, and tag. Use when the user asks to "release", "ship a version", "cut vX.Y.Z", "bump and tag", "tag a release", or otherwise wants to publish a new Hexkit version. Operates only on the hexkit-devutils repo (the desktop app + CLI); the landing page and Raycast extension version independently.
+description: Cut a Hexkit release — update the changelog, bump every version-of-record, run the gate, commit, and tag. Use when the user asks to "release", "ship a version", "cut vX.Y.Z", "bump and tag", "tag a release", or otherwise wants to publish a new Hexkit version. Operates only on the hexkit-devutils repo (the desktop app + CLI); the landing page and Raycast extension version independently.
 ---
 
 # Hexkit release
 
 Drive `make release` end-to-end, stopping before push so the user confirms.
+**Updating `CHANGELOG.md` is a required part of every release — never skip it.**
 
 ## Preconditions (verify in this order)
 
@@ -26,12 +27,28 @@ Drive `make release` end-to-end, stopping before push so the user confirms.
 
 Run these as separate steps so each one's output is visible:
 
+0. **Update `CHANGELOG.md` (mandatory).** Before bumping, add a section for the
+   new version so the release is documented:
+   - Read the current `CHANGELOG.md` (Keep a Changelog format) and find the
+     previous released version + tag.
+   - Determine what changed since then: run
+     `git log --oneline <last-tag>..HEAD` and group commits by type
+     (Added / Changed / Fixed / etc.). Summarize for humans — don't just paste
+     commit subjects.
+   - Insert a new `## [X.Y.Z] - YYYY-MM-DD` section above the previous one
+     (use today's date), and roll any `## [Unreleased]` notes into it. Add/refresh
+     the version-compare link at the bottom if the file uses them.
+   - Show the user the new section and confirm it reads correctly before
+     continuing. Leave `CHANGELOG.md` modified-but-uncommitted — the next step
+     stages it into the release commit. (`scripts/bump.mjs` deliberately
+     tolerates a dirty `CHANGELOG.md`; any *other* dirty file still aborts.)
+
 1. `make release VERSION=<X.Y.Z>` — this delegates to `scripts/bump.mjs`
    (rewriting `Cargo.toml`'s `[workspace.package].version`,
    `src-tauri/tauri.conf.json`, and `package.json`), then runs the gate
    (`make check`: typecheck + clippy + tests + build), stages the four
-   version files plus `Cargo.lock`, creates `chore: release vX.Y.Z`, and
-   creates the annotated `vX.Y.Z` tag.
+   version files plus `Cargo.lock` **and the `CHANGELOG.md` you just edited**,
+   creates `chore: release vX.Y.Z`, and creates the annotated `vX.Y.Z` tag.
 2. After `make release` finishes, run `git log -1 --oneline` and
    `git tag --points-at HEAD` so the user can see the commit + tag landed.
 3. STOP. Show the user the exact push commands and wait for explicit
