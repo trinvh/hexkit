@@ -7,10 +7,12 @@ name: release
 #   - `build` is the 4-platform matrix that builds the desktop app + CLI
 #     archives. Only runs after `gate` is green AND the trigger is either
 #     a `v*` tag push or a manual workflow_dispatch.
+#   - `publish` flips the draft release to published once every platform
+#     has uploaded its artifacts. Only runs on tag pushes.
 #
 # So:
 #   - PR / push to main      → gate only
-#   - Tag push (vX.Y.Z)      → gate, then build, then attach to draft release
+#   - Tag push (vX.Y.Z)      → gate → build (4×) → publish (auto, no draft)
 #   - workflow_dispatch      → gate, then build, uploaded as artifacts
 on:
   push:
@@ -233,3 +235,22 @@ jobs:
             src-tauri/target/*/release/bundle/**
             ${{ steps.cli-archive.outputs.archive }}
             ${{ steps.cli-archive.outputs.checksum }}
+
+  publish:
+    name: publish release
+    needs: build
+    runs-on: ubuntu-22.04
+    # Only flip the draft once we know every platform's matrix job uploaded
+    # its installer + CLI archive successfully.
+    if: startsWith(github.ref, 'refs/tags/')
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Flip the draft release to published
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release edit "${{ github.ref_name }}" \
+            --draft=false \
+            --latest
+          echo "Published https://github.com/${{ github.repository }}/releases/tag/${{ github.ref_name }}"
