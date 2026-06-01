@@ -24,6 +24,13 @@ concurrency:
   group: release-${{ github.ref }}
   cancel-in-progress: true
 
+# Top-level permissions establish the GITHUB_TOKEN scope for every job.
+# Some upstream actions (notably tauri-apps/tauri-action) have been seen to
+# fail with "Resource not accessible by integration" when the workflow-level
+# block is the only declaration — repos with a `read`-default GITHUB_TOKEN
+# silently keep restricting the token. The job-level `permissions:` repeats
+# below are belt-and-suspenders; they make the write scope explicit at the
+# job boundary so a future repo-setting flip can't break releases again.
 permissions:
   contents: write
 
@@ -31,6 +38,9 @@ jobs:
   gate:
     name: gate (typecheck · lint · test · build)
     runs-on: ubuntu-22.04
+    # `gate` only reads the repo; no need for `contents: write`.
+    permissions:
+      contents: read
     steps:
       - uses: actions/checkout@v4
 
@@ -78,6 +88,11 @@ jobs:
     if: |
       startsWith(github.ref, 'refs/tags/') ||
       github.event_name == 'workflow_dispatch'
+
+    # tauri-action creates the draft release and uploads installers; needs
+    # write access to repository contents.
+    permissions:
+      contents: write
 
     strategy:
       fail-fast: false
@@ -241,6 +256,9 @@ jobs:
     # Only flip the draft once we know every platform's matrix job uploaded
     # its installer + CLI archive successfully.
     if: startsWith(github.ref, 'refs/tags/')
+    # `gh release edit --draft=false` needs write access to repository contents.
+    permissions:
+      contents: write
     steps:
       - uses: actions/checkout@v4
 
