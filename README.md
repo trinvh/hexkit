@@ -22,6 +22,17 @@ CLI, and `hexkit://` deep links.
 
 ---
 
+## Demo
+
+Browse every Hexkit tool with annotated screenshots at
+**<https://hexkit.apps.trinvh.com/demo>** — no install needed. The
+sidebar mirrors the desktop app's categories; scroll-spy keeps the
+list in sync as you scan.
+
+For the real thing, [download an installer](https://github.com/trinvh/hexkit/releases)
+or [build from source](#getting-started). Everything stays on your
+machine — the demo page is just the screenshots.
+
 ## Highlights
 
 - **100% offline** — all processing happens in local Rust; no network calls.
