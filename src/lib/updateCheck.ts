@@ -1,6 +1,15 @@
+import { invoke } from "@tauri-apps/api/core";
 import { APP_VERSION, GITHUB_URL, RELEASES_URL } from "./version";
 
-const RELEASES_API = `https://api.github.com/repos/trinvh/hexkit/releases?per_page=30`;
+/** Raw probe handed back by the Rust `fetch_latest_releases` command. */
+interface ReleasesProbe {
+  status: number;
+  body: string;
+  /** GitHub refused because the API rate limit is exhausted. */
+  rateLimited: boolean;
+  /** Unix epoch (seconds) when the limit resets, from `x-ratelimit-reset`. */
+  rateLimitReset: number | null;
+}
 
 export type UpdateCheckKind =
   /** Local app is at or above the latest published release. */
@@ -37,20 +46,25 @@ interface ReleaseResponse {
  * `/releases` (not `/releases/latest`) so a brand-new repo with no published
  * releases returns 200 + `[]` instead of 404, which lets us distinguish "no
  * releases yet" from "the repo is missing".
+ *
+ * The request runs in Rust (`fetch_latest_releases`) rather than the webview
+ * `fetch`: GitHub's API returns 403 to requests without a `User-Agent`, and the
+ * browser `fetch` can't set that header. Only meaningful inside the desktop app.
  */
 export async function checkForUpdate(): Promise<UpdateCheckResult> {
-  const response = await fetch(RELEASES_API, {
-    headers: { Accept: "application/vnd.github+json" },
-  });
+  const probe = await invoke<ReleasesProbe>("fetch_latest_releases");
 
-  if (response.status === 404) {
+  if (probe.status === 404) {
     return baseResult("repo-not-found");
   }
-  if (!response.ok) {
-    throw new Error(`GitHub returned ${response.status} ${response.statusText}`);
+  if (probe.rateLimited) {
+    throw new Error(rateLimitMessage(probe.rateLimitReset));
+  }
+  if (probe.status < 200 || probe.status >= 300) {
+    throw new Error(`GitHub returned ${probe.status}`);
   }
 
-  const releases = (await response.json()) as ReleaseResponse[];
+  const releases = JSON.parse(probe.body) as ReleaseResponse[];
   const eligible = releases.find(
     (r) => !r.draft && !r.prerelease && typeof r.tag_name === "string" && r.tag_name.length > 0,
   );
@@ -68,6 +82,24 @@ export async function checkForUpdate(): Promise<UpdateCheckResult> {
     releaseUrl: eligible.html_url ?? RELEASES_URL,
     body: eligible.body ?? null,
   };
+}
+
+/**
+ * Friendly message for an exhausted GitHub rate limit, including when to retry
+ * (derived from the `x-ratelimit-reset` epoch). Unauthenticated API requests
+ * share a 60/hour-per-IP budget, so this is most likely on shared/VPN IPs.
+ */
+function rateLimitMessage(resetEpochSeconds: number | null): string {
+  if (resetEpochSeconds == null) {
+    return "GitHub's API rate limit is exhausted. Please try again later.";
+  }
+  const resetMs = resetEpochSeconds * 1000;
+  const minutes = Math.max(1, Math.round((resetMs - Date.now()) / 60_000));
+  const clock = new Date(resetMs).toLocaleTimeString([], {
+    hour: "numeric",
+    minute: "2-digit",
+  });
+  return `GitHub's API rate limit is exhausted. Try again in ~${minutes} min (around ${clock}).`;
 }
 
 function baseResult(kind: Extract<UpdateCheckKind, "no-releases" | "repo-not-found">): UpdateCheckResult {

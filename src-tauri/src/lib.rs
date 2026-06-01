@@ -4,6 +4,7 @@ use tauri_plugin_deep_link::DeepLinkExt;
 
 mod cli_tools;
 mod mcp_server;
+mod updates;
 
 /// Single entry point for every tool, routed through the shared dispatcher in
 /// `devtools-core`. The same dispatcher backs the CLI and deep-link adapters.
@@ -59,6 +60,7 @@ pub fn run() {
             mcp_server::mcp_status,
             mcp_server::mcp_start,
             mcp_server::mcp_stop,
+            updates::fetch_latest_releases,
         ])
         .on_menu_event(|app, event| match event.id().as_ref() {
             "cli-install" => {

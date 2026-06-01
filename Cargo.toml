@@ -59,5 +59,6 @@ rmcp = { version = "1", features = ["server", "macros", "transport-io", "schemar
 tokio = { version = "1", features = ["rt-multi-thread", "macros", "io-std", "signal"] }
 tokio-util = "0.7"
 axum = "0.8"
+ureq = "2"
 devtools-core = { path = "crates/devtools-core" }
 hexkit-mcp = { path = "crates/hexkit-mcp" }
