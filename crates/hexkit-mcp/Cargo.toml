@@ -1,0 +1,32 @@
+[package]
+name = "hexkit-mcp"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license-file.workspace = true
+description = "Model Context Protocol server exposing Hexkit's deterministic dev tools to LLM agents."
+
+[[bin]]
+name = "hexkit-mcp"
+path = "src/main.rs"
+
+[lib]
+name = "hexkit_mcp"
+path = "src/lib.rs"
+
+[dependencies]
+devtools-core = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+rmcp = { workspace = true }
+tokio = { workspace = true }
+
+# Only needed for the in-app HTTP transport (the `http` feature); the stdio
+# binary doesn't pull these in.
+axum = { workspace = true, optional = true }
+tokio-util = { workspace = true, optional = true }
+
+[features]
+# Host the curated tool set over a local Streamable-HTTP endpoint (used by the
+# desktop app's "Enable MCP server" toggle). The default build is stdio-only.
+http = ["dep:axum", "dep:tokio-util", "rmcp/transport-streamable-http-server"]

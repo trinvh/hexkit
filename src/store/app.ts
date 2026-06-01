@@ -52,6 +52,20 @@ interface AppState {
   recents: string[];
   pinnedCollapsed: boolean;
   recentCollapsed: boolean;
+  /** Whether the left sidebar is shown. Toggle via the View menu to maximize content. */
+  sidebarVisible: boolean;
+  /** Whether the top header bar is shown. Toggle via the View menu to maximize content. */
+  headerVisible: boolean;
+  setSidebarVisible: (visible: boolean) => void;
+  setHeaderVisible: (visible: boolean) => void;
+  toggleSidebar: () => void;
+  toggleHeader: () => void;
+  /** Whether the local MCP server is enabled (off by default). Configured in Settings. */
+  mcpEnabled: boolean;
+  /** Loopback port the MCP server listens on when enabled. */
+  mcpPort: number;
+  setMcpEnabled: (enabled: boolean) => void;
+  setMcpPort: (port: number) => void;
   /** Persisted per-tab tool field state, keyed by tab id then field name. */
   tabState: Record<string, Record<string, unknown>>;
   /** True once the user has dismissed (or completed) the first-run CLI prompt. */
@@ -96,9 +110,19 @@ export const useApp = create<AppState>()(
       recents: [],
       pinnedCollapsed: false,
       recentCollapsed: false,
+      sidebarVisible: true,
+      headerVisible: true,
+      mcpEnabled: false,
+      mcpPort: 7676,
       tabState: {},
       cliPromptDismissed: false,
       setCliPromptDismissed: (cliPromptDismissed) => set({ cliPromptDismissed }),
+      setSidebarVisible: (sidebarVisible) => set({ sidebarVisible }),
+      setHeaderVisible: (headerVisible) => set({ headerVisible }),
+      toggleSidebar: () => set((state) => ({ sidebarVisible: !state.sidebarVisible })),
+      toggleHeader: () => set((state) => ({ headerVisible: !state.headerVisible })),
+      setMcpEnabled: (mcpEnabled) => set({ mcpEnabled }),
+      setMcpPort: (mcpPort) => set({ mcpPort }),
       setActiveTool: (id) =>
         set((state) => ({
           tabs: state.tabs.map((tab) =>
@@ -233,6 +257,10 @@ export const useApp = create<AppState>()(
         recents: state.recents,
         pinnedCollapsed: state.pinnedCollapsed,
         recentCollapsed: state.recentCollapsed,
+        sidebarVisible: state.sidebarVisible,
+        headerVisible: state.headerVisible,
+        mcpEnabled: state.mcpEnabled,
+        mcpPort: state.mcpPort,
         cliPromptDismissed: state.cliPromptDismissed,
       }),
       // Recompute the derived activeToolId from the restored tabs, and guarantee

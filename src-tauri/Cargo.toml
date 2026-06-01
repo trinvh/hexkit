@@ -33,4 +33,7 @@ tauri-plugin-clipboard-manager = "2"
 serde = { workspace = true }
 serde_json = { workspace = true }
 devtools-core = { workspace = true }
+# In-app MCP server (Streamable HTTP) toggled from View → Settings.
+hexkit-mcp = { workspace = true, features = ["http"] }
+tokio-util = { workspace = true }
 

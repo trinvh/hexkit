@@ -1,5 +1,5 @@
 [workspace]
-members = ["src-tauri", "crates/devtools-core", "crates/hexkit-cli"]
+members = ["src-tauri", "crates/devtools-core", "crates/hexkit-cli", "crates/hexkit-mcp"]
 resolver = "2"
 
 [workspace.package]
@@ -55,4 +55,9 @@ shell-words = "1.1"
 pgp = "0.19"
 rand_v08 = { package = "rand", version = "0.8" }
 rstest = "0.26"
+rmcp = { version = "1", features = ["server", "macros", "transport-io", "schemars"] }
+tokio = { version = "1", features = ["rt-multi-thread", "macros", "io-std", "signal"] }
+tokio-util = "0.7"
+axum = "0.8"
 devtools-core = { path = "crates/devtools-core" }
+hexkit-mcp = { path = "crates/hexkit-mcp" }
