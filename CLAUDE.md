@@ -144,6 +144,25 @@ make check     # typecheck + clippy (-D warnings) + cargo test + vitest + build
 Individual: `make test`, `make build`, `make dev` (desktop), `make web`
 (browser-only), `make cli`. See `make help`.
 
+## Releases
+
+`/hexkit-release` (or `make release VERSION=X.Y.Z`) bumps the four
+version-of-record files, runs the gate, commits `chore: release vX.Y.Z`,
+and tags `vX.Y.Z`. Pushing the tag fires `.github/workflows/release.yml`,
+which now ends with a `publish` job that flips the draft to a published
+GitHub release automatically — no manual click required.
+
+**After every main-repo release, also commit and push pending work in
+the sibling repos** (`../hexkit-devutils-landing`, `../hexkit-devutils-raycast`).
+The three repos version on their own cadence, but the moment of a Hexkit
+release is the natural sync point — any new tools or renamed action ids
+landed in the main repo are reflected in the landing's `TOOL_CATEGORIES`
+and the Raycast `package.json` `commands` array, and if those changes
+sit uncommitted the cross-repo contract drifts. Walk both sibling
+working directories, `git status` each, commit anything outstanding
+with conventional-commit messages, and push if they have remotes
+configured.
+
 ## Hard rules / gotchas
 
 - **`noUnusedLocals` is on** (strict TS). Remove now-unused imports when you
