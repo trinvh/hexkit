@@ -5,8 +5,9 @@ description: Cut a Hexkit release — update the changelog, bump every version-o
 
 # Hexkit release
 
-Drive `make release` end-to-end, stopping before push so the user confirms.
-**Updating `CHANGELOG.md` is a required part of every release — never skip it.**
+Drive `make release` end-to-end, then push the branch and tag so the release
+workflow builds and publishes. **Updating `CHANGELOG.md` is a required part of
+every release — never skip it.**
 
 ## Preconditions (verify in this order)
 
@@ -50,20 +51,20 @@ Run these as separate steps so each one's output is visible:
    version files plus `Cargo.lock` **and the `CHANGELOG.md` you just edited**,
    creates `chore: release vX.Y.Z`, and creates the annotated `vX.Y.Z` tag.
 2. After `make release` finishes, run `git log -1 --oneline` and
-   `git tag --points-at HEAD` so the user can see the commit + tag landed.
-3. STOP. Show the user the exact push commands and wait for explicit
-   confirmation before running them:
+   `git tag --points-at HEAD` so the commit + tag are visible.
+3. **Push automatically — no confirmation needed.** Push the branch first,
+   then the tag (pushing the tag is what fires
+   `.github/workflows/release.yml` and creates the draft GitHub release):
 
    ```text
    git push origin <current-branch>
    git push origin v<X.Y.Z>
    ```
 
-   Substitute the real branch (`git rev-parse --abbrev-ref HEAD`) and
-   version. Make it clear that pushing the tag is what fires
-   `.github/workflows/release.yml` and creates the draft GitHub release.
-4. Only after the user says yes, run both pushes.
-5. Point them at the Actions URL so they can watch the build:
+   Substitute the real branch (`git rev-parse --abbrev-ref HEAD`) and version.
+   If a push fails (e.g. non-fast-forward, no network, auth), stop and report
+   the error rather than force-pushing.
+4. Point at the Actions URL so the build is easy to watch:
    `https://github.com/trinvh/hexkit/actions`.
 
 ## When things go wrong
@@ -84,7 +85,6 @@ Run these as separate steps so each one's output is visible:
 
 ## What this skill does NOT do
 
-- Does not push without explicit confirmation.
 - Does not bump the landing page or Raycast extension — those repos
   version on their own cadence.
 - Does not publish the draft GitHub release. After the workflow uploads
