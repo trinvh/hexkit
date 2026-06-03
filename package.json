@@ -1,7 +1,7 @@
 {
   "name": "hexkit",
   "private": true,
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Hexkit — a fast, offline developer toolbox (Tauri + React).",
   "license": "SEE LICENSE IN LICENSE",
   "type": "module",

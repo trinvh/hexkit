@@ -8,6 +8,46 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 Each release is also published at <https://github.com/trinvh/hexkit/releases>
 with platform installers and a standalone `hexkit` CLI archive attached.
 
+## [0.3.0] - 2026-06-03
+
+### Added
+
+- **HTTP Client tool** (Web category) — a Postman-style request builder. Import
+  a `curl` command, edit the method / URL / query params / headers / body (raw
+  with JSON formatting, `x-www-form-urlencoded`, or `multipart/form-data`), send
+  the request, and inspect the response (status, elapsed time, size, headers,
+  and a pretty/highlighted body). Export the edited request back to `curl` or to
+  request code (JS / Python / Go / PHP / Rust). Request modelling is pure and
+  offline in `devtools-core::httpreq` (`httpreq.from_curl` / `httpreq.to_curl`,
+  reachable from the CLI and MCP); the **actual network send is a dedicated
+  `http_send` Tauri command** that runs off the UI thread and is *not* routed
+  through the offline dispatcher. It is the one tool that reaches the network —
+  marked with an **Online** badge — and sending is desktop-only (import/export
+  work everywhere).
+- **File drag-and-drop and clipboard paste.** A shared `FileDrop` component lets
+  the **Base64 Image** and **QR Code** tools accept a file three ways — click to
+  browse, drag-and-drop, or **paste from the clipboard** (e.g. a screenshot via
+  ⌘/Ctrl+V, no need to save it to disk first). It shows an image preview with a
+  **Clear** button, a spinner while the file is processed, and a clear error
+  when a dropped/pasted file isn't an image. Plain-text paste is left untouched
+  so it still reaches focused inputs.
+
+### Fixed
+
+- **Large inputs no longer freeze the UI.** Pasting a multi-MB value used to
+  hang: every debounced per-tab state commit re-serialized the whole persisted
+  store to `localStorage`, and CodeMirror highlighted/wrapped the huge document
+  synchronously. Values over ~100 KB are now kept in memory (not persisted), and
+  syntax highlighting / line-wrapping is skipped for very large documents.
+
+### Internal
+
+- `src-tauri` adds the `base64` dependency (encodes binary HTTP response bodies)
+  and sets the window's `dragDropEnabled: false` so the webview handles HTML5
+  drag-and-drop instead of Tauri intercepting OS drops natively.
+- Exploratory design note `docs/plugin-system-evaluation.md` evaluating a
+  WASM-based plugin/marketplace architecture (no implementation yet).
+
 ## [0.2.0] - 2026-06-01
 
 ### Added
@@ -227,6 +267,7 @@ desktop app, the headless `hexkit` CLI, and `hexkit://` deep links.
 - Strict TypeScript (`noUnusedLocals`), Clippy with `-D warnings`,
   Vitest + Testing Library for the frontend.
 
+[0.3.0]: https://github.com/trinvh/hexkit/releases/tag/v0.3.0
 [0.2.0]: https://github.com/trinvh/hexkit/releases/tag/v0.2.0
 [0.1.3]: https://github.com/trinvh/hexkit/releases/tag/v0.1.3
 [0.1.2]: https://github.com/trinvh/hexkit/releases/tag/v0.1.2
