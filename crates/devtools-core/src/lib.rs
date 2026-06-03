@@ -20,6 +20,7 @@ pub mod hash;
 pub mod hex;
 pub mod html;
 pub mod htmlfmt;
+pub mod httpreq;
 pub mod ids;
 pub mod inspector;
 pub mod js;

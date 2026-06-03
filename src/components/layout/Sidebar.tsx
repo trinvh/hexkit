@@ -1,5 +1,5 @@
 import { useMemo, useState, type MouseEvent, type ReactNode } from "react";
-import { Search, ChevronDown, ChevronRight, MoreHorizontal, X } from "lucide-react";
+import { Search, ChevronDown, ChevronRight, MoreHorizontal, X, Globe } from "lucide-react";
 import { useApp } from "../../store/app";
 import { TOOLS, getTool } from "../../tools/registry";
 import { CATEGORY_ORDER, type ToolDefinition } from "../../tools/types";
@@ -57,6 +57,12 @@ function ToolRow({ tool, active, onSelect, onContextMenu }: ToolRowProps) {
         )}
       />
       <span className="truncate">{tool.name}</span>
+      {tool.networked && (
+        <Globe
+          className="ml-auto size-3 shrink-0 text-amber-500"
+          aria-label="Makes network requests"
+        />
+      )}
     </button>
   );
 }

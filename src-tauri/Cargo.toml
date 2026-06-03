@@ -36,7 +36,10 @@ devtools-core = { workspace = true }
 # In-app MCP server (Streamable HTTP) toggled from View → Settings.
 hexkit-mcp = { workspace = true, features = ["http"] }
 tokio-util = { workspace = true }
-# HTTP client for the GitHub update check — lets us send a User-Agent (the
-# webview `fetch` can't, and GitHub answers 403 without one).
+# HTTP client for the GitHub update check and the HTTP Client tool — lets us
+# send arbitrary requests with a User-Agent (the webview `fetch` can't, and is
+# also blocked by CORS for cross-origin calls).
 ureq = { workspace = true }
+# Base64-encodes binary response bodies for transport to the webview.
+base64 = { workspace = true }
 

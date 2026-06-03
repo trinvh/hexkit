@@ -53,6 +53,7 @@ pub fn run(action: &str, params: Value) -> ToolResult<Value> {
         "x509" => crate::x509::dispatch(action, params),
         "qr" => crate::qr::dispatch(action, params),
         "curl" => crate::curlcode::dispatch(action, params),
+        "httpreq" => crate::httpreq::dispatch(action, params),
         "jsoncode" => crate::jsoncode::dispatch(action, params),
         "luhn" => crate::luhn::dispatch(action, params),
         "card" => crate::creditcard::dispatch(action, params),

@@ -3,6 +3,7 @@ use tauri::Emitter;
 use tauri_plugin_deep_link::DeepLinkExt;
 
 mod cli_tools;
+mod http_client;
 mod mcp_server;
 mod updates;
 
@@ -61,6 +62,7 @@ pub fn run() {
             mcp_server::mcp_start,
             mcp_server::mcp_stop,
             updates::fetch_latest_releases,
+            http_client::http_send,
         ])
         .on_menu_event(|app, event| match event.id().as_ref() {
             "cli-install" => {

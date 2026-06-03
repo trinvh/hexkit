@@ -78,7 +78,13 @@ decrypt-and-verify. Pure-Rust (rpgp), GnuPG-interoperable, fully offline.
 RegExp tester (with substitution).
 
 **Web** — JWT debugger (decode + HS256/384/512 verify), URL parser, HTML preview,
-Markdown preview.
+Markdown preview, HTTP client (import a curl command, edit headers/query/body,
+send the request and inspect the response).
+
+> The **HTTP client** is the one tool that deliberately makes network requests —
+> the single exception to Hexkit's offline design, marked with a badge in the
+> app. The request runs from the Rust backend, so sending works only in the
+> desktop app; the curl import/export (`httpreq.*`) is pure and offline.
 
 ## Getting started
 
@@ -189,6 +195,10 @@ hexkit pgp.sign          '{"input":"doc text","private_key":"…","passphrase":"
 hexkit pgp.verify        '{"input":"doc text","signature":"-----BEGIN PGP SIGNATURE-----…","public_key":"…"}'
 hexkit pgp.encrypt_sign  '{"input":"…","public_key":"…","private_key":"…","passphrase":""}'
 hexkit pgp.decrypt_verify '{"input":"-----BEGIN PGP MESSAGE-----…","private_key":"…","passphrase":"","public_key":"…"}'
+
+# HTTP client request modelling (pure/offline — actually sending is desktop-only)
+hexkit httpreq.from_curl '{"command":"curl -X POST https://api.example.com -d {}"}'
+hexkit httpreq.to_curl '{"method":"GET","url":"https://api.example.com","query":[{"key":"q","value":"rust","enabled":true}],"headers":[],"body":{"type":"none"}}'
 ```
 
 ### Discoverability

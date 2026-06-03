@@ -44,6 +44,7 @@ import {
   PenTool,
   BadgeCheck,
   ShieldPlus,
+  Send,
 } from "lucide-react";
 import { lazy } from "react";
 import type { ToolDefinition } from "./types";
@@ -87,6 +88,7 @@ const X509Tool = lazy(() => import("./x509/X509Tool").then((m) => ({ default: m.
 const QrTool = lazy(() => import("./qr/QrTool").then((m) => ({ default: m.QrTool })));
 const Base64ImageTool = lazy(() => import("./base64image/Base64ImageTool").then((m) => ({ default: m.Base64ImageTool })));
 const CurlTool = lazy(() => import("./curlcode/CurlTool").then((m) => ({ default: m.CurlTool })));
+const HttpClientTool = lazy(() => import("./http-client/HttpClientTool").then((m) => ({ default: m.HttpClientTool })));
 const JsonCodeTool = lazy(() => import("./jsoncode/JsonCodeTool").then((m) => ({ default: m.JsonCodeTool })));
 const LuhnTool = lazy(() => import("./luhn/LuhnTool").then((m) => ({ default: m.LuhnTool })));
 const CreditCardTool = lazy(() => import("./creditcard/CreditCardTool").then((m) => ({ default: m.CreditCardTool })));
@@ -452,6 +454,27 @@ export const TOOLS: ToolDefinition[] = [
     component: CurlTool,
   },
   {
+    id: "http-client",
+    name: "HTTP Client",
+    category: "Web",
+    description: "Import a curl command, edit the request, send it, inspect the response.",
+    keywords: [
+      "http",
+      "client",
+      "request",
+      "rest",
+      "api",
+      "curl",
+      "postman",
+      "fetch",
+      "send",
+      "response",
+    ],
+    icon: Send,
+    component: HttpClientTool,
+    networked: true,
+  },
+  {
     id: "json-to-code",
     name: "JSON to Code",
     category: "Converters",
@@ -597,6 +620,7 @@ const ACTION_NAMESPACE_TO_TOOL: Record<string, string> = {
   x509: "x509-decoder",
   qr: "qr-code",
   curl: "curl-to-code",
+  httpreq: "http-client",
   jsoncode: "json-to-code",
 };
 
