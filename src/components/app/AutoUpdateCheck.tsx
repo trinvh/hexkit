@@ -1,19 +1,22 @@
 import { useEffect } from "react";
 import { checkForUpdate } from "../../lib/updateCheck";
 import { isTauri } from "../../lib/cli";
+import { useApp } from "../../store/app";
 import { useUpdate } from "../../store/update";
 
 /**
- * Silent background updater. Runs once when the app boots so the sidebar
- * footer can surface "Update available" or a green check next to the
- * version. Failures are swallowed — the user-initiated menu check is the
- * loud path; this one is purely advisory.
+ * Silent background updater. Runs when the app boots so the sidebar footer can
+ * surface "Update available" or a green check next to the version. Skipped when
+ * the user has turned off automatic update checks in Settings — the menu's
+ * "Check for Updates…" is the loud, always-available path. Failures are
+ * swallowed; this one is purely advisory.
  */
 export function AutoUpdateCheck() {
   const setResult = useUpdate((s) => s.setResult);
+  const autoUpdateCheck = useApp((s) => s.autoUpdateCheck);
 
   useEffect(() => {
-    if (!isTauri()) return;
+    if (!isTauri() || !autoUpdateCheck) return;
     let cancelled = false;
     void (async () => {
       try {
@@ -26,7 +29,7 @@ export function AutoUpdateCheck() {
     return () => {
       cancelled = true;
     };
-  }, [setResult]);
+  }, [setResult, autoUpdateCheck]);
 
   return null;
 }

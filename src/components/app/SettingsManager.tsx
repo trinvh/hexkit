@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { Check, Copy, Server, X } from "lucide-react";
+import { Check, Copy, RefreshCw, Server, X } from "lucide-react";
 import { useApp } from "../../store/app";
 import { useTauriEvent } from "../../lib/useTauriEvent";
 import { isTauri } from "../../lib/cli";
@@ -24,6 +24,8 @@ export function SettingsManager() {
   const mcpPort = useApp((s) => s.mcpPort);
   const setMcpEnabled = useApp((s) => s.setMcpEnabled);
   const setMcpPort = useApp((s) => s.setMcpPort);
+  const autoUpdateCheck = useApp((s) => s.autoUpdateCheck);
+  const setAutoUpdateCheck = useApp((s) => s.setAutoUpdateCheck);
 
   useTauriEvent("view:open-settings", () => setOpen(true));
 
@@ -82,6 +84,8 @@ export function SettingsManager() {
       error={error}
       onToggle={(next) => (next ? void enable() : void disable())}
       onPort={(p) => void applyPort(p)}
+      autoUpdateCheck={autoUpdateCheck}
+      onToggleAutoUpdate={setAutoUpdateCheck}
     />
   );
 }
@@ -94,6 +98,8 @@ interface DialogProps {
   error: string | null;
   onToggle: (next: boolean) => void;
   onPort: (port: number) => void;
+  autoUpdateCheck: boolean;
+  onToggleAutoUpdate: (next: boolean) => void;
 }
 
 function SettingsDialog({
@@ -104,6 +110,8 @@ function SettingsDialog({
   error,
   onToggle,
   onPort,
+  autoUpdateCheck,
+  onToggleAutoUpdate,
 }: DialogProps) {
   const url = status.url ?? `http://127.0.0.1:${port}/mcp`;
 
@@ -193,6 +201,28 @@ function SettingsDialog({
             )}
 
             <ClientConfig url={url} running={status.running} />
+          </section>
+
+          <section className="border-t border-border pt-5">
+            <div className="flex items-start justify-between gap-4">
+              <div className="min-w-0">
+                <h3 className="flex items-center gap-2 font-display text-sm font-semibold tracking-tight">
+                  <RefreshCw className="size-4 text-accent" />
+                  Software updates
+                </h3>
+                <p className="mt-1 text-sm text-fg-muted">
+                  Check GitHub for a newer Hexkit release on launch and flag it
+                  in the sidebar. Turn this off to stay fully offline at
+                  startup — you can still check anytime from the menu&apos;s
+                  &ldquo;Check for Updates…&rdquo;.
+                </p>
+              </div>
+              <Switch
+                checked={autoUpdateCheck}
+                onChange={onToggleAutoUpdate}
+                label="Automatically check for updates"
+              />
+            </div>
           </section>
         </div>
       </div>

@@ -66,6 +66,9 @@ interface AppState {
   mcpPort: number;
   setMcpEnabled: (enabled: boolean) => void;
   setMcpPort: (port: number) => void;
+  /** Whether to silently check GitHub for a newer release on launch (on by default). */
+  autoUpdateCheck: boolean;
+  setAutoUpdateCheck: (enabled: boolean) => void;
   /** Persisted per-tab tool field state, keyed by tab id then field name. */
   tabState: Record<string, Record<string, unknown>>;
   /** True once the user has dismissed (or completed) the first-run CLI prompt. */
@@ -114,6 +117,7 @@ export const useApp = create<AppState>()(
       headerVisible: true,
       mcpEnabled: false,
       mcpPort: 7676,
+      autoUpdateCheck: true,
       tabState: {},
       cliPromptDismissed: false,
       setCliPromptDismissed: (cliPromptDismissed) => set({ cliPromptDismissed }),
@@ -123,6 +127,7 @@ export const useApp = create<AppState>()(
       toggleHeader: () => set((state) => ({ headerVisible: !state.headerVisible })),
       setMcpEnabled: (mcpEnabled) => set({ mcpEnabled }),
       setMcpPort: (mcpPort) => set({ mcpPort }),
+      setAutoUpdateCheck: (autoUpdateCheck) => set({ autoUpdateCheck }),
       setActiveTool: (id) =>
         set((state) => ({
           tabs: state.tabs.map((tab) =>
@@ -261,6 +266,7 @@ export const useApp = create<AppState>()(
         headerVisible: state.headerVisible,
         mcpEnabled: state.mcpEnabled,
         mcpPort: state.mcpPort,
+        autoUpdateCheck: state.autoUpdateCheck,
         cliPromptDismissed: state.cliPromptDismissed,
       }),
       // Recompute the derived activeToolId from the restored tabs, and guarantee

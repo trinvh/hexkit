@@ -15,6 +15,7 @@ function reset() {
     recents: [],
     pinnedCollapsed: false,
     recentCollapsed: false,
+    autoUpdateCheck: true,
     tabState: {},
   });
 }
@@ -28,6 +29,14 @@ describe("useApp", () => {
     expect(s.activeToolId).toBe(DEFAULT_TOOL_ID);
     expect(s.activeTabId).toBe(s.tabs[0].id);
     expect(s.paletteOpen).toBe(false);
+  });
+
+  it("toggles autoUpdateCheck, which is on by default", () => {
+    expect(useApp.getState().autoUpdateCheck).toBe(true);
+    useApp.getState().setAutoUpdateCheck(false);
+    expect(useApp.getState().autoUpdateCheck).toBe(false);
+    useApp.getState().setAutoUpdateCheck(true);
+    expect(useApp.getState().autoUpdateCheck).toBe(true);
   });
 
   it("setActiveTool retargets the active tab and records it", () => {
