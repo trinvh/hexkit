@@ -8,6 +8,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 Each release is also published at <https://github.com/trinvh/hexkit/releases>
 with platform installers and a standalone `hexkit` CLI archive attached.
 
+## [0.3.1] - 2026-06-03
+
+### Added
+
+- **"Automatically check for updates" setting** (`View → Settings…`), on by
+  default. Turn it off to skip the silent launch-time GitHub release check and
+  keep startup fully offline — the menu's "Check for Updates…" still works on
+  demand. The choice persists across restarts.
+
 ## [0.3.0] - 2026-06-03
 
 ### Added
@@ -267,6 +276,7 @@ desktop app, the headless `hexkit` CLI, and `hexkit://` deep links.
 - Strict TypeScript (`noUnusedLocals`), Clippy with `-D warnings`,
   Vitest + Testing Library for the frontend.
 
+[0.3.1]: https://github.com/trinvh/hexkit/releases/tag/v0.3.1
 [0.3.0]: https://github.com/trinvh/hexkit/releases/tag/v0.3.0
 [0.2.0]: https://github.com/trinvh/hexkit/releases/tag/v0.2.0
 [0.1.3]: https://github.com/trinvh/hexkit/releases/tag/v0.1.3
