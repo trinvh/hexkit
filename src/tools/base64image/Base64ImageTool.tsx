@@ -1,8 +1,9 @@
-import { useState, type ChangeEvent } from "react";
-import { Upload } from "lucide-react";
+import { useState } from "react";
+import { X } from "lucide-react";
 import { Segmented } from "../../components/ui/Segmented";
 import { TextField } from "../../components/ui/TextField";
 import { CopyButton } from "../../components/ui/CopyButton";
+import { FileDrop } from "../../components/ui/FileDrop";
 import { errorMessage } from "../../lib/ipc";
 import { useToolState } from "../../lib/toolState";
 import { readFileAsDataUrl } from "../../lib/file";
@@ -19,9 +20,7 @@ export function Base64ImageTool() {
   const [dataUrl, setDataUrl] = useState("");
   const [error, setError] = useState<string | null>(null);
 
-  async function onFile(event: ChangeEvent<HTMLInputElement>) {
-    const file = event.target.files?.[0];
-    if (!file) return;
+  async function onFile(file: File) {
     try {
       setDataUrl(await readFileAsDataUrl(file));
       setError(null);
@@ -41,17 +40,19 @@ export function Base64ImageTool() {
 
       {mode === "encode" ? (
         <>
-          <label className="inline-flex w-fit cursor-pointer items-center gap-2 rounded-lg border border-border px-3 py-2 text-xs text-fg-muted transition-colors hover:border-border-strong hover:text-fg">
-            <Upload className="size-3.5" />
-            Choose image
-            <input
-              type="file"
-              accept="image/*"
-              aria-label="Image file"
-              className="hidden"
-              onChange={onFile}
-            />
-          </label>
+          <FileDrop
+            accept="image/*"
+            inputLabel="Image file"
+            label="Drop, paste, or click to choose an image"
+            hint="PNG, JPG, GIF, SVG, WebP — or paste a screenshot with ⌘/Ctrl+V"
+            typeErrorMessage="That doesn't look like an image. Paste or drop a PNG, JPG, GIF, SVG or WebP."
+            previewUrl={dataUrl || undefined}
+            onFile={onFile}
+            onClear={() => {
+              setDataUrl("");
+              setError(null);
+            }}
+          />
           {error && <p className="text-sm text-accent">{error}</p>}
           {dataUrl && (
             <div className="flex items-center gap-3">
@@ -76,6 +77,16 @@ export function Base64ImageTool() {
             placeholder="data:image/png;base64,…"
             mono
           />
+          {dataUrl && (
+            <button
+              type="button"
+              onClick={() => setDataUrl("")}
+              className="inline-flex w-fit items-center gap-1 rounded-lg border border-border px-2.5 py-1 text-xs text-fg-muted transition-colors hover:border-border-strong hover:text-accent"
+            >
+              <X className="size-3.5" />
+              Clear
+            </button>
+          )}
           <div className="min-h-0 flex-1 overflow-auto rounded-xl border border-border bg-surface p-4">
             {dataUrl ? (
               <img

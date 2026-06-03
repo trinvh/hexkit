@@ -1,7 +1,8 @@
-import { useState, type ChangeEvent } from "react";
-import { Upload } from "lucide-react";
+import { useState } from "react";
+import { X } from "lucide-react";
 import { TextField } from "../../components/ui/TextField";
 import { CopyButton } from "../../components/ui/CopyButton";
+import { FileDrop } from "../../components/ui/FileDrop";
 import { useLiveAction } from "../../lib/useLiveAction";
 import { useSeed } from "../../lib/seed";
 import { useToolState } from "../../lib/toolState";
@@ -19,12 +20,12 @@ export function QrTool() {
 
   const [readResult, setReadResult] = useState<string | null>(null);
   const [readError, setReadError] = useState<string | null>(null);
+  const [readImage, setReadImage] = useState<string | null>(null);
 
-  async function onFile(event: ChangeEvent<HTMLInputElement>) {
-    const file = event.target.files?.[0];
-    if (!file) return;
+  async function onFile(file: File) {
     try {
       const dataUrl = await readFileAsDataUrl(file);
+      setReadImage(dataUrl);
       setReadResult(await qrRead(dataUrl));
       setReadError(null);
     } catch (e) {
@@ -45,6 +46,16 @@ export function QrTool() {
           onChange={setText}
           placeholder="https://hexkit.app"
         />
+        {text && (
+          <button
+            type="button"
+            onClick={() => setText("")}
+            className="inline-flex w-fit items-center gap-1 rounded-lg border border-border px-2.5 py-1 text-xs text-fg-muted transition-colors hover:border-border-strong hover:text-accent"
+          >
+            <X className="size-3.5" />
+            Clear
+          </button>
+        )}
         {genError ? (
           <p className="text-sm text-accent">{genError}</p>
         ) : svg ? (
@@ -63,17 +74,20 @@ export function QrTool() {
         <h2 className="text-xs font-medium uppercase tracking-wider text-fg-subtle">
           Read
         </h2>
-        <label className="inline-flex w-fit cursor-pointer items-center gap-2 rounded-lg border border-border px-3 py-2 text-xs text-fg-muted transition-colors hover:border-border-strong hover:text-fg">
-          <Upload className="size-3.5" />
-          Choose image
-          <input
-            type="file"
-            accept="image/*"
-            aria-label="QR image"
-            className="hidden"
-            onChange={onFile}
-          />
-        </label>
+        <FileDrop
+          accept="image/*"
+          inputLabel="QR image"
+          label="Drop, paste, or click to choose a QR image"
+          hint="Or paste a screenshot with ⌘/Ctrl+V"
+          typeErrorMessage="That doesn't look like an image. Paste or drop a QR-code image."
+          previewUrl={readImage ?? undefined}
+          onFile={onFile}
+          onClear={() => {
+            setReadImage(null);
+            setReadResult(null);
+            setReadError(null);
+          }}
+        />
         {readError ? (
           <p className="text-sm text-accent">{readError}</p>
         ) : readResult !== null ? (
