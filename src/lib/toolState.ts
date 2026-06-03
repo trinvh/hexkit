@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { useApp } from "../store/app";
+import { isLargeText } from "./largeText";
 import { useTabId } from "./tabContext";
 
 const DEBOUNCE_MS = 300;
@@ -29,9 +30,20 @@ export function useToolState<T>(
     if (!dirty.current) return;
     const state = useApp.getState();
     // Don't resurrect state for a tab that was closed.
-    if (state.tabs.some((tab) => tab.id === tabId)) {
-      state.setTabField(tabId, field, latest.current);
+    if (!state.tabs.some((tab) => tab.id === tabId)) return;
+    const value = latest.current;
+    // Large text values (e.g. a multi-MB request body) are NOT persisted:
+    // JSON.stringify-ing megabytes into localStorage on every debounced commit
+    // blocks the main thread and freezes the UI. They live in React state for
+    // the session instead. Clear any previously persisted value so a reload
+    // doesn't restore a stale, smaller one.
+    if (typeof value === "string" && isLargeText(value)) {
+      if (state.tabState[tabId]?.[field] !== undefined) {
+        state.setTabField(tabId, field, undefined);
+      }
+      return;
     }
+    state.setTabField(tabId, field, value);
   };
 
   const set = (next: Updater<T>) => {

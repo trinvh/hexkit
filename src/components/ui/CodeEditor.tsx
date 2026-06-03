@@ -4,6 +4,7 @@ import { EditorView } from "@codemirror/view";
 import type { Extension } from "@codemirror/state";
 import { HighlightStyle, syntaxHighlighting } from "@codemirror/language";
 import { tags as t } from "@lezer/highlight";
+import { isLargeText } from "../../lib/largeText";
 
 const baseTheme = EditorView.theme({
   "&": { backgroundColor: "transparent", color: "var(--fg)", height: "100%" },
@@ -79,8 +80,13 @@ export function CodeEditor({
 }: CodeEditorProps) {
   const [langExtension, setLangExtension] = useState<Extension | null>(null);
 
+  // For very large documents, skip syntax highlighting and line wrapping:
+  // CodeMirror tokenizing and wrapping megabytes is synchronous and freezes the
+  // UI. Plain text stays editable and responsive.
+  const tooLargeToDecorate = isLargeText(value);
+
   useEffect(() => {
-    if (!language) {
+    if (!language || tooLargeToDecorate) {
       setLangExtension(null);
       return;
     }
@@ -91,16 +97,17 @@ export function CodeEditor({
     return () => {
       active = false;
     };
-  }, [language]);
+  }, [language, tooLargeToDecorate]);
 
   const extensions = useMemo<Extension[]>(() => {
+    if (tooLargeToDecorate) return [];
     const ext: Extension[] = [
       syntaxHighlighting(highlightStyle),
       EditorView.lineWrapping,
     ];
     if (langExtension) ext.push(langExtension);
     return ext;
-  }, [langExtension]);
+  }, [langExtension, tooLargeToDecorate]);
 
   return (
     <CodeMirror
