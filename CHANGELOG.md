@@ -8,6 +8,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 Each release is also published at <https://github.com/trinvh/hexkit/releases>
 with platform installers and a standalone `hexkit` CLI archive attached.
 
+## [0.3.2] - 2026-06-04
+
+### Added
+
+- **Twelve new tools**, built as one batch:
+  - **Encoders** — **Base32** (RFC 4648), **Base58** (Bitcoin alphabet), and
+    **Gzip** compress/decompress (text ↔ Base64).
+  - **Converters** — **chmod calculator** (octal ↔ symbolic), **TOML ↔ JSON /
+    YAML**, **HTML → Markdown**, and **docker run → docker-compose** (common-flags
+    subset).
+  - **Cryptography** — **password hashing + verify** (bcrypt / Argon2),
+    **AES-256-GCM** password-based encrypt/decrypt (PBKDF2-HMAC-SHA256), and a
+    **TOTP / 2FA authenticator** (RFC 4226/6238) with a live code, countdown and
+    `otpauth://` QR.
+  - **Web** — a **JWT signer** (HS256/384/512) completing the JWT tool, and a
+    **CIDR / subnet calculator** (IPv4 + IPv6).
+  - All are reachable from the desktop app, the `hexkit` CLI, and `hexkit://`
+    deep links; the pure transforms are also exposed where applicable.
+
 ## [0.3.1] - 2026-06-03
 
 ### Added
@@ -276,6 +295,7 @@ desktop app, the headless `hexkit` CLI, and `hexkit://` deep links.
 - Strict TypeScript (`noUnusedLocals`), Clippy with `-D warnings`,
   Vitest + Testing Library for the frontend.
 
+[0.3.2]: https://github.com/trinvh/hexkit/releases/tag/v0.3.2
 [0.3.1]: https://github.com/trinvh/hexkit/releases/tag/v0.3.1
 [0.3.0]: https://github.com/trinvh/hexkit/releases/tag/v0.3.0
 [0.2.0]: https://github.com/trinvh/hexkit/releases/tag/v0.2.0
