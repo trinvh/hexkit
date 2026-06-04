@@ -55,13 +55,14 @@ machine — the demo page is just the screenshots.
 **Formatters** — JSON format/validate (with JSONPath filter & sort keys), SQL,
 CSS/SCSS/Less, HTML, XML (with XPath filter), JS minify.
 
-**Encoders** — Base64 string, URL encode/decode, HTML entities, Hex/ASCII,
-backslash escape, X.509 certificate decoder, Base64 image, Luhn check,
-BER-TLV / EMV decoder.
+**Encoders** — Base64 string, Base32, Base58, URL encode/decode, HTML entities,
+Hex/ASCII, backslash escape, Gzip compress/decompress, X.509 certificate
+decoder, Base64 image, Luhn check, BER-TLV / EMV decoder.
 
 **Converters** — Unix time, number base (2–36), string case, color
-(HEX/RGB(A)/HSL(A)/HSB/HWB/CMYK), cron parser, YAML↔JSON, CSV↔JSON, PHP↔JSON,
-SVG→CSS, HTML→JSX, cURL→code, JSON→code.
+(HEX/RGB(A)/HSL(A)/HSB/HWB/CMYK), cron parser, chmod (octal↔symbolic),
+YAML↔JSON, CSV↔JSON, PHP↔JSON, TOML↔JSON/YAML, SVG→CSS, HTML→JSX, HTML→Markdown,
+cURL→code, JSON→code, docker run→docker-compose.
 
 **Generators** — hashes (MD5/SHA-1/256/512 + HMAC), UUID/ULID/Nano ID, random
 string, Lorem Ipsum, QR code, test credit card numbers (Luhn-valid, Visa /
@@ -69,7 +70,9 @@ Mastercard / Amex / Discover / JCB / Diners / UnionPay).
 
 **Cryptography** — OpenPGP keypair generation (Ed25519 + Curve25519,
 ASCII-armored), encrypt, decrypt, sign, verify, encrypt-and-sign,
-decrypt-and-verify. Pure-Rust (rpgp), GnuPG-interoperable, fully offline.
+decrypt-and-verify (pure-Rust rpgp, GnuPG-interoperable, fully offline);
+password hashing + verify (bcrypt / Argon2); AES-256-GCM password-based
+encrypt/decrypt; TOTP / 2FA authenticator (with otpauth QR).
 
 > _Tool-spotlight screenshots: only **Text Diff Checker** is shown above —
 > dedicated screenshots for the other tools are not yet available._
@@ -77,9 +80,10 @@ decrypt-and-verify. Pure-Rust (rpgp), GnuPG-interoperable, fully offline.
 **Text** — diff checker (text/JSON/XML), line sort/dedupe, string inspector,
 RegExp tester (with substitution).
 
-**Web** — JWT debugger (decode + HS256/384/512 verify), URL parser, HTML preview,
-Markdown preview, HTTP client (import a curl command, edit headers/query/body,
-send the request and inspect the response).
+**Web** — JWT debugger (decode + HS256/384/512 verify), JWT signer, URL parser,
+CIDR / subnet calculator (IPv4 + IPv6), HTML preview, Markdown preview, HTTP
+client (import a curl command, edit headers/query/body, send the request and
+inspect the response).
 
 > The **HTTP client** is the one tool that deliberately makes network requests —
 > the single exception to Hexkit's offline design, marked with a badge in the
@@ -199,6 +203,40 @@ hexkit pgp.decrypt_verify '{"input":"-----BEGIN PGP MESSAGE-----…","private_ke
 # HTTP client request modelling (pure/offline — actually sending is desktop-only)
 hexkit httpreq.from_curl '{"command":"curl -X POST https://api.example.com -d {}"}'
 hexkit httpreq.to_curl '{"method":"GET","url":"https://api.example.com","query":[{"key":"q","value":"rust","enabled":true}],"headers":[],"body":{"type":"none"}}'
+
+# Base32 / Base58
+hexkit base32.encode '{"input":"hello"}'
+hexkit base58.encode '{"input":"hello"}'
+
+# Gzip (text ↔ base64)
+hexkit gzip.compress '{"input":"hello hello hello"}'
+
+# chmod (octal ↔ symbolic)
+hexkit chmod.describe '{"input":"755"}'
+
+# TOML ↔ JSON / YAML
+hexkit toml.to_json '{"input":"name = \"hexkit\"\nversion = 1"}'
+
+# HTML → Markdown
+hexkit htmlmd.convert '{"input":"<h1>Hi</h1><p>See <a href=\"https://hexkit.app\">site</a>.</p>"}'
+
+# docker run → docker-compose
+hexkit dockerc.to_compose '{"input":"docker run -d --name web -p 8080:80 nginx:latest"}'
+
+# Password hashing (bcrypt / argon2) + verify
+hexkit pwhash.hash '{"algorithm":"bcrypt","password":"hunter2"}'
+
+# AES-256-GCM (password-based)
+hexkit aes.encrypt '{"plaintext":"secret","password":"pw"}'
+
+# TOTP — pass a unix timestamp so the result is deterministic
+hexkit totp.generate '{"secret":"GEZDGNBVGY3TQOJQGEZDGNBVGY3TQOJQ","timestamp":59,"digits":8}'
+
+# CIDR / subnet
+hexkit cidr.parse '{"input":"192.168.1.0/24"}'
+
+# JWT sign (HS256)
+hexkit jwt.sign '{"payload":{"sub":"123","name":"Alice"},"secret":"topsecret"}'
 ```
 
 ### Discoverability

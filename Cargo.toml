@@ -54,6 +54,15 @@ rcgen = "0.14"
 shell-words = "1.1"
 pgp = "0.19"
 rand_v08 = { package = "rand", version = "0.8" }
+bs58 = "0.5"
+toml = "0.8"
+html2md = "0.2"
+flate2 = "1"
+bcrypt = "0.15"
+argon2 = { version = "0.5", features = ["std"] }
+password-hash = { version = "0.5", features = ["getrandom"] }
+aes-gcm = "0.10"
+ipnet = "2"
 rstest = "0.26"
 rmcp = { version = "1", features = ["server", "macros", "transport-io", "schemars"] }
 tokio = { version = "1", features = ["rt-multi-thread", "macros", "io-std", "signal"] }

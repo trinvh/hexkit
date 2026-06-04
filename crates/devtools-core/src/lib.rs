@@ -5,7 +5,18 @@
 //! `src-tauri` crate exposes these as thin `#[tauri::command]` wrappers.
 
 pub mod actions;
+pub mod aescrypt;
+pub mod base32;
+pub mod base58;
 pub mod base64;
+pub mod chmod;
+pub mod cidr;
+pub mod dockercompose;
+pub mod gzipcodec;
+pub mod htmlmd;
+pub mod pwhash;
+pub mod toml_convert;
+pub mod totp;
 pub mod color;
 pub mod creditcard;
 pub mod cron;

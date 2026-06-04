@@ -59,6 +59,17 @@ pub fn run(action: &str, params: Value) -> ToolResult<Value> {
         "card" => crate::creditcard::dispatch(action, params),
         "tlv" => crate::tlv::dispatch(action, params),
         "pgp" => crate::pgp::dispatch(action, params),
+        "base32" => crate::base32::dispatch(action, params),
+        "base58" => crate::base58::dispatch(action, params),
+        "chmod" => crate::chmod::dispatch(action, params),
+        "toml" => crate::toml_convert::dispatch(action, params),
+        "htmlmd" => crate::htmlmd::dispatch(action, params),
+        "gzip" => crate::gzipcodec::dispatch(action, params),
+        "pwhash" => crate::pwhash::dispatch(action, params),
+        "aes" => crate::aescrypt::dispatch(action, params),
+        "totp" => crate::totp::dispatch(action, params),
+        "cidr" => crate::cidr::dispatch(action, params),
+        "dockerc" => crate::dockercompose::dispatch(action, params),
         _ => Err(ToolError::invalid_input(format!("unknown action: {action}"))),
     }
 }

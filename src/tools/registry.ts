@@ -45,6 +45,10 @@ import {
   BadgeCheck,
   ShieldPlus,
   Send,
+  Archive,
+  Network,
+  Container,
+  Smartphone,
 } from "lucide-react";
 import { lazy } from "react";
 import type { ToolDefinition } from "./types";
@@ -100,6 +104,18 @@ const PgpSignTool = lazy(() => import("./pgp-sign/PgpSignTool").then((m) => ({ d
 const PgpVerifyTool = lazy(() => import("./pgp-verify/PgpVerifyTool").then((m) => ({ default: m.PgpVerifyTool })));
 const PgpEncryptSignTool = lazy(() => import("./pgp-encrypt-sign/PgpEncryptSignTool").then((m) => ({ default: m.PgpEncryptSignTool })));
 const PgpDecryptVerifyTool = lazy(() => import("./pgp-decrypt-verify/PgpDecryptVerifyTool").then((m) => ({ default: m.PgpDecryptVerifyTool })));
+const Base32Tool = lazy(() => import("./base32/Base32Tool").then((m) => ({ default: m.Base32Tool })));
+const Base58Tool = lazy(() => import("./base58/Base58Tool").then((m) => ({ default: m.Base58Tool })));
+const ChmodTool = lazy(() => import("./chmod/ChmodTool").then((m) => ({ default: m.ChmodTool })));
+const TomlTool = lazy(() => import("./toml/TomlTool").then((m) => ({ default: m.TomlTool })));
+const HtmlMarkdownTool = lazy(() => import("./html-markdown/HtmlMarkdownTool").then((m) => ({ default: m.HtmlMarkdownTool })));
+const GzipTool = lazy(() => import("./gzip/GzipTool").then((m) => ({ default: m.GzipTool })));
+const JwtSignerTool = lazy(() => import("./jwt-signer/JwtSignerTool").then((m) => ({ default: m.JwtSignerTool })));
+const PasswordHashTool = lazy(() => import("./password-hash/PasswordHashTool").then((m) => ({ default: m.PasswordHashTool })));
+const AesTool = lazy(() => import("./aes/AesTool").then((m) => ({ default: m.AesTool })));
+const TotpTool = lazy(() => import("./totp/TotpTool").then((m) => ({ default: m.TotpTool })));
+const CidrTool = lazy(() => import("./cidr/CidrTool").then((m) => ({ default: m.CidrTool })));
+const DockerComposeTool = lazy(() => import("./docker-compose/DockerComposeTool").then((m) => ({ default: m.DockerComposeTool })));
 
 /**
  * The MVP tool set. Components are wired in Phase 3; until then each entry
@@ -573,6 +589,114 @@ export const TOOLS: ToolDefinition[] = [
     icon: ShieldCheck,
     component: PgpDecryptVerifyTool,
   },
+  {
+    id: "base32",
+    name: "Base32",
+    category: "Encoders",
+    description: "Encode and decode Base32 (RFC 4648).",
+    keywords: ["base32", "encode", "decode", "rfc4648", "b32"],
+    icon: Binary,
+    component: Base32Tool,
+  },
+  {
+    id: "base58",
+    name: "Base58",
+    category: "Encoders",
+    description: "Encode and decode Base58 (Bitcoin alphabet).",
+    keywords: ["base58", "encode", "decode", "bitcoin", "btc", "b58"],
+    icon: Binary,
+    component: Base58Tool,
+  },
+  {
+    id: "gzip",
+    name: "Gzip Compress / Decompress",
+    category: "Encoders",
+    description: "Gzip-compress text to Base64 and back.",
+    keywords: ["gzip", "compress", "decompress", "gunzip", "deflate", "zip", "base64"],
+    icon: Archive,
+    component: GzipTool,
+  },
+  {
+    id: "chmod-calculator",
+    name: "chmod Calculator",
+    category: "Converters",
+    description: "Convert Unix permissions between octal and symbolic.",
+    keywords: ["chmod", "permissions", "octal", "symbolic", "unix", "rwx", "file mode"],
+    icon: Lock,
+    component: ChmodTool,
+  },
+  {
+    id: "toml-convert",
+    name: "TOML ↔ JSON / YAML",
+    category: "Converters",
+    description: "Convert between TOML, JSON, and YAML.",
+    keywords: ["toml", "json", "yaml", "convert", "config"],
+    icon: FileCode,
+    component: TomlTool,
+  },
+  {
+    id: "html-markdown",
+    name: "HTML → Markdown",
+    category: "Converters",
+    description: "Convert HTML into Markdown.",
+    keywords: ["html", "markdown", "md", "convert", "to markdown"],
+    icon: FileText,
+    component: HtmlMarkdownTool,
+  },
+  {
+    id: "docker-compose",
+    name: "docker run → Compose",
+    category: "Converters",
+    description: "Convert a docker run command into docker-compose YAML.",
+    keywords: ["docker", "compose", "docker-compose", "run", "container", "yaml"],
+    icon: Container,
+    component: DockerComposeTool,
+  },
+  {
+    id: "password-hash",
+    name: "Password Hash",
+    category: "Cryptography",
+    description: "Hash and verify passwords with bcrypt or Argon2.",
+    keywords: ["password", "hash", "bcrypt", "argon2", "verify", "phc"],
+    icon: KeyRound,
+    component: PasswordHashTool,
+  },
+  {
+    id: "aes-encrypt",
+    name: "AES Encrypt / Decrypt",
+    category: "Cryptography",
+    description: "Password-based AES-256-GCM symmetric encryption.",
+    keywords: ["aes", "encrypt", "decrypt", "gcm", "symmetric", "cipher", "password"],
+    icon: Lock,
+    component: AesTool,
+  },
+  {
+    id: "totp",
+    name: "TOTP / 2FA",
+    category: "Cryptography",
+    description: "Generate time-based one-time passwords and otpauth QR codes.",
+    keywords: ["totp", "2fa", "otp", "authenticator", "mfa", "one time password", "rfc6238"],
+    icon: Smartphone,
+    component: TotpTool,
+  },
+  {
+    id: "jwt-signer",
+    name: "JWT Signer",
+    category: "Web",
+    description: "Sign a JSON Web Token (HS256/384/512).",
+    keywords: ["jwt", "sign", "signer", "encode", "json web token", "hmac", "bearer"],
+    icon: Key,
+    component: JwtSignerTool,
+  },
+  {
+    id: "cidr-calculator",
+    name: "CIDR / Subnet Calculator",
+    category: "Web",
+    description: "Parse an IPv4/IPv6 CIDR block into subnet details.",
+    keywords: ["cidr", "subnet", "ip", "ipv4", "ipv6", "netmask", "network", "calculator"],
+    icon: Network,
+    component: CidrTool,
+  },
 ];
 
 export const DEFAULT_TOOL_ID = TOOLS[0].id;
@@ -622,12 +746,25 @@ const ACTION_NAMESPACE_TO_TOOL: Record<string, string> = {
   curl: "curl-to-code",
   httpreq: "http-client",
   jsoncode: "json-to-code",
+  base32: "base32",
+  base58: "base58",
+  gzip: "gzip",
+  chmod: "chmod-calculator",
+  toml: "toml-convert",
+  htmlmd: "html-markdown",
+  dockerc: "docker-compose",
+  pwhash: "password-hash",
+  aes: "aes-encrypt",
+  totp: "totp",
+  cidr: "cidr-calculator",
 };
 
 /** Map a dispatcher action id (e.g. from a deep link) to the owning tool. */
 export function toolIdForAction(action: string): string | undefined {
   const [namespace, verb] = action.split(".");
   if (namespace === "url") return verb === "parse" ? "url-parser" : "url-encode";
+  // `jwt` decodes/verifies in the debugger but signs in the signer.
+  if (namespace === "jwt") return verb === "sign" ? "jwt-signer" : "jwt-debugger";
   // `pgp` has seven distinct verbs, each its own tool — verb-specific routing.
   if (namespace === "pgp") {
     switch (verb) {
