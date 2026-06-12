@@ -8,6 +8,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 Each release is also published at <https://github.com/trinvh/hexkit/releases>
 with platform installers and a standalone `hexkit` CLI archive attached.
 
+## [0.3.5] - 2026-06-12
+
+### Added
+
+- **Pane status line.** Every transform tool now shows a **lines · words ·
+  characters** count beneath both the input and output panes.
+- **Editor context menu.** Right-clicking an input or output pane opens
+  **Cut / Copy / Paste / Select All / Clear** (the read-only output pane offers
+  Copy and Select All); inapplicable actions are greyed out.
+- **Unix time → timezone.** The Unix time converter has a **"Show in"**
+  timezone selector that renders the instant in any IANA timezone, shown as an
+  extra result row.
+
 ## [0.3.4] - 2026-06-12
 
 ### Changed
@@ -323,6 +336,7 @@ desktop app, the headless `hexkit` CLI, and `hexkit://` deep links.
 - Strict TypeScript (`noUnusedLocals`), Clippy with `-D warnings`,
   Vitest + Testing Library for the frontend.
 
+[0.3.5]: https://github.com/trinvh/hexkit/releases/tag/v0.3.5
 [0.3.4]: https://github.com/trinvh/hexkit/releases/tag/v0.3.4
 [0.3.3]: https://github.com/trinvh/hexkit/releases/tag/v0.3.3
 [0.3.2]: https://github.com/trinvh/hexkit/releases/tag/v0.3.2
