@@ -24,6 +24,9 @@ pub struct TimeInfo {
     pub is_leap_year: bool,
     /// RFC 2822 representation, e.g. "Tue, 14 Nov 2023 22:13:20 +0000".
     pub rfc2822: String,
+    /// The instant rendered in a caller-chosen IANA timezone, when one was
+    /// requested (e.g. "2023-11-14 17:13:20 EST"). `None` otherwise.
+    pub zoned: Option<String>,
 }
 
 /// Convert `input` (a Unix timestamp in seconds or milliseconds, an
@@ -36,10 +39,34 @@ pub fn convert(input: &str) -> ToolResult<TimeInfo> {
 /// Like [`convert`], but a numeric input is interpreted using `unit`
 /// (`"auto"`, `"s"`, `"ms"`, `"us"`, or `"ns"`). Date strings ignore the unit.
 pub fn convert_with_unit(input: &str, unit: &str) -> ToolResult<TimeInfo> {
+    convert_with_options(input, unit, None)
+}
+
+/// Like [`convert_with_unit`], but also renders the instant in `timezone`
+/// (an IANA name such as `"America/New_York"`) when one is supplied. An empty
+/// or absent timezone leaves `zoned` as `None`; an unknown name is an error.
+pub fn convert_with_options(
+    input: &str,
+    unit: &str,
+    timezone: Option<&str>,
+) -> ToolResult<TimeInfo> {
     let timestamp = parse_with_unit(input, unit)?;
     let utc = timestamp.to_zoned(TimeZone::UTC);
     let local = timestamp.to_zoned(TimeZone::system());
     let year = utc.year();
+    let zoned = match timezone {
+        Some(name) if !name.trim().is_empty() => {
+            let tz = TimeZone::get(name.trim())
+                .map_err(|_| ToolError::invalid_input(format!("unknown timezone: {name}")))?;
+            Some(
+                timestamp
+                    .to_zoned(tz)
+                    .strftime("%Y-%m-%d %H:%M:%S %Z")
+                    .to_string(),
+            )
+        }
+        _ => None,
+    };
     Ok(TimeInfo {
         epoch_seconds: timestamp.as_second().to_string(),
         epoch_millis: timestamp.as_millisecond().to_string(),
@@ -52,6 +79,7 @@ pub fn convert_with_unit(input: &str, unit: &str) -> ToolResult<TimeInfo> {
         week_of_year: utc.strftime("%V").to_string().trim_start_matches('0').to_string(),
         is_leap_year: is_leap_year(year),
         rfc2822: utc.strftime("%a, %d %b %Y %H:%M:%S %z").to_string(),
+        zoned,
     })
 }
 
@@ -187,6 +215,9 @@ struct ConvertParams {
     input: String,
     #[serde(default = "default_unit")]
     unit: String,
+    /// Optional IANA timezone to additionally render the instant in.
+    #[serde(default)]
+    timezone: Option<String>,
 }
 
 fn default_unit() -> String {
@@ -197,8 +228,12 @@ pub fn dispatch(action: &str, params: Value) -> ToolResult<Value> {
     let parsed: ConvertParams =
         serde_json::from_value(params).map_err(|e| ToolError::invalid_input(e.to_string()))?;
     match action {
-        "time.convert" => serde_json::to_value(convert_with_unit(&parsed.input, &parsed.unit)?)
-            .map_err(|e| ToolError::other(e.to_string())),
+        "time.convert" => serde_json::to_value(convert_with_options(
+            &parsed.input,
+            &parsed.unit,
+            parsed.timezone.as_deref(),
+        )?)
+        .map_err(|e| ToolError::other(e.to_string())),
         _ => Err(ToolError::invalid_input(format!("unknown action: {action}"))),
     }
 }
@@ -330,6 +365,49 @@ mod tests {
                 .epoch_seconds,
             "1700000000"
         );
+    }
+
+    #[test]
+    fn leaves_zoned_none_without_a_timezone() {
+        assert_eq!(convert("1700000000").unwrap().zoned, None);
+        assert_eq!(
+            convert_with_options("1700000000", "auto", Some("")).unwrap().zoned,
+            None
+        );
+    }
+
+    #[test]
+    fn renders_requested_timezone() {
+        // 2023-11-14T22:13:20Z is 17:13:20 in New York (EST, UTC-5).
+        let info = convert_with_options("1700000000", "auto", Some("America/New_York")).unwrap();
+        let zoned = info.zoned.expect("zoned should be present");
+        assert!(zoned.starts_with("2023-11-14 17:13:20"), "got: {zoned}");
+    }
+
+    #[test]
+    fn renders_tokyo_timezone() {
+        // 22:13:20Z is 07:13:20 the next day in Tokyo (JST, UTC+9).
+        let info = convert_with_options("1700000000", "auto", Some("Asia/Tokyo")).unwrap();
+        let zoned = info.zoned.unwrap();
+        assert!(zoned.starts_with("2023-11-15 07:13:20"), "got: {zoned}");
+    }
+
+    #[test]
+    fn rejects_unknown_timezone() {
+        assert!(matches!(
+            convert_with_options("1700000000", "auto", Some("Mars/Olympus_Mons")),
+            Err(ToolError::InvalidInput(_))
+        ));
+    }
+
+    #[test]
+    fn dispatch_accepts_timezone() {
+        let out = dispatch(
+            "time.convert",
+            serde_json::json!({ "input": "1700000000", "timezone": "America/New_York" }),
+        )
+        .unwrap();
+        assert!(out["zoned"].as_str().unwrap().starts_with("2023-11-14 17:13:20"));
     }
 
     #[test]

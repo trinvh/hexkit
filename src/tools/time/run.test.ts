@@ -18,12 +18,12 @@ describe("runTime", () => {
   it("calls the backend with the input and default unit", () => {
     timeConvert.mockReturnValue(Promise.resolve({}));
     runTime("1700000000");
-    expect(timeConvert).toHaveBeenCalledWith("1700000000", "auto");
+    expect(timeConvert).toHaveBeenCalledWith("1700000000", "auto", "");
   });
 
-  it("passes the chosen unit through", () => {
+  it("passes the chosen unit and timezone through", () => {
     timeConvert.mockReturnValue(Promise.resolve({}));
-    runTime("1700000000", "ms");
-    expect(timeConvert).toHaveBeenCalledWith("1700000000", "ms");
+    runTime("1700000000", "ms", "Asia/Tokyo");
+    expect(timeConvert).toHaveBeenCalledWith("1700000000", "ms", "Asia/Tokyo");
   });
 });

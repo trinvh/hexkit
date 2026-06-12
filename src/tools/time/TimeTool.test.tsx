@@ -26,6 +26,7 @@ const SAMPLE = {
   week_of_year: "46",
   is_leap_year: false,
   rfc2822: "Tue, 14 Nov 2023 22:13:20 +0000",
+  zoned: "2023-11-14 17:13:20 EST",
 };
 
 beforeEach(() => {
@@ -43,6 +44,27 @@ describe("TimeTool", () => {
     expect(screen.getByText("Tuesday")).toBeInTheDocument();
     expect(screen.getByText("2 years ago")).toBeInTheDocument();
     expect(screen.getByText("318")).toBeInTheDocument();
+    // The chosen-timezone row renders its converted value.
+    expect(screen.getByText("2023-11-14 17:13:20 EST")).toBeInTheDocument();
+  });
+
+  it("sends the selected timezone to the backend", async () => {
+    render(<TimeTool />);
+    fireEvent.change(screen.getByLabelText("Timestamp or date"), {
+      target: { value: "1700000000" },
+    });
+    fireEvent.change(screen.getByLabelText("Convert to timezone"), {
+      target: { value: "Asia/Tokyo" },
+    });
+    await waitFor(() =>
+      expect(invokeSpy).toHaveBeenCalledWith(
+        "run_action",
+        expect.objectContaining({
+          action: "time.convert",
+          params: expect.objectContaining({ timezone: "Asia/Tokyo" }),
+        }),
+      ),
+    );
   });
 
   it("fills the current epoch when Now is clicked", async () => {

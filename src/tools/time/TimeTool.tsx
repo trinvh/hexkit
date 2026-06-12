@@ -5,15 +5,18 @@ import { ResultLayout } from "../../components/ui/ResultLayout";
 import { useLiveAction } from "../../lib/useLiveAction";
 import { useSeed } from "../../lib/seed";
 import { useToolState } from "../../lib/toolState";
-import { runTime, TIME_UNITS } from "./run";
+import { detectLocalTimeZone, listTimeZones, runTime, TIME_UNITS } from "./run";
+
+const TIMEZONES = listTimeZones();
 
 export function TimeTool() {
   const seed = useSeed();
   const [input, setInput] = useToolState("input", seed.value);
   const [unit, setUnit] = useToolState("unit", "auto");
+  const [timezone, setTimezone] = useToolState("timezone", detectLocalTimeZone());
   const { data, error } = useLiveAction(
-    () => runTime(input, unit),
-    [input, unit],
+    () => runTime(input, unit, timezone),
+    [input, unit, timezone],
   );
 
   const rows = data
@@ -25,6 +28,7 @@ export function TimeTool() {
         { label: "RFC 2822", value: data.rfc2822 },
         { label: "UTC", value: data.utc },
         { label: "Local", value: data.local },
+        ...(data.zoned ? [{ label: timezone, value: data.zoned }] : []),
         { label: "Day", value: data.day_of_week },
         { label: "Day of year", value: data.day_of_year },
         { label: "Week of year", value: data.week_of_year },
@@ -60,6 +64,21 @@ export function TimeTool() {
           >
             Now
           </button>
+          <label className="flex shrink-0 items-center gap-2 text-xs text-fg-subtle">
+            Show in
+            <select
+              aria-label="Convert to timezone"
+              value={timezone}
+              onChange={(event) => setTimezone(event.currentTarget.value)}
+              className="h-10 max-w-44 rounded-lg border border-border bg-surface px-2 text-sm text-fg outline-none focus:border-border-strong"
+            >
+              {TIMEZONES.map((tz) => (
+                <option key={tz} value={tz}>
+                  {tz}
+                </option>
+              ))}
+            </select>
+          </label>
           <InputActions
             onInput={setInput}
             sample="1700000000"

@@ -12,8 +12,14 @@ export interface TimeInfo {
   week_of_year: string;
   is_leap_year: boolean;
   rfc2822: string;
+  /** The instant in the chosen timezone, or null when none was requested. */
+  zoned: string | null;
 }
 
-export function timeConvert(input: string, unit = "auto"): Promise<TimeInfo> {
-  return runAction<TimeInfo>("time.convert", { input, unit });
+export function timeConvert(
+  input: string,
+  unit = "auto",
+  timezone = "",
+): Promise<TimeInfo> {
+  return runAction<TimeInfo>("time.convert", { input, unit, timezone });
 }
