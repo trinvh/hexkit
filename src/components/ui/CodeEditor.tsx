@@ -1,10 +1,19 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import CodeMirror from "@uiw/react-codemirror";
 import { EditorView } from "@codemirror/view";
 import type { Extension } from "@codemirror/state";
 import { HighlightStyle, syntaxHighlighting } from "@codemirror/language";
 import { tags as t } from "@lezer/highlight";
+import { ClipboardPaste, Copy, Eraser, Scissors, TextSelect } from "lucide-react";
 import { isLargeText } from "../../lib/largeText";
+import { Menu, type MenuItem } from "./Menu";
+import {
+  clearEditor,
+  copyFromEditor,
+  cutFromEditor,
+  pasteIntoEditor,
+  selectAllInEditor,
+} from "../../lib/editorActions";
 
 const baseTheme = EditorView.theme({
   "&": { backgroundColor: "transparent", color: "var(--fg)", height: "100%" },
@@ -79,6 +88,8 @@ export function CodeEditor({
   ariaLabel,
 }: CodeEditorProps) {
   const [langExtension, setLangExtension] = useState<Extension | null>(null);
+  const viewRef = useRef<EditorView | null>(null);
+  const [menu, setMenu] = useState<{ x: number; y: number } | null>(null);
 
   // For very large documents, skip syntax highlighting and line wrapping:
   // CodeMirror tokenizing and wrapping megabytes is synchronous and freezes the
@@ -109,25 +120,86 @@ export function CodeEditor({
     return ext;
   }, [langExtension, tooLargeToDecorate]);
 
+  function openContextMenu(event: React.MouseEvent) {
+    if (!viewRef.current) return;
+    event.preventDefault();
+    setMenu({ x: event.clientX, y: event.clientY });
+  }
+
+  const view = viewRef.current;
+  const hasContent = (view?.state.doc.length ?? value.length) > 0;
+  const hasSelection = view ? !view.state.selection.main.empty : false;
+
+  const menuItems: MenuItem[] = [];
+  if (!readOnly) {
+    menuItems.push({
+      label: "Cut",
+      icon: Scissors,
+      disabled: !hasSelection,
+      onSelect: () => view && void cutFromEditor(view),
+    });
+  }
+  menuItems.push({
+    label: "Copy",
+    icon: Copy,
+    disabled: !hasContent,
+    onSelect: () => view && void copyFromEditor(view),
+  });
+  if (!readOnly) {
+    menuItems.push({
+      label: "Paste",
+      icon: ClipboardPaste,
+      onSelect: () => view && void pasteIntoEditor(view),
+    });
+  }
+  menuItems.push({
+    label: "Select All",
+    icon: TextSelect,
+    disabled: !hasContent,
+    onSelect: () => view && selectAllInEditor(view),
+  });
+  if (!readOnly) {
+    menuItems.push({
+      label: "Clear",
+      icon: Eraser,
+      danger: true,
+      disabled: !hasContent,
+      onSelect: () => view && clearEditor(view),
+    });
+  }
+
   return (
-    <CodeMirror
-      value={value}
-      onChange={onChange}
-      readOnly={readOnly}
-      editable={!readOnly}
-      theme={baseTheme}
-      extensions={extensions}
-      placeholder={placeholder}
-      height="100%"
-      className="h-full"
-      aria-label={ariaLabel}
-      basicSetup={{
-        lineNumbers: true,
-        foldGutter: false,
-        autocompletion: false,
-        highlightActiveLine: !readOnly,
-        closeBrackets: !readOnly,
-      }}
-    />
+    <div className="h-full" onContextMenu={openContextMenu}>
+      <CodeMirror
+        value={value}
+        onChange={onChange}
+        onCreateEditor={(editorView) => {
+          viewRef.current = editorView;
+        }}
+        readOnly={readOnly}
+        editable={!readOnly}
+        theme={baseTheme}
+        extensions={extensions}
+        placeholder={placeholder}
+        height="100%"
+        className="h-full"
+        aria-label={ariaLabel}
+        basicSetup={{
+          lineNumbers: true,
+          foldGutter: false,
+          autocompletion: false,
+          highlightActiveLine: !readOnly,
+          closeBrackets: !readOnly,
+        }}
+      />
+      {menu && (
+        <Menu
+          x={menu.x}
+          y={menu.y}
+          items={menuItems}
+          onClose={() => setMenu(null)}
+        />
+      )}
+    </div>
   );
 }

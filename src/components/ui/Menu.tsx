@@ -8,6 +8,7 @@ export interface MenuItem {
   icon?: LucideIcon;
   onSelect: () => void;
   danger?: boolean;
+  disabled?: boolean;
 }
 
 interface MenuProps {
@@ -76,12 +77,14 @@ export function Menu({ x, y, items, onClose }: MenuProps) {
             key={item.label}
             type="button"
             role="menuitem"
+            disabled={item.disabled}
             onClick={() => {
               item.onSelect();
               onClose();
             }}
             className={cn(
               "flex w-full items-center gap-2.5 rounded-md px-2.5 py-1.5 text-left text-sm transition-colors",
+              "disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-transparent",
               item.danger
                 ? "text-red-600 hover:bg-red-500/10 dark:text-red-400"
                 : "text-fg-muted hover:bg-surface-2 hover:text-fg",
