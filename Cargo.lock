@@ -1716,7 +1716,7 @@ dependencies = [
 
 [[package]]
 name = "devtools-core"
-version = "0.3.2"
+version = "0.3.3"
 dependencies = [
  "aes-gcm",
  "anyhow",
@@ -2920,7 +2920,7 @@ checksum = "7f24254aa9a54b5c858eaee2f5bccdb46aaf0e486a595ed5fd8f86ba55232a70"
 
 [[package]]
 name = "hexkit"
-version = "0.3.2"
+version = "0.3.3"
 dependencies = [
  "base64 0.22.1",
  "devtools-core",
@@ -2938,7 +2938,7 @@ dependencies = [
 
 [[package]]
 name = "hexkit-cli"
-version = "0.3.2"
+version = "0.3.3"
 dependencies = [
  "devtools-core",
  "serde_json",
@@ -2946,7 +2946,7 @@ dependencies = [
 
 [[package]]
 name = "hexkit-mcp"
-version = "0.3.2"
+version = "0.3.3"
 dependencies = [
  "axum",
  "devtools-core",

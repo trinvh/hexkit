@@ -8,6 +8,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 Each release is also published at <https://github.com/trinvh/hexkit/releases>
 with platform installers and a standalone `hexkit` CLI archive attached.
 
+## [0.3.3] - 2026-06-12
+
+### Added
+
+- **Output action menu.** Every transform tool's **Copy output** control now
+  sits beside a three-dot menu (shared `OutputActions` component) that can hand
+  the current output straight to another tool in a new tab — **Convert to
+  Base64** or **Convert to Hex** (both opening pre-filled in encode mode) — or
+  **Download** it to a file.
+- **Hex / ASCII** output formatting: choose **uppercase** (default) or
+  lowercase digits, and set an optional **delimiter** inserted between bytes.
+- **BER-TLV decoder** input encoding toggle: parse the stream as **hex**
+  (default) or **Base64**.
+
+### Changed
+
+- `hex.decode` now tolerates common byte separators (`:`, `-`, `,`, `_`, `.`
+  and whitespace), so delimited hex round-trips cleanly.
+
 ## [0.3.2] - 2026-06-04
 
 ### Added
@@ -295,6 +314,7 @@ desktop app, the headless `hexkit` CLI, and `hexkit://` deep links.
 - Strict TypeScript (`noUnusedLocals`), Clippy with `-D warnings`,
   Vitest + Testing Library for the frontend.
 
+[0.3.3]: https://github.com/trinvh/hexkit/releases/tag/v0.3.3
 [0.3.2]: https://github.com/trinvh/hexkit/releases/tag/v0.3.2
 [0.3.1]: https://github.com/trinvh/hexkit/releases/tag/v0.3.1
 [0.3.0]: https://github.com/trinvh/hexkit/releases/tag/v0.3.0
