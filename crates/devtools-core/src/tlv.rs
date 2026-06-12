@@ -25,7 +25,26 @@ pub struct TlvNode {
 
 /// Decode a TLV stream supplied as hex (whitespace and `0x` prefixes ignored).
 pub fn decode(hex_input: &str) -> ToolResult<Vec<TlvNode>> {
-    let bytes = hex_to_bytes(hex_input)?;
+    decode_bytes(&hex_to_bytes(hex_input)?)
+}
+
+/// Decode a TLV stream, interpreting `input` according to `encoding`
+/// (`"hex"` — the default — or `"base64"`).
+pub fn decode_with_encoding(input: &str, encoding: &str) -> ToolResult<Vec<TlvNode>> {
+    let bytes = match encoding {
+        "hex" | "" => hex_to_bytes(input)?,
+        "base64" => base64_to_bytes(input)?,
+        other => {
+            return Err(ToolError::invalid_input(format!(
+                "unknown encoding: {other} (expected \"hex\" or \"base64\")",
+            )))
+        }
+    };
+    decode_bytes(&bytes)
+}
+
+/// Walk a raw TLV byte stream into a node tree.
+fn decode_bytes(bytes: &[u8]) -> ToolResult<Vec<TlvNode>> {
     let mut nodes = Vec::new();
     let mut cursor = 0;
     while cursor < bytes.len() {
@@ -34,7 +53,7 @@ pub fn decode(hex_input: &str) -> ToolResult<Vec<TlvNode>> {
             cursor += 1;
             continue;
         }
-        let node = parse_node(&bytes, &mut cursor)?;
+        let node = parse_node(bytes, &mut cursor)?;
         nodes.push(node);
     }
     Ok(nodes)
@@ -155,6 +174,36 @@ fn hex_to_bytes(input: &str) -> ToolResult<Vec<u8>> {
     Ok(out)
 }
 
+/// Decode Base64 to raw bytes. Tolerant of the URL-safe alphabet, missing
+/// padding, and embedded whitespace — mirrors the Base64 tool's decoder, but
+/// keeps the bytes rather than requiring valid UTF-8.
+fn base64_to_bytes(input: &str) -> ToolResult<Vec<u8>> {
+    use ::base64::alphabet;
+    use ::base64::engine::general_purpose::{GeneralPurpose, GeneralPurposeConfig};
+    use ::base64::engine::DecodePaddingMode;
+    use ::base64::Engine as _;
+
+    if input.trim().is_empty() {
+        return Err(ToolError::invalid_input("input is empty"));
+    }
+    let cleaned: String = input
+        .chars()
+        .filter(|c| !c.is_whitespace())
+        .map(|c| match c {
+            '-' => '+',
+            '_' => '/',
+            other => other,
+        })
+        .collect();
+    let config = GeneralPurposeConfig::new()
+        .with_decode_padding_mode(DecodePaddingMode::Indifferent)
+        .with_decode_allow_trailing_bits(true);
+    let engine = GeneralPurpose::new(&alphabet::STANDARD, config);
+    engine
+        .decode(cleaned.as_bytes())
+        .map_err(|e| ToolError::invalid_input(e.to_string()))
+}
+
 fn hex_uppercase(bytes: &[u8]) -> String {
     let mut s = String::with_capacity(bytes.len() * 2);
     for b in bytes {
@@ -252,12 +301,17 @@ pub fn dispatch(action: &str, params: Value) -> ToolResult<Value> {
     #[derive(Deserialize)]
     struct In {
         input: String,
+        /// Input encoding: `"hex"` (default) or `"base64"`.
+        #[serde(default)]
+        encoding: Option<String>,
     }
     let p: In = serde_json::from_value(params)
         .map_err(|e| ToolError::invalid_input(e.to_string()))?;
     match action {
-        "tlv.decode" => serde_json::to_value(decode(&p.input)?)
-            .map_err(|e| ToolError::other(e.to_string())),
+        "tlv.decode" => {
+            let nodes = decode_with_encoding(&p.input, p.encoding.as_deref().unwrap_or("hex"))?;
+            serde_json::to_value(nodes).map_err(|e| ToolError::other(e.to_string()))
+        }
         _ => Err(ToolError::invalid_input(format!("unknown action: {action}"))),
     }
 }
@@ -353,5 +407,47 @@ mod tests {
     #[test]
     fn rejects_odd_hex() {
         assert!(decode("ABC").is_err());
+    }
+
+    #[test]
+    fn decodes_base64_encoded_input() {
+        // Same as the hex "50 04 56 49 53 41" (Application Label "VISA"),
+        // base64-encoded: bytes 50 04 56 49 53 41 -> "UARWSVNB".
+        let nodes = decode_with_encoding("UARWSVNB", "base64").unwrap();
+        assert_eq!(nodes.len(), 1);
+        assert_eq!(nodes[0].tag, "50");
+        assert_eq!(nodes[0].ascii.as_deref(), Some("VISA"));
+    }
+
+    #[test]
+    fn hex_and_base64_agree() {
+        let from_hex = decode_with_encoding("5004 5649 5341", "hex").unwrap();
+        let from_b64 = decode_with_encoding("UARWSVNB", "base64").unwrap();
+        assert_eq!(from_hex, from_b64);
+    }
+
+    #[test]
+    fn empty_encoding_defaults_to_hex() {
+        let nodes = decode_with_encoding("50 04 56 49 53 41", "").unwrap();
+        assert_eq!(nodes[0].tag, "50");
+    }
+
+    #[test]
+    fn rejects_unknown_encoding() {
+        assert!(matches!(
+            decode_with_encoding("5004", "octal"),
+            Err(ToolError::InvalidInput(_))
+        ));
+    }
+
+    #[test]
+    fn dispatch_accepts_base64_encoding() {
+        let out = dispatch(
+            "tlv.decode",
+            serde_json::json!({ "input": "UARWSVNB", "encoding": "base64" }),
+        )
+        .unwrap();
+        let nodes = out.as_array().unwrap();
+        assert_eq!(nodes[0]["tag"], "50");
     }
 }

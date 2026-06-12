@@ -1,5 +1,7 @@
 import { runAction } from "../../lib/ipc";
 
+export type TlvEncoding = "hex" | "base64";
+
 export interface TlvNode {
   tag: string;
   tagClass: string;
@@ -35,7 +37,10 @@ function normalize(node: RawNode): TlvNode {
   };
 }
 
-export async function tlvDecode(input: string): Promise<TlvNode[]> {
-  const raw = await runAction<RawNode[]>("tlv.decode", { input });
+export async function tlvDecode(
+  input: string,
+  encoding: TlvEncoding,
+): Promise<TlvNode[]> {
+  const raw = await runAction<RawNode[]>("tlv.decode", { input, encoding });
   return raw.map(normalize);
 }

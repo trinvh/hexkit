@@ -3,11 +3,12 @@ import { ChevronRight, ChevronDown } from "lucide-react";
 import { CodeEditor } from "../../components/ui/CodeEditor";
 import { CopyButton } from "../../components/ui/CopyButton";
 import { InputActions } from "../../components/ui/InputActions";
+import { Segmented } from "../../components/ui/Segmented";
 import { useLiveAction } from "../../lib/useLiveAction";
 import { useToolState } from "../../lib/toolState";
 import { cn } from "../../lib/cn";
-import type { TlvNode } from "./api";
-import { runTlv } from "./run";
+import type { TlvEncoding, TlvNode } from "./api";
+import { runTlv, TLV_ENCODINGS } from "./run";
 
 // EMV PSE select response: FCI template (6F) wrapping an Application Template
 // (61) for the Mastercard credit AID, with label, priority and language
@@ -18,23 +19,43 @@ const SAMPLE =
 
 export function TlvTool() {
   const [input, setInput] = useToolState("input", "");
-  const { data, error } = useLiveAction(() => runTlv(input), [input]);
+  const [encoding, setEncoding] = useToolState<TlvEncoding>("encoding", "hex");
+  const { data, error } = useLiveAction(
+    () => runTlv(input, encoding),
+    [input, encoding],
+  );
 
   return (
     <div className="flex h-full min-h-0 flex-col">
       <div className="flex items-center justify-between gap-3 border-b border-border px-4 py-2.5">
-        <span className="text-xs uppercase tracking-wider text-fg-subtle">
-          BER-TLV decoder
-        </span>
-        <InputActions onInput={setInput} sample={SAMPLE} hasInput={input !== ""} />
+        <div className="flex items-center gap-3">
+          <span className="text-xs uppercase tracking-wider text-fg-subtle">
+            BER-TLV decoder
+          </span>
+          <Segmented
+            ariaLabel="TLV input encoding"
+            options={TLV_ENCODINGS}
+            value={encoding}
+            onChange={setEncoding}
+          />
+        </div>
+        <InputActions
+          onInput={setInput}
+          sample={encoding === "hex" ? SAMPLE : undefined}
+          hasInput={input !== ""}
+        />
       </div>
       <div className="grid min-h-0 flex-1 grid-cols-1 divide-y divide-border lg:grid-cols-2 lg:divide-x lg:divide-y-0">
         <div className="min-h-0 overflow-hidden">
           <CodeEditor
             value={input}
             onChange={setInput}
-            ariaLabel="TLV hex input"
-            placeholder="Paste BER-TLV hex (whitespace, 0x prefixes and colons OK)"
+            ariaLabel="TLV input"
+            placeholder={
+              encoding === "hex"
+                ? "Paste BER-TLV hex (whitespace, 0x prefixes and colons OK)"
+                : "Paste BER-TLV as Base64"
+            }
           />
         </div>
         <div className="min-h-0 overflow-y-auto bg-canvas">

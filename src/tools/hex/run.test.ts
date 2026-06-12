@@ -16,16 +16,21 @@ describe("runHex", () => {
   });
 
   it("returns null for empty input", () => {
-    expect(runHex("", "encode")).toBeNull();
+    expect(runHex("", "encode", "upper", "")).toBeNull();
   });
 
-  it("encodes and decodes by mode", () => {
-    hexEncode.mockReturnValue(Promise.resolve("4142"));
-    runHex("AB", "encode");
-    expect(hexEncode).toHaveBeenCalledWith("AB");
+  it("encodes with case and delimiter options", () => {
+    hexEncode.mockReturnValue(Promise.resolve("41:42"));
+    runHex("AB", "encode", "upper", ":");
+    expect(hexEncode).toHaveBeenCalledWith("AB", true, ":");
 
+    runHex("AB", "encode", "lower", "");
+    expect(hexEncode).toHaveBeenCalledWith("AB", false, "");
+  });
+
+  it("decodes regardless of case and delimiter options", () => {
     hexDecode.mockReturnValue(Promise.resolve("AB"));
-    runHex("4142", "decode");
+    runHex("4142", "decode", "upper", ":");
     expect(hexDecode).toHaveBeenCalledWith("4142");
   });
 });

@@ -4,14 +4,36 @@ use crate::error::{ToolError, ToolResult};
 use serde::Deserialize;
 use serde_json::Value;
 
-/// Encode text as continuous lowercase hex of its UTF-8 bytes.
-pub fn encode(input: &str) -> String {
-    input.bytes().map(|b| format!("{b:02x}")).collect()
+/// Characters allowed to separate bytes in hex input (and that `encode` may emit
+/// as a delimiter). Stripped before decoding so formatted hex round-trips.
+fn is_separator(c: char) -> bool {
+    c.is_whitespace() || matches!(c, ':' | '-' | ',' | '_' | '.')
 }
 
-/// Decode hex (whitespace and a leading `0x` are ignored) to UTF-8 text.
+/// Encode text as hex of its UTF-8 bytes.
+///
+/// `uppercase` selects the digit case; `delimiter` is inserted between every
+/// byte (empty for continuous output).
+pub fn encode(input: &str, uppercase: bool, delimiter: &str) -> String {
+    let bytes = input.as_bytes();
+    let mut out = String::with_capacity(bytes.len() * 2 + bytes.len().saturating_sub(1) * delimiter.len());
+    for (i, b) in bytes.iter().enumerate() {
+        if i > 0 {
+            out.push_str(delimiter);
+        }
+        if uppercase {
+            out.push_str(&format!("{b:02X}"));
+        } else {
+            out.push_str(&format!("{b:02x}"));
+        }
+    }
+    out
+}
+
+/// Decode hex (whitespace, common byte separators, and a leading `0x` are
+/// ignored) to UTF-8 text.
 pub fn decode(input: &str) -> ToolResult<String> {
-    let cleaned: String = input.split_whitespace().collect();
+    let cleaned: String = input.chars().filter(|c| !is_separator(*c)).collect();
     let cleaned = cleaned
         .strip_prefix("0x")
         .or_else(|| cleaned.strip_prefix("0X"))
@@ -34,17 +56,38 @@ pub fn decode(input: &str) -> ToolResult<String> {
         .map_err(|_| ToolError::invalid_input("decoded bytes are not valid UTF-8"))
 }
 
+fn default_uppercase() -> bool {
+    true
+}
+
 #[derive(Deserialize)]
-struct OneInput {
+struct EncodeParams {
+    input: String,
+    /// Output digit case. Defaults to uppercase.
+    #[serde(default = "default_uppercase")]
+    uppercase: bool,
+    /// Separator inserted between bytes. Defaults to none.
+    #[serde(default)]
+    delimiter: String,
+}
+
+#[derive(Deserialize)]
+struct DecodeParams {
     input: String,
 }
 
 pub fn dispatch(action: &str, params: Value) -> ToolResult<Value> {
-    let parsed: OneInput =
-        serde_json::from_value(params).map_err(|e| ToolError::invalid_input(e.to_string()))?;
     match action {
-        "hex.encode" => Ok(Value::String(encode(&parsed.input))),
-        "hex.decode" => Ok(Value::String(decode(&parsed.input)?)),
+        "hex.encode" => {
+            let p: EncodeParams = serde_json::from_value(params)
+                .map_err(|e| ToolError::invalid_input(e.to_string()))?;
+            Ok(Value::String(encode(&p.input, p.uppercase, &p.delimiter)))
+        }
+        "hex.decode" => {
+            let p: DecodeParams = serde_json::from_value(params)
+                .map_err(|e| ToolError::invalid_input(e.to_string()))?;
+            Ok(Value::String(decode(&p.input)?))
+        }
         _ => Err(ToolError::invalid_input(format!("unknown action: {action}"))),
     }
 }
@@ -54,13 +97,23 @@ mod tests {
     use super::*;
 
     #[test]
-    fn encodes_ascii() {
-        assert_eq!(encode("AB"), "4142");
+    fn encodes_ascii_uppercase_by_default() {
+        assert_eq!(encode("AB", true, ""), "4142");
     }
 
     #[test]
-    fn encodes_utf8() {
-        assert_eq!(encode("é"), "c3a9");
+    fn encodes_lowercase() {
+        // 'é' is two UTF-8 bytes (C3 A9) so the case is visible.
+        assert_eq!(encode("é", false, ""), "c3a9");
+        assert_eq!(encode("é", true, ""), "C3A9");
+    }
+
+    #[test]
+    fn encodes_with_delimiter() {
+        assert_eq!(encode("ABC", true, ":"), "41:42:43");
+        assert_eq!(encode("ABC", false, " "), "41 42 43");
+        assert_eq!(encode("", true, ":"), "");
+        assert_eq!(encode("A", true, ":"), "41");
     }
 
     #[test]
@@ -69,9 +122,11 @@ mod tests {
     }
 
     #[test]
-    fn ignores_spaces_and_prefix() {
+    fn ignores_spaces_separators_and_prefix() {
         assert_eq!(decode("41 42").unwrap(), "AB");
         assert_eq!(decode("0x4142").unwrap(), "AB");
+        assert_eq!(decode("41:42:43").unwrap(), "ABC");
+        assert_eq!(decode("41-42-43").unwrap(), "ABC");
     }
 
     #[test]
@@ -95,7 +150,24 @@ mod tests {
     }
 
     #[test]
-    fn round_trips() {
-        assert_eq!(decode(&encode("Hello, héllo!")).unwrap(), "Hello, héllo!");
+    fn round_trips_with_delimiter() {
+        let encoded = encode("Hello, héllo!", true, ":");
+        assert_eq!(decode(&encoded).unwrap(), "Hello, héllo!");
+    }
+
+    #[test]
+    fn dispatch_encode_defaults_to_uppercase() {
+        let out = dispatch("hex.encode", serde_json::json!({ "input": "é" })).unwrap();
+        assert_eq!(out, Value::String("C3A9".into()));
+    }
+
+    #[test]
+    fn dispatch_encode_honours_options() {
+        let out = dispatch(
+            "hex.encode",
+            serde_json::json!({ "input": "ABC", "uppercase": false, "delimiter": " " }),
+        )
+        .unwrap();
+        assert_eq!(out, Value::String("41 42 43".into()));
     }
 }

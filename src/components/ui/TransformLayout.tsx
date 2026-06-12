@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 import { CodeEditor, type CodeLanguage } from "./CodeEditor";
-import { CopyButton } from "./CopyButton";
+import { OutputActions } from "./OutputActions";
 import { InputActions } from "./InputActions";
 
 interface TransformLayoutProps {
@@ -26,6 +26,8 @@ interface TransformLayoutProps {
   outputFooter?: ReactNode;
   /** When set, a "Sample" button loads this value into the input. */
   sample?: string;
+  /** Filename used by the output's Download action. */
+  downloadName?: string;
 }
 
 /** Shared input → output layout for live, single-input transform tools. */
@@ -46,6 +48,7 @@ export function TransformLayout({
   errorTitle = "Error",
   outputFooter,
   sample,
+  downloadName,
 }: TransformLayoutProps) {
   return (
     <div className="flex h-full flex-col">
@@ -58,7 +61,7 @@ export function TransformLayout({
             sample={sample}
             hasInput={input !== ""}
           />
-          <CopyButton value={output} label="Copy output" />
+          <OutputActions value={output} downloadName={downloadName} />
         </div>
       </div>
 

@@ -82,6 +82,8 @@ interface AppState {
   openToolWithSeed: (id: string, value: string, mode?: string) => void;
   /** Open `id` in a brand-new tab and activate it. */
   openInNewTab: (id: string) => void;
+  /** Open `id` in a brand-new tab, activate it, and prefill its primary input. */
+  openInNewTabWithSeed: (id: string, value: string, mode?: string) => void;
   setActiveTab: (tabId: string) => void;
   closeTab: (tabId: string) => void;
   /** Pin or unpin a tool. Pinning the first tool auto-collapses Recent. */
@@ -161,6 +163,20 @@ export const useApp = create<AppState>()(
             activeTabId: tab.id,
             activeToolId: id,
             paletteOpen: false,
+            recents: recordRecent(state.recents, id),
+          };
+        }),
+      openInNewTabWithSeed: (id, value, mode) =>
+        set((state) => {
+          const tab: Tab = { id: newTabId(), toolId: id };
+          return {
+            tabs: [...state.tabs, tab],
+            activeTabId: tab.id,
+            activeToolId: id,
+            paletteOpen: false,
+            seed: { value, mode },
+            // Bump so the freshly mounted tool reads the seed via useSeed.
+            seedNonce: state.seedNonce + 1,
             recents: recordRecent(state.recents, id),
           };
         }),

@@ -156,6 +156,10 @@ hexkit json.query '{"input":"{\"users\":[{\"id\":1},{\"id\":2}]}","path":"$.user
 hexkit base64.encode '{"input":"hello"}'
 echo aGVsbG8= | hexkit base64.decode
 
+# Hex (uppercase by default; optional delimiter between bytes)
+hexkit hex.encode '{"input":"hello","uppercase":true,"delimiter":":"}'
+hexkit hex.decode '{"input":"68 65 6c 6c 6f"}'
+
 # URL encode / decode (deep-link form, handy in scripts)
 hexkit 'hexkit://url.encode?input=hello world'
 
@@ -177,7 +181,7 @@ hexkit luhn.check '{"input":"4111 1111 1111 1112"}'
 # Generate Luhn-valid TEST card numbers
 hexkit card.generate '{"brand":"visa","count":3}'
 
-# BER-TLV / EMV chip data
+# BER-TLV / EMV chip data (input defaults to hex; pass "encoding":"base64" for Base64)
 hexkit tlv.decode '{"input":"6F2A840E315041592E5359532E4444463031A5..."}'
 
 # Unix time ↔ ISO
