@@ -48,7 +48,7 @@ export function OutputActions({
     {
       label: "Download",
       icon: Download,
-      onSelect: () => downloadText(downloadName, value),
+      onSelect: () => void downloadText(downloadName, value),
     },
   ];
 

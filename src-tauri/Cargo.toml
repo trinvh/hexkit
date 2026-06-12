@@ -30,6 +30,9 @@ tauri = { version = "2", features = [] }
 tauri-plugin-opener = "2"
 tauri-plugin-deep-link = "2"
 tauri-plugin-clipboard-manager = "2"
+# Native "Save As…" dialog so the Download action can choose a path. The write
+# itself goes through our own `save_file` command (no fs-plugin scope needed).
+tauri-plugin-dialog = "2"
 serde = { workspace = true }
 serde_json = { workspace = true }
 devtools-core = { workspace = true }

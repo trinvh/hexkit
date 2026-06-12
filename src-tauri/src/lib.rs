@@ -14,11 +14,20 @@ fn run_action(action: String, params: Value) -> Result<Value, devtools_core::Too
     devtools_core::run(&action, params)
 }
 
+/// Write `contents` to `path`, which the frontend obtains from the native
+/// "Save As…" dialog. Writing here (rather than via the fs plugin) keeps the
+/// file write a trusted backend operation with no path-scope configuration.
+#[tauri::command]
+fn save_file(path: String, contents: String) -> Result<(), String> {
+    std::fs::write(&path, contents).map_err(|e| format!("Couldn't save {path}: {e}"))
+}
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
         .plugin(tauri_plugin_opener::init())
         .plugin(tauri_plugin_clipboard_manager::init())
+        .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_deep_link::init())
         .manage(mcp_server::McpState::default())
         .setup(|app| {
@@ -53,6 +62,7 @@ pub fn run() {
         })
         .invoke_handler(tauri::generate_handler![
             run_action,
+            save_file,
             cli_tools::cli_status,
             cli_tools::install_cli,
             cli_tools::uninstall_cli,
