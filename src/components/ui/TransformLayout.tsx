@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 import { CodeEditor, type CodeLanguage } from "./CodeEditor";
 import { OutputActions } from "./OutputActions";
 import { InputActions } from "./InputActions";
+import { TextStats } from "./TextStats";
 
 interface TransformLayoutProps {
   /** Mode controls shown on the left of the toolbar. */
@@ -66,14 +67,17 @@ export function TransformLayout({
       </div>
 
       <div className="grid min-h-0 flex-1 grid-cols-2 divide-x divide-border">
-        <div className="min-h-0 overflow-hidden">
-          <CodeEditor
-            value={input}
-            onChange={onInput}
-            language={inputLanguage ?? language}
-            ariaLabel={inputLabel}
-            placeholder={inputPlaceholder}
-          />
+        <div className="flex min-h-0 flex-col overflow-hidden">
+          <div className="min-h-0 flex-1 overflow-hidden">
+            <CodeEditor
+              value={input}
+              onChange={onInput}
+              language={inputLanguage ?? language}
+              ariaLabel={inputLabel}
+              placeholder={inputPlaceholder}
+            />
+          </div>
+          <TextStats value={input} />
         </div>
         <div className="flex min-h-0 flex-col overflow-hidden">
           <div className="relative min-h-0 flex-1 overflow-hidden">
@@ -94,6 +98,7 @@ export function TransformLayout({
           {outputFooter && (
             <div className="border-t border-border px-3 py-2">{outputFooter}</div>
           )}
+          <TextStats value={error ? "" : output} />
         </div>
       </div>
     </div>
