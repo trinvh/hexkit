@@ -8,6 +8,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 Each release is also published at <https://github.com/trinvh/hexkit/releases>
 with platform installers and a standalone `hexkit` CLI archive attached.
 
+## [0.3.4] - 2026-06-12
+
+### Changed
+
+- The output **Download** action now opens the native **Save As…** dialog in
+  the desktop app, so you choose both the filename and where the file is saved
+  (writing through a trusted `save_file` backend command). The browser/web
+  preview keeps the plain download-to-default-folder fallback.
+
 ## [0.3.3] - 2026-06-12
 
 ### Added
@@ -314,6 +323,7 @@ desktop app, the headless `hexkit` CLI, and `hexkit://` deep links.
 - Strict TypeScript (`noUnusedLocals`), Clippy with `-D warnings`,
   Vitest + Testing Library for the frontend.
 
+[0.3.4]: https://github.com/trinvh/hexkit/releases/tag/v0.3.4
 [0.3.3]: https://github.com/trinvh/hexkit/releases/tag/v0.3.3
 [0.3.2]: https://github.com/trinvh/hexkit/releases/tag/v0.3.2
 [0.3.1]: https://github.com/trinvh/hexkit/releases/tag/v0.3.1
